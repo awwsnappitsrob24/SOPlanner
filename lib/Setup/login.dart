@@ -24,7 +24,7 @@ class _LoginPageState extends State<LoginPage> {
 
       child: Scaffold (
         appBar: AppBar(
-          title: Text('Login', style: TextStyle(color: Colors.white)),
+          title: Text('Login', style: TextStyle(color: Colors.yellow)),
         ),
         resizeToAvoidBottomPadding: false,
         backgroundColor: Colors.transparent,
