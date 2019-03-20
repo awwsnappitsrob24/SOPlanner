@@ -10,7 +10,7 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Homepage', style: TextStyle(color: Colors.white)),
+        title: Text('Welcome, Vivi!', style: TextStyle(color: Colors.white)),
       ),
     );
   }
