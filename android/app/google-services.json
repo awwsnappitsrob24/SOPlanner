@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "764837191976",
+    "firebase_url": "https://vivi-birthday-app.firebaseio.com",
+    "project_id": "vivi-birthday-app",
+    "storage_bucket": "vivi-birthday-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:764837191976:android:360caa383a297008",
+        "android_client_info": {
+          "package_name": "com.example.vivi_bday_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "764837191976-35j4hsufvbtrut1qt2bof331pi42om4b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJ8GZv48mdqXYkVL2uivsa1GfpjlfGdfs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
