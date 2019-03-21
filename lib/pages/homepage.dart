@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 
 class Homepage extends StatefulWidget {
@@ -6,6 +8,18 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+
+  File sampleImage;
+
+  Future uploadImage() async {
+    var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      sampleImage = tempImage;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -18,25 +32,37 @@ class _HomepageState extends State<Homepage> {
           appBar: AppBar(
             bottom: TabBar(
               tabs: [
-                Tab(icon: Icon(Icons.image)),
-                Tab(icon: Icon(Icons.card_giftcard)),
-                Tab(icon: Icon(Icons.restaurant)),
-                Tab(icon: Icon(Icons.mood)),
+                Tab(text: 'Pictures', icon: Icon(Icons.image)),
+                Tab(text: 'Gifts', icon: Icon(Icons.card_giftcard)),
+                Tab(text: 'Dates', icon: Icon(Icons.restaurant)),
+                Tab(text: 'Messages', icon: Icon(Icons.mood)),
               ],
             ),
             title: Text('Welcome, Vivi!', style: TextStyle(color: Colors.yellow)),
             centerTitle: true,
           ),
-          body: TabBarView(
+          body: Column (
+            // Centralize button in the page
+            //crossAxisAlignment: CrossAxisAlignment.center,
+            //mainAxisSize: MainAxisSize.max,
+            //mainAxisAlignment: MainAxisAlignment.center,
+
             children: [
-              Icon(Icons.image),
-              Icon(Icons.card_giftcard),
-              Icon(Icons.restaurant),
-              Icon(Icons.mood),
+              Container(
+                child: RaisedButton(
+                  onPressed: uploadImage,
+                  child: Text('Upload Image'), color: Colors.deepPurple[100],
+                ),
+              )
             ],
+
+
           ),
         ),
       ),
     );
   }
 }
+
+
+
