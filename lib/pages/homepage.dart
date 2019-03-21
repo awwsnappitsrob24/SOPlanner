@@ -1,6 +1,10 @@
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:vivi_bday_app/pages/AddDatesPage.dart';
+import 'package:vivi_bday_app/pages/AddGiftsPage.dart';
+import 'package:vivi_bday_app/pages/SendNotificationsPage.dart';
+import 'package:vivi_bday_app/pages/UploadImagesPage.dart';
 
 class Homepage extends StatefulWidget {
   @override
@@ -9,15 +13,15 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
 
-  File sampleImage;
+  //File sampleImage;
 
-  Future uploadImage() async {
-    var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
+  //Future uploadImage() async {
+  //  var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
 
-    setState(() {
-      sampleImage = tempImage;
-    });
-  }
+  //  setState(() {
+  //    sampleImage = tempImage;
+  //  });
+  //}
 
 
   @override
@@ -41,19 +45,12 @@ class _HomepageState extends State<Homepage> {
             title: Text('Welcome, Vivi!', style: TextStyle(color: Colors.yellow)),
             centerTitle: true,
           ),
-          body: Column (
-            // Centralize button in the page
-            //crossAxisAlignment: CrossAxisAlignment.center,
-            //mainAxisSize: MainAxisSize.max,
-            //mainAxisAlignment: MainAxisAlignment.center,
-
+          body: TabBarView (
             children: [
-              Container(
-                child: RaisedButton(
-                  onPressed: uploadImage,
-                  child: Text('Upload Image'), color: Colors.deepPurple[100],
-                ),
-              )
+              new UploadImagesPage(),
+              new AddGiftsPage(),
+              new AddDatesPage(),
+              new SendNotificationsPage(),
             ],
 
 
