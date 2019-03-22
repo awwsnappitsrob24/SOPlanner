@@ -12,21 +12,10 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-
-  //File sampleImage;
-
-  //Future uploadImage() async {
-  //  var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
-
-  //  setState(() {
-  //    sampleImage = tempImage;
-  //  });
-  //}
-
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: Colors.deepPurple[200],
       ),
@@ -52,8 +41,6 @@ class _HomepageState extends State<Homepage> {
               new AddDatesPage(),
               new SendNotificationsPage(),
             ],
-
-
           ),
         ),
       ),

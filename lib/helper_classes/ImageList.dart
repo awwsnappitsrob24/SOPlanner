@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 // ignore: must_be_immutable
 class ImageList extends StatelessWidget {
@@ -17,8 +16,8 @@ class ImageList extends StatelessWidget {
   }
 
   Widget _buildImageItem(BuildContext context, int index) {
-    var imageAcquired = images[index];
-    images.add(imageAcquired);
+    //var imageAcquired = images[index];
+    //images.add(imageAcquired);
     if(images[index].path.toString() != null) {
       final StorageReference firebaseStorageRef = FirebaseStorage.instance
           .ref().child(images[index].path.toString());

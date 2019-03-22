@@ -12,13 +12,10 @@ class _UploadImagesPageState extends State<UploadImagesPage> {
 
   final List<File> imageList = [];
   File uploadedImage;
-
-
   Future uploadImage() async {
     var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
 
     setState(() {
-      //uploadedImage = tempImage;
       imageList.add(tempImage);
     });
   }
@@ -26,6 +23,7 @@ class _UploadImagesPageState extends State<UploadImagesPage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Center(
             child: Column(
@@ -33,11 +31,6 @@ class _UploadImagesPageState extends State<UploadImagesPage> {
                 Container(
                   child: RaisedButton(
                     onPressed: uploadImage,
-                    //onPressed: () {
-                      //setState(() {
-                      //  imageList.add(uploadedImage);
-                      //});
-                    //},
                     child: Text('Upload Image'), color: Theme
                       .of(context)
                       .primaryColor,
