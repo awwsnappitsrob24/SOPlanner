@@ -8,22 +8,24 @@ class AddGiftsPage extends StatefulWidget {
 class _AddGiftsPageState extends State<AddGiftsPage> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Scaffold(
-        body: Column (
+    return MaterialApp(
+      home: Scaffold(
+        body: Center (
           // Centralize button in the page
           //crossAxisAlignment: CrossAxisAlignment.center,
           //mainAxisSize: MainAxisSize.max,
           //mainAxisAlignment: MainAxisAlignment.center,
-
-          children: <Widget>[
-            Container(
-              child: RaisedButton(
-                onPressed: () {},
-                child: Text('Add Gifts'), color: Theme.of(context).primaryColor,
-              ),
+            child: Column (
+              children: <Widget>[
+                Container(
+                  child: RaisedButton(
+                    onPressed: () {},
+                    child: Text('Add Gift Idea'), color: Theme.of(context).primaryColor,
+                  ),
+                )
+              ],
             )
-          ],
+
 
 
         ),

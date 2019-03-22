@@ -8,22 +8,24 @@ class AddDatesPage extends StatefulWidget {
 class _AddDatesPageState extends State<AddDatesPage> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Scaffold(
-        body: Column (
+    return MaterialApp(
+      home: Scaffold(
+        body: Center (
           // Centralize button in the page
           //crossAxisAlignment: CrossAxisAlignment.center,
           //mainAxisSize: MainAxisSize.max,
           //mainAxisAlignment: MainAxisAlignment.center,
-
-          children: <Widget>[
-            Container(
-              child: RaisedButton(
-                onPressed: () {},
-                child: Text('Add Dates'), color: Theme.of(context).primaryColor,
-              ),
+            child: Column (
+              children: <Widget>[
+                Container(
+                  child: RaisedButton(
+                    onPressed: () {},
+                    child: Text('Add Date Idea'), color: Theme.of(context).primaryColor,
+                  ),
+                )
+              ],
             )
-          ],
+
 
 
         ),
