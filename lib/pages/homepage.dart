@@ -9,7 +9,7 @@ class Homepage extends StatefulWidget {
   _HomepageState createState() => _HomepageState();
 }
 
-class _HomepageState extends State<Homepage> {
+class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<Homepage> {
 
   String _imageUrl;
   final List<File> imageList = [];
@@ -22,7 +22,6 @@ class _HomepageState extends State<Homepage> {
   }
 
   // ToDo: get images from firebase storage inside init state to start page off with all images that have been uploaded already.
-  // ToDo: Images disappear when changing from one tab to another.
 
   Future getImagesFromFirebaseStorage() async {
     final ref = FirebaseStorage.instance.ref().child('storage/');
@@ -133,6 +132,9 @@ class _HomepageState extends State<Homepage> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 
