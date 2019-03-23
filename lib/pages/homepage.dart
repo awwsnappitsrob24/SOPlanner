@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:vivi_bday_app/helper_classes/ImageList.dart';
@@ -13,6 +14,22 @@ class _HomepageState extends State<Homepage> {
   String _imageUrl;
   final List<File> imageList = [];
   File uploadedImage;
+
+  @override
+  void initState() {
+    super.initState();
+    getImagesFromFirebaseStorage();
+  }
+
+  // ToDo: get images from firebase storage inside init state to start page off with all images that have been uploaded already.
+  // ToDo: Images disappear when changing from one tab to another.
+
+  Future getImagesFromFirebaseStorage() async {
+    final ref = FirebaseStorage.instance.ref().child('storage/');
+    var url = await ref.getDownloadURL();
+    Image.network(url);
+    imageList.add(url);
+  }
 
   Future uploadImage() async {
     var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -42,9 +59,9 @@ class _HomepageState extends State<Homepage> {
                   accountEmail: Text("viviruiz15@gmail.com"),
                   currentAccountPicture: CircleAvatar(
                     backgroundColor:
-                    Theme.of(context).platform == TargetPlatform.iOS
-                        ? Colors.blue
-                        : Colors.white,
+                    Theme.of(context).platform == TargetPlatform.android
+                        ? Colors.orange[300]
+                        : Colors.blue,
                     child: Text(
                       "V",
                       style: TextStyle(fontSize: 40.0),
@@ -84,19 +101,32 @@ class _HomepageState extends State<Homepage> {
           ),
           body: TabBarView (
             children: [
-              //new UploadImagesPage(),
-              //new AddGiftsPage(),
-              //new AddDatesPage(),
-              //new SendNotificationsPage(),
-              new Scaffold(
+              Scaffold(
                 body: Center(
                   child: Column(
                     children: <Widget>[
-                      Expanded(child: ImageList(imageList))
+                      Container(
+                        child: Expanded(child: ImageList(imageList))
+                      )
                     ],
-                  )
-                )
-              )
+                  ),
+                ),
+              ),
+
+              // For Adding Gift Ideas
+              Scaffold(
+
+              ),
+
+              // For Adding Date Ideas
+              Scaffold(
+
+              ),
+
+              // For button to send notifications
+              Scaffold(
+
+              ),
             ],
           ),
         ),
