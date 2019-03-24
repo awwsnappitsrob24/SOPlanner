@@ -49,6 +49,9 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/vivi_bday_app_bgimage.jpg
+    - assets/images/account_drawer_bgimage.jpg
+    - assets/images/profile_picture.jpg
+    - assets/images/appbar_image.jpg
   #  - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.

@@ -40,6 +40,108 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     });
   }
 
+  Future addGiftIdea() async {
+    String _giftIdea;
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            title: Text('Add Gift Idea', textAlign: TextAlign.center),
+            backgroundColor: Colors.yellow[200],
+            contentPadding: EdgeInsets.all(10.0),
+            children: <Widget>[
+              TextFormField (
+                validator: (giftInput) {
+                  if(giftInput.isEmpty) {
+                    return 'Gift cannot be empty.';
+                  }
+                },
+                onSaved: (giftInput) => _giftIdea = giftInput,
+                decoration: InputDecoration(
+                  contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
+                  filled: true,
+                  hintText: 'Gift',
+                  hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
+                  fillColor: Colors.white70,
+                ),
+              ),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  FlatButton(
+                    child: new Text("OK"),
+                    //Method to build the listview.builder of gifts and upload to firebase storage
+                    onPressed: () {},
+                  ),
+
+                  FlatButton(
+                    child: new Text("Cancel"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  )
+                ],
+              )
+
+            ],
+          );
+        }
+    );
+  }
+
+  Future addDateIdea() async {
+    String _dateIdea;
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            title: Text('Add Date Idea', textAlign: TextAlign.center),
+            backgroundColor: Colors.yellow[200],
+            contentPadding: EdgeInsets.all(10.0),
+            children: <Widget>[
+              TextFormField (
+                validator: (dateInput) {
+                  if(dateInput.isEmpty) {
+                    return 'Date cannot be empty.';
+                  }
+                },
+                onSaved: (dateInput) => _dateIdea = dateInput,
+                decoration: InputDecoration(
+                  contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
+                  filled: true,
+                  hintText: 'Date',
+                  hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
+                  fillColor: Colors.white70,
+                ),
+              ),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  FlatButton(
+                    child: new Text("OK"),
+                    //Method to build the listview.builder of dates and upload to firebase storage
+                    onPressed: () {},
+                  ),
+
+                  FlatButton(
+                    child: new Text("Cancel"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  )
+                ],
+              )
+
+            ],
+          );
+        }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -51,41 +153,49 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         length: 4,
         child: Scaffold(
           drawer: Drawer(
-            child: ListView(
-              children: <Widget>[
-                UserAccountsDrawerHeader(
-                  accountName: Text("Viviana Ruiz"),
-                  accountEmail: Text("viviruiz15@gmail.com"),
-                  currentAccountPicture: CircleAvatar(
-                    backgroundColor:
-                    Theme.of(context).platform == TargetPlatform.android
-                        ? Colors.orange[300]
-                        : Colors.blue,
-                    child: Text(
-                      "V",
-                      style: TextStyle(fontSize: 40.0),
+            child: Container(
+              color: Colors.deepPurple[100],
+              child: ListView(
+                children: <Widget>[
+                  UserAccountsDrawerHeader(
+                    //accountName: Text("Viviana Ruiz"),
+                    accountName: new Text("Viviana Ruiz", style: TextStyle(color: Colors.white),),
+                    accountEmail: new Text("viviruiz15@gmail.com", style: TextStyle(color: Colors.white),),
+                    currentAccountPicture: CircleAvatar(
+                      child: Image.asset('assets/images/profile_picture.jpg'),
+                    ),
+                    decoration: new BoxDecoration(
+                      image: new DecorationImage(
+                        image: new AssetImage("assets/images/account_drawer_bgimage.jpg"),
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-                ListTile(
-                  title: Text("Upload Pictures"),
-                  trailing: Icon(Icons.image),
-                  onTap: () {
-                    uploadImage();
-                  },
-                ),
-                ListTile(
-                  title: Text("Add Gift Ideas"),
-                  trailing: Icon(Icons.card_giftcard),
-                ),
-                ListTile(
-                  title: Text("Add Date Ideas"),
-                  trailing: Icon(Icons.restaurant),
-                ),
-              ],
-            ),
+                  ListTile(
+                    title: Text("Upload Pictures"),
+                    trailing: Icon(Icons.image),
+                    onTap: () {
+                      uploadImage();
+                    },
+                  ),
+                  ListTile(
+                    title: Text("Add Gift Ideas"),
+                    trailing: Icon(Icons.card_giftcard),
+                    onTap: () {
+                      addGiftIdea();
+                    },
+                  ),
+                  ListTile(
+                    title: Text("Add Date Ideas"),
+                    trailing: Icon(Icons.restaurant),
+                    onTap: () {
+                      addDateIdea();
+                    },
+                  ),
+                ],
+              ),
+            )
           ),
-
           appBar: AppBar(
             bottom: TabBar(
               tabs: [
