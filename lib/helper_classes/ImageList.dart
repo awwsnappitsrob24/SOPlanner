@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 
 // ignore: must_be_immutable
 class ImageList extends StatelessWidget {
@@ -16,8 +17,9 @@ class ImageList extends StatelessWidget {
 
   Widget _buildImageItem(BuildContext context, int index) {
     if(images[index].path.toString() != null) {
+      String filename = basename(images[index].path);
       final StorageReference firebaseStorageRef = FirebaseStorage.instance
-          .ref().child(images[index].path.toString());
+          .ref().child(filename);
       final StorageUploadTask task = firebaseStorageRef.putFile(images[index]);
 
       return Card(

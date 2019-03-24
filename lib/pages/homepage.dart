@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:vivi_bday_app/helper_classes/ImageList.dart';
 
 class Homepage extends StatefulWidget {
@@ -10,10 +11,9 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<Homepage> {
-
-  String _imageUrl;
   final List<File> imageList = [];
   File uploadedImage;
+  String uploadedImageFilename;
 
   @override
   void initState() {
@@ -24,10 +24,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   // ToDo: get images from firebase storage inside init state to start page off with all images that have been uploaded already.
 
   Future getImagesFromFirebaseStorage() async {
-    final ref = FirebaseStorage.instance.ref().child('storage/');
-    var url = await ref.getDownloadURL();
-    Image.network(url);
-    imageList.add(url);
+
   }
 
   Future uploadImage() async {
@@ -35,12 +32,16 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
     setState(() {
       if(tempImage != null) {
+        uploadedImage = tempImage;
         imageList.add(tempImage);
+
+        // Get basename of path of image
+        uploadedImageFilename = basename(tempImage.path);
       }
     });
   }
 
-  Future addGiftIdea() async {
+  Future addGiftIdea(BuildContext context) async {
     String _giftIdea;
 
     showDialog(
@@ -91,7 +92,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     );
   }
 
-  Future addDateIdea() async {
+  Future addDateIdea(BuildContext context) async {
     String _dateIdea;
 
     showDialog(
@@ -142,6 +143,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -182,14 +184,14 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                     title: Text("Add Gift Ideas"),
                     trailing: Icon(Icons.card_giftcard),
                     onTap: () {
-                      addGiftIdea();
+                      addGiftIdea(context);
                     },
                   ),
                   ListTile(
                     title: Text("Add Date Ideas"),
                     trailing: Icon(Icons.restaurant),
                     onTap: () {
-                      addDateIdea();
+                      addDateIdea(context);
                     },
                   ),
                 ],
@@ -216,7 +218,10 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                     children: <Widget>[
                       Container(
                         child: Expanded(child: ImageList(imageList))
-                      )
+                        //child: uploadedImage == null ? Image.asset("")
+                        //    :Expanded(child: Image.file(uploadedImage, fit: BoxFit.cover)),
+                      ),
+
                     ],
                   ),
                 ),
