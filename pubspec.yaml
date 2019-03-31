@@ -24,8 +24,8 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
 
-  # To resize images
-  image: ^2.0.7
+  # Save images upon logout
+  shared_preferences: ^0.5.1+2
 
 dev_dependencies:
   flutter_test:

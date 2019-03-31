@@ -1,8 +1,11 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vivi_bday_app/helper_classes/ImageList.dart';
 
 class Homepage extends StatefulWidget {
@@ -13,18 +16,20 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<Homepage> {
   final List<File> imageList = [];
   File uploadedImage;
-  String uploadedImageFilename;
+  String fileName, lastImageUrl = "";
+  int fileNum = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    getImagesFromFirebaseStorage();
-  }
 
   // ToDo: get images from firebase storage inside init state to start page off with all images that have been uploaded already.
+  @override
+  void initState() {
+    Directory myTempDir = Directory.systemTemp;
+    String sampleFileName = '0.jpg';
+    File myFile = File('${myTempDir.path}/$sampleFileName');
+    imageList.add(myFile);
+    build(this.context);
 
-  Future getImagesFromFirebaseStorage() async {
-
+    super.initState();
   }
 
   Future uploadImage() async {
@@ -33,13 +38,28 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     setState(() {
       if(tempImage != null) {
         uploadedImage = tempImage;
-        imageList.add(tempImage);
-
-        // Get basename of path of image
-        uploadedImageFilename = basename(tempImage.path);
       }
     });
+
+    final ByteData bytes = await rootBundle.load(uploadedImage.path);
+    final Directory tempDir = Directory.systemTemp;
+
+    // Rename file for simpler retrieval
+    // ignore: unnecessary_brace_in_string_interps
+    final String fileName = "${fileNum}.jpg";
+
+    final File file = File('${tempDir.path}/$fileName');
+    file.writeAsBytes(bytes.buffer.asInt8List(), mode: FileMode.write);
+
+    imageList.add(file);
+
+    // Save this integer!
+    // Get this on login to determine the size of the image list
+    // Loop through image list this many times and get the file names (int.jpg)
+    // Add them to the list and expand them
+    fileNum++;
   }
+
 
   Future addGiftIdea(BuildContext context) async {
     String _giftIdea;
@@ -218,8 +238,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                     children: <Widget>[
                       Container(
                         child: Expanded(child: ImageList(imageList))
-                        //child: uploadedImage == null ? Image.asset("")
-                        //    :Expanded(child: Image.file(uploadedImage, fit: BoxFit.cover)),
                       ),
 
                     ],
