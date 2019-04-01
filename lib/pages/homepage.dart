@@ -13,20 +13,43 @@ class Homepage extends StatefulWidget {
   _HomepageState createState() => _HomepageState();
 }
 
+
+
 class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<Homepage> {
   final List<File> imageList = [];
   File uploadedImage;
   String fileName, lastImageUrl = "";
-  int fileNum = 0;
+  int fileNum = 0, _listSize = 0;
 
 
-  // ToDo: get images from firebase storage inside init state to start page off with all images that have been uploaded already.
+  saveListSizePreference(int size) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt("listsize", size);
+  }
+
+  getListSizePreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      _listSize = prefs.getInt("listsize");
+    });
+  }
+
+  // ToDo: bottom code works! Use shared preferences to get the fileNum and loop through list.
   @override
   void initState() {
     Directory myTempDir = Directory.systemTemp;
-    String sampleFileName = '0.jpg';
+    String sampleFileName = '1.jpg';
     File myFile = File('${myTempDir.path}/$sampleFileName');
     imageList.add(myFile);
+
+    //getListSizePreference();
+
+    //print(_listSize);
+    //for(int i = 0; i < listSize; i++) {
+    //  print(listSize);
+    //}
+
     build(this.context);
 
     super.initState();
@@ -41,6 +64,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       }
     });
 
+    // Save this integer!
+    // Get this on login to determine the size of the image list
+    // Loop through image list this many times and get the file names (int.jpg)
+    // Add them to the list and expand them
+    fileNum++;
+
     final ByteData bytes = await rootBundle.load(uploadedImage.path);
     final Directory tempDir = Directory.systemTemp;
 
@@ -53,11 +82,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
     imageList.add(file);
 
-    // Save this integer!
-    // Get this on login to determine the size of the image list
-    // Loop through image list this many times and get the file names (int.jpg)
-    // Add them to the list and expand them
-    fileNum++;
+    //saveListSizePreference(fileNum);
   }
 
 
