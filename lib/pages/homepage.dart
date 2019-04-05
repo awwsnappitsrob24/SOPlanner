@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vivi_bday_app/helper_classes/ImageList.dart';
+import 'package:vivi_bday_app/helper_classes/GiftList.dart';
 
 class Homepage extends StatefulWidget {
   @override
@@ -17,10 +19,13 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<Homepage> {
   final List<File> imageList = [];
+  final List<String> giftList = [];
   File uploadedImage;
   String fileName, lastImageUrl = "";
   int fileNum = 0, _listSize = 0;
+  TextEditingController giftTextController = new TextEditingController();
 
+  FirebaseDatabase database = new FirebaseDatabase();
 
   saveListSizePreference(int size) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -38,17 +43,17 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   // ToDo: bottom code works! Use shared preferences to get the fileNum and loop through list.
   @override
   void initState() {
+    database.setPersistenceEnabled(true);
+    database.setPersistenceCacheSizeBytes(10000000);
+
+    // Get image from firebase storage, can only get first image :(
     Directory myTempDir = Directory.systemTemp;
     String sampleFileName = '1.jpg';
     File myFile = File('${myTempDir.path}/$sampleFileName');
     imageList.add(myFile);
 
-    //getListSizePreference();
+    // Get list of gift ideas from firebase database
 
-    //print(_listSize);
-    //for(int i = 0; i < listSize; i++) {
-    //  print(listSize);
-    //}
 
     build(this.context);
 
@@ -111,6 +116,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
                   fillColor: Colors.white70,
                 ),
+                controller: giftTextController,
               ),
 
               Row(
@@ -119,7 +125,19 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   FlatButton(
                     child: new Text("OK"),
                     //Method to build the listview.builder of gifts and upload to firebase storage
-                    onPressed: () {},
+                    onPressed: () {
+                      String gift = giftTextController.text;
+                      giftList.add(gift);
+                      
+                      // Add gift to Firebase Database
+                      giftToJson() {
+                        return {
+                          "title": gift,
+                        };
+                      }
+                      DatabaseReference _userRef = database.reference();
+                      _userRef.push().set(giftToJson());
+                    },
                   ),
 
                   FlatButton(
@@ -170,7 +188,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   FlatButton(
                     child: new Text("OK"),
                     //Method to build the listview.builder of dates and upload to firebase storage
-                    onPressed: () {},
+                    onPressed: () {
+
+                    },
                   ),
 
                   FlatButton(
@@ -272,7 +292,16 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
               // For Adding Gift Ideas
               Scaffold(
+                body: Center(
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                          child: Expanded(child: GiftList(giftList))
+                      ),
 
+                    ],
+                  ),
+                ),
               ),
 
               // For Adding Date Ideas
@@ -293,6 +322,10 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
   @override
   bool get wantKeepAlive => true;
+
+  void createGift(String giftName) {
+
+  }
 }
 
 
