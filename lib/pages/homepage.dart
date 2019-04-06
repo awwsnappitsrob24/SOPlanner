@@ -1,14 +1,12 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vivi_bday_app/helper_classes/ImageList.dart';
 import 'package:vivi_bday_app/helper_classes/GiftList.dart';
+import 'package:vivi_bday_app/helper_classes/DateList.dart';
 
 class Homepage extends StatefulWidget {
   @override
@@ -20,10 +18,12 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<Homepage> {
   final List<File> imageList = [];
   final List<String> giftList = [];
+  final List<String> dateList = [];
   File uploadedImage;
   String fileName, lastImageUrl = "";
   int fileNum = 0, _listSize = 0;
   TextEditingController giftTextController = new TextEditingController();
+  TextEditingController dateTextController = new TextEditingController();
 
   FirebaseDatabase database = new FirebaseDatabase();
 
@@ -55,8 +55,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     File myFile = File('${myTempDir.path}/$sampleFileName');
     imageList.add(myFile);
 
-    // Get list of gift ideas from firebase database
+    // Get list of gifts and date ideas from firebase database
     readGifts();
+    readDates();
 
     // Build everything in the start
     build(this.context);
@@ -177,6 +178,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
                   fillColor: Colors.white70,
                 ),
+                controller: dateTextController,
               ),
 
               Row(
@@ -184,9 +186,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                 children: <Widget>[
                   FlatButton(
                     child: new Text("OK"),
-                    //Method to build the listview.builder of dates and upload to firebase storage
                     onPressed: () {
-
+                      //Method to build the list of gifts and upload to firebase DB
+                      String date = dateTextController.text;
+                      dateList.add(date);
+                      String listLength = (dateList.length).toString();
+                      createDate(date, listLength);
                     },
                   ),
 
@@ -303,7 +308,16 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
               // For Adding Date Ideas
               Scaffold(
+                body: Center(
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                          child: Expanded(child: DateList(dateList))
+                      ),
 
+                    ],
+                  ),
+                ),
               ),
 
               // For button to send notifications
@@ -327,16 +341,30 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     });
   }
 
-  void readGifts() {
-    //giftList.add("STARTING GIFT");
+  void createDate(String dateName, String listLength) {
+    var db = FirebaseDatabase.instance.reference().child("dates").child(listLength)
+        .set({
+      'title': dateName,
+    });
+  }
 
+  void readGifts() {
     var db = FirebaseDatabase.instance.reference().child("gifts");
     db.once().then((DataSnapshot snapshot){
      List<dynamic> gifts = snapshot.value;
      for(int i = 1; i < gifts.length; i++) {
-       //print(gifts[i]["title"]);
        giftList.add(gifts[i]["title"]);
      }
+    });
+  }
+
+  void readDates() {
+    var db = FirebaseDatabase.instance.reference().child("dates");
+    db.once().then((DataSnapshot snapshot){
+      List<dynamic> dates = snapshot.value;
+      for(int i = 1; i < dates.length; i++) {
+        dateList.add(dates[i]["title"]);
+      }
     });
   }
 }
