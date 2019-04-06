@@ -43,6 +43,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   // ToDo: bottom code works! Use shared preferences to get the fileNum and loop through list.
   @override
   void initState() {
+
+    super.initState();
+
     database.setPersistenceEnabled(true);
     database.setPersistenceCacheSizeBytes(10000000);
 
@@ -53,11 +56,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     imageList.add(myFile);
 
     // Get list of gift ideas from firebase database
+    readGifts();
 
-
+    // Build everything in the start
     build(this.context);
 
-    super.initState();
   }
 
   Future uploadImage() async {
@@ -124,20 +127,14 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                 children: <Widget>[
                   FlatButton(
                     child: new Text("OK"),
-                    //Method to build the listview.builder of gifts and upload to firebase storage
                     onPressed: () {
+
+                      //Method to build the list of gifts and upload to firebase DB
                       String gift = giftTextController.text;
                       giftList.add(gift);
-                      
-                      // Add gift to Firebase Database
-                      giftToJson() {
-                        return {
-                          "title": gift,
-                        };
-                      }
-                      DatabaseReference _userRef = database.reference();
-                      _userRef.push().set(giftToJson());
-                    },
+                      String listLength = (giftList.length).toString();
+                      createGift(gift, listLength);
+                    }
                   ),
 
                   FlatButton(
@@ -323,8 +320,24 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   @override
   bool get wantKeepAlive => true;
 
-  void createGift(String giftName) {
+  void createGift(String giftName, String listLength) {
+    var db = FirebaseDatabase.instance.reference().child("gifts").child(listLength)
+      .set({
+      'title': giftName,
+    });
+  }
 
+  void readGifts() {
+    //giftList.add("STARTING GIFT");
+
+    var db = FirebaseDatabase.instance.reference().child("gifts");
+    db.once().then((DataSnapshot snapshot){
+     List<dynamic> gifts = snapshot.value;
+     for(int i = 1; i < gifts.length; i++) {
+       //print(gifts[i]["title"]);
+       giftList.add(gifts[i]["title"]);
+     }
+    });
   }
 }
 
