@@ -3,11 +3,22 @@ import 'package:firebase_database/firebase_database.dart';
 
 // HOW DO I MAKE THIS STATFEUL...????
 
-class GiftList extends StatelessWidget {
-  // Builder methods rely on a set of data, such as a list.
-  final List<String> gifts;
-  GiftList(this.gifts);
+// ignore: must_be_immutable
+class GiftList extends StatefulWidget {
 
+  GiftList(List<String> giftList);
+
+  @override
+  _GiftListState createState() => _GiftListState();
+}
+
+class _GiftListState extends State<GiftList> with AutomaticKeepAliveClientMixin<GiftList> {
+
+  List<String> gifts = [];
+  // ignore: non_constant_identifier_names
+  GiftList(List<String> giftList) {
+    this.gifts = giftList;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,27 +70,27 @@ class GiftList extends StatelessWidget {
             //if(value["title"] == giftDeleted) {
             //  print(key);
 
-              // Delete the node form Firebase DB
-              //FirebaseDatabase.instance.reference().child("gifts")
-              //    .child(key).remove();
+            // Delete the node form Firebase DB
+            //FirebaseDatabase.instance.reference().child("gifts")
+            //    .child(key).remove();
             //}
           });
         });
         /**
-        db.onValue.listen((e) {
-          DataSnapshot myDataSnapshot = e.snapshot;
-          Map<dynamic,dynamic> gifts = myDataSnapshot.value;
-          gifts.forEach((key, value) {
+            db.onValue.listen((e) {
+            DataSnapshot myDataSnapshot = e.snapshot;
+            Map<dynamic,dynamic> gifts = myDataSnapshot.value;
+            gifts.forEach((key, value) {
             if(value["title"] == giftDeleted) {
-              print(key);
+            print(key);
 
-              // Delete the node form Firebase DB
-              FirebaseDatabase.instance.reference().child("gifts")
-                  .child(key).remove();
+            // Delete the node form Firebase DB
+            FirebaseDatabase.instance.reference().child("gifts")
+            .child(key).remove();
             }
-          });
-        });
-            */
+            });
+            });
+         */
       },
       child: Card(
         child: Column(
@@ -105,4 +116,8 @@ class GiftList extends StatelessWidget {
       itemBuilder: _buildImageItem,
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
+

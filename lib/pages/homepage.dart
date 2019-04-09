@@ -56,7 +56,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     imageList.add(myFile);
 
     // Get list of gifts and date ideas from firebase database
+    // Gifts not showing up at the start :(
     readGifts();
+
     readDates();
 
     // Build everything in the start
@@ -296,9 +298,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   child: Column(
                     children: <Widget>[
                       Container(
-                          child: Expanded(
-                            child: GiftList(giftList)
-                          )
+                        child: Expanded(child: buildGifts(context))
                       ),
 
                     ],
@@ -331,6 +331,105 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     );
   }
 
+  Widget _buildGiftItem(BuildContext context, int index) {
+    return Dismissible(
+      key: Key(giftList[index]),
+      background: Container(
+        alignment: AlignmentDirectional.center,
+        color: Colors.red,
+        child: Icon(
+          Icons.delete_forever,
+          color: Colors.white,
+        ),
+      ),
+      onDismissed: (direction) {
+        /**
+        var giftDeleted = " ";
+
+        // Delete the gift from the list
+        // Not deleting right...
+        if(giftList.length == 1) {
+          giftDeleted = giftList.last;
+          //gifts.removeLast();
+          //print(giftDeleted);
+          giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
+          for(int i = 0; i < giftList.length; i++) {
+            print(giftList[i]);
+          }
+        }
+        else {
+          giftDeleted = giftList.elementAt(index);
+          //gifts.removeAt(index);
+          //print(giftDeleted);
+          giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
+          for(int i = 0; i < giftList.length; i++) {
+            print(giftList[i]);
+          }
+        }
+
+        // Delete from firebase DB
+        // How to read data more than once??
+        var db = FirebaseDatabase.instance.reference().child("gifts");
+        db.once().then((DataSnapshot snapshot){
+          Map<dynamic,dynamic> gifts = snapshot.value;
+          gifts.forEach((key, value) {
+
+            //if(value["title"] == giftDeleted) {
+            //  print(key);
+
+            // Delete the node form Firebase DB
+            //FirebaseDatabase.instance.reference().child("gifts")
+            //    .child(key).remove();
+            //}
+          });
+        });
+            */
+
+        /**
+            db.onValue.listen((e) {
+            DataSnapshot myDataSnapshot = e.snapshot;
+            Map<dynamic,dynamic> gifts = myDataSnapshot.value;
+            gifts.forEach((key, value) {
+            if(value["title"] == giftDeleted) {
+            print(key);
+
+            // Delete the node form Firebase DB
+            FirebaseDatabase.instance.reference().child("gifts")
+            .child(key).remove();
+            }
+            });
+            });
+         */
+      },
+      child: Card(
+        child: Column(
+          children: <Widget>[
+            ListTile(
+              title: Text(giftList[index], textAlign: TextAlign.center),
+              //trailing: Icon(Icons.card_giftcard),
+              onTap: () {
+                // something
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildGifts(BuildContext context) {
+    return _buildGiftList(context);
+  }
+
+  ListView _buildGiftList(context) {
+    return ListView.builder(
+      // Must have an item count equal to the number of items!
+      itemCount: giftList.length,
+      // A callback that will return a widget.
+      itemBuilder: _buildGiftItem,
+    );
+  }
+
   @override
   bool get wantKeepAlive => true;
 
@@ -357,7 +456,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     db.once().then((DataSnapshot snapshot) {
       Map<dynamic, dynamic> gifts = snapshot.value;
       gifts.forEach((key, value) {
-        giftList.add(value["title"]);
+        setState(() {
+          giftList.add(value["title"]);
+        });
       });
     });
   }
