@@ -15,7 +15,6 @@ class Homepage extends StatefulWidget {
 }
 
 
-
 class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<Homepage> {
   final List<File> imageList = [];
   final List<String> giftList = [];
@@ -297,7 +296,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   child: Column(
                     children: <Widget>[
                       Container(
-                          child: Expanded(child: GiftList(giftList))
+                          child: Expanded(
+                            child: GiftList(giftList)
+                          )
                       ),
 
                     ],

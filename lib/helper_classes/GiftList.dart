@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+// HOW DO I MAKE THIS STATFEUL...????
+
 class GiftList extends StatelessWidget {
   // Builder methods rely on a set of data, such as a list.
   final List<String> gifts;
@@ -24,9 +26,28 @@ class GiftList extends StatelessWidget {
         ),
       ),
       onDismissed: (direction) {
+        var giftDeleted = " ";
+
         // Delete the gift from the list
-        var giftDeleted = gifts.elementAt(index);
-        gifts.removeAt(index);
+        // Not deleting right...
+        if(gifts.length == 1) {
+          giftDeleted = gifts.last;
+          //gifts.removeLast();
+          //print(giftDeleted);
+          gifts.removeWhere((giftDelete) => giftDelete == giftDeleted);
+          for(int i = 0; i < gifts.length; i++) {
+            print(gifts[i]);
+          }
+        }
+        else {
+          giftDeleted = gifts.elementAt(index);
+          //gifts.removeAt(index);
+          //print(giftDeleted);
+          gifts.removeWhere((giftDelete) => giftDelete == giftDeleted);
+          for(int i = 0; i < gifts.length; i++) {
+            print(gifts[i]);
+          }
+        }
 
         // Delete from firebase DB
         // How to read data more than once??
@@ -34,36 +55,20 @@ class GiftList extends StatelessWidget {
         db.once().then((DataSnapshot snapshot){
           Map<dynamic,dynamic> gifts = snapshot.value;
           gifts.forEach((key, value) {
-            if(value["title"] == giftDeleted) {
-              print(key);
 
-              // Delete the node form Firebase DB
-              FirebaseDatabase.instance.reference().child("gifts")
-                  .child(key).remove();
-            }
-          });
-        });
-
-
-        /**
-        FirebaseDatabase.instance.reference().child("gifts").onValue.
-          listen((Event event) {
-          DataSnapshot mySnapshot = event.snapshot;
-          Map<dynamic,dynamic> gifts = mySnapshot.value;
-          gifts.forEach((key, value) {
-            if(value["title"] == giftDeleted) {
-              print(key);
+            //if(value["title"] == giftDeleted) {
+            //  print(key);
 
               // Delete the node form Firebase DB
               //FirebaseDatabase.instance.reference().child("gifts")
               //    .child(key).remove();
-            }
+            //}
           });
         });
-            */
         /**
-        db.once().then((DataSnapshot snapshot){
-          Map<dynamic,dynamic> gifts = snapshot.value;
+        db.onValue.listen((e) {
+          DataSnapshot myDataSnapshot = e.snapshot;
+          Map<dynamic,dynamic> gifts = myDataSnapshot.value;
           gifts.forEach((key, value) {
             if(value["title"] == giftDeleted) {
               print(key);
@@ -74,8 +79,7 @@ class GiftList extends StatelessWidget {
             }
           });
         });
-        */
-
+            */
       },
       child: Card(
         child: Column(
