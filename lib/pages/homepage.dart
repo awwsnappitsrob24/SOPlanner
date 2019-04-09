@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -133,8 +134,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                       //Method to build the list of gifts and upload to firebase DB
                       String gift = giftTextController.text;
                       giftList.add(gift);
-                      String listLength = (giftList.length).toString();
-                      createGift(gift, listLength);
+                      createGift(gift);
                     }
                   ),
 
@@ -190,8 +190,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                       //Method to build the list of gifts and upload to firebase DB
                       String date = dateTextController.text;
                       dateList.add(date);
-                      String listLength = (dateList.length).toString();
-                      createDate(date, listLength);
+                      createDate(date);
                     },
                   ),
 
@@ -334,15 +333,19 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   @override
   bool get wantKeepAlive => true;
 
-  void createGift(String giftName, String listLength) {
-    var db = FirebaseDatabase.instance.reference().child("gifts").child(listLength)
+  void createGift(String giftName) {
+    var randomNum = new Random();
+    var newNum = randomNum.nextInt(1000000);
+    var db = FirebaseDatabase.instance.reference().child("gifts").child(newNum.toString())
       .set({
       'title': giftName,
     });
   }
 
-  void createDate(String dateName, String listLength) {
-    var db = FirebaseDatabase.instance.reference().child("dates").child(listLength)
+  void createDate(String dateName) {
+    var randomNum = new Random();
+    var newNum = randomNum.nextInt(1000000);
+    var db = FirebaseDatabase.instance.reference().child("dates").child(newNum.toString())
         .set({
       'title': dateName,
     });
@@ -350,11 +353,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
   void readGifts() {
     var db = FirebaseDatabase.instance.reference().child("gifts");
-    db.once().then((DataSnapshot snapshot){
-     List<dynamic> gifts = snapshot.value;
-     for(int i = 1; i < gifts.length; i++) {
-       giftList.add(gifts[i]["title"]);
-     }
+    db.once().then((DataSnapshot snapshot) {
+      Map<dynamic, dynamic> gifts = snapshot.value;
+      gifts.forEach((key, value) {
+        giftList.add(value["title"]);
+      });
     });
   }
 
