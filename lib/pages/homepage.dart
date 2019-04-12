@@ -6,8 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vivi_bday_app/helper_classes/ImageList.dart';
-import 'package:vivi_bday_app/helper_classes/GiftList.dart';
-import 'package:vivi_bday_app/helper_classes/DateList.dart';
 
 class Homepage extends StatefulWidget {
   @override
@@ -55,10 +53,8 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     File myFile = File('${myTempDir.path}/$sampleFileName');
     imageList.add(myFile);
 
-    // Get list of gifts and date ideas from firebase database
-    // Gifts not showing up at the start :(
+    // Get list of gifts and date ideas from firebase database at initial startup
     readGifts();
-
     readDates();
 
     // Build everything in the start
@@ -92,8 +88,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     file.writeAsBytes(bytes.buffer.asInt8List(), mode: FileMode.write);
 
     imageList.add(file);
-
-    //saveListSizePreference(fileNum);
   }
 
 
@@ -131,11 +125,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   FlatButton(
                     child: new Text("OK"),
                     onPressed: () {
-
                       //Method to build the list of gifts and upload to firebase DB
                       String gift = giftTextController.text;
                       giftList.add(gift);
                       createGift(gift);
+
+                      // Close the dialog box
+                      Navigator.pop(context);
                     }
                   ),
 
@@ -192,6 +188,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                       String date = dateTextController.text;
                       dateList.add(date);
                       createDate(date);
+
+                      // Close the dialog box
+                      Navigator.pop(context);
                     },
                   ),
 
@@ -312,7 +311,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   child: Column(
                     children: <Widget>[
                       Container(
-                          child: Expanded(child: DateList(dateList))
+                        child: Expanded(child: buildDates(context))
                       ),
 
                     ],
@@ -343,25 +342,27 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         ),
       ),
       onDismissed: (direction) {
-        /**
         var giftDeleted = " ";
 
         // Delete the gift from the list
-        // Not deleting right...
         if(giftList.length == 1) {
           giftDeleted = giftList.last;
-          //gifts.removeLast();
-          //print(giftDeleted);
-          giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
+
+          setState(() {
+            giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
+          });
+
           for(int i = 0; i < giftList.length; i++) {
             print(giftList[i]);
           }
         }
         else {
           giftDeleted = giftList.elementAt(index);
-          //gifts.removeAt(index);
-          //print(giftDeleted);
-          giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
+
+          setState(() {
+            giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
+          });
+
           for(int i = 0; i < giftList.length; i++) {
             print(giftList[i]);
           }
@@ -374,32 +375,16 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
           Map<dynamic,dynamic> gifts = snapshot.value;
           gifts.forEach((key, value) {
 
-            //if(value["title"] == giftDeleted) {
-            //  print(key);
-
-            // Delete the node form Firebase DB
-            //FirebaseDatabase.instance.reference().child("gifts")
-            //    .child(key).remove();
-            //}
-          });
-        });
-            */
-
-        /**
-            db.onValue.listen((e) {
-            DataSnapshot myDataSnapshot = e.snapshot;
-            Map<dynamic,dynamic> gifts = myDataSnapshot.value;
-            gifts.forEach((key, value) {
+            // Check for value in DB to delete
             if(value["title"] == giftDeleted) {
-            print(key);
 
             // Delete the node form Firebase DB
             FirebaseDatabase.instance.reference().child("gifts")
-            .child(key).remove();
+                .child(key).remove();
             }
-            });
-            });
-         */
+          });
+        });
+
       },
       child: Card(
         child: Column(
@@ -429,6 +414,91 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       itemBuilder: _buildGiftItem,
     );
   }
+
+  Widget _buildDateItem(BuildContext context, int index) {
+    return Dismissible(
+      key: Key(dateList[index]),
+      background: Container(
+        alignment: AlignmentDirectional.center,
+        color: Colors.red,
+        child: Icon(
+          Icons.delete_forever,
+          color: Colors.white,
+        ),
+      ),
+      onDismissed: (direction) {
+        var dateDeleted = " ";
+
+        // Delete the gift from the list
+        if(dateList.length == 1) {
+          dateDeleted = dateList.last;
+
+          setState(() {
+            dateList.removeWhere((dateDelete) => dateDelete == dateDeleted);
+          });
+
+          for(int i = 0; i < dateList.length; i++) {
+            print(dateList[i]);
+          }
+        }
+        else {
+          dateDeleted = dateList.elementAt(index);
+
+          setState(() {
+            dateList.removeWhere((dateDelete) => dateDelete == dateDeleted);
+          });
+
+          for(int i = 0; i < dateList.length; i++) {
+            print(dateList[i]);
+          }
+        }
+
+        // Delete from firebase DB
+        var db = FirebaseDatabase.instance.reference().child("dates");
+        db.once().then((DataSnapshot snapshot){
+          Map<dynamic,dynamic> dates = snapshot.value;
+          dates.forEach((key, value) {
+
+            // Check for value in DB to delete
+            if(value["title"] == dateDeleted) {
+
+              // Delete the node form Firebase DB
+              FirebaseDatabase.instance.reference().child("dates")
+                  .child(key).remove();
+            }
+          });
+        });
+
+      },
+      child: Card(
+        child: Column(
+          children: <Widget>[
+            ListTile(
+              title: Text(dateList[index], textAlign: TextAlign.center),
+              //trailing: Icon(Icons.card_giftcard),
+              onTap: () {
+                // something
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildDates(BuildContext context) {
+    return _buildDateList(context);
+  }
+
+  ListView _buildDateList(context) {
+    return ListView.builder(
+      // Must have an item count equal to the number of items!
+      itemCount: dateList.length,
+      // A callback that will return a widget.
+      itemBuilder: _buildDateItem,
+    );
+  }
+
 
   @override
   bool get wantKeepAlive => true;
@@ -466,10 +536,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   void readDates() {
     var db = FirebaseDatabase.instance.reference().child("dates");
     db.once().then((DataSnapshot snapshot){
-      List<dynamic> dates = snapshot.value;
-      for(int i = 1; i < dates.length; i++) {
-        dateList.add(dates[i]["title"]);
-      }
+      Map<dynamic, dynamic> dates = snapshot.value;
+      dates.forEach((key, value) {
+        setState(() {
+          dateList.add(value["title"]);
+        });
+      });
     });
   }
 }
