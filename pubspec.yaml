@@ -34,6 +34,8 @@ dev_dependencies:
   firebase_storage:
   image_picker:
   firebase_database: ^2.0.2
+  url_launcher: ^5.0.2
+  flutter_appavailability: ^0.0.21
 
 
 

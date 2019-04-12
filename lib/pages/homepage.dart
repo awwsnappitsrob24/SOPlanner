@@ -6,6 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vivi_bday_app/helper_classes/ImageList.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_appavailability/flutter_appavailability.dart';
 
 class Homepage extends StatefulWidget {
   @override
@@ -391,9 +393,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
           children: <Widget>[
             ListTile(
               title: Text(giftList[index], textAlign: TextAlign.center),
-              //trailing: Icon(Icons.card_giftcard),
               onTap: () {
-                // something
+                // Search for gifts in google search
+
               },
             ),
           ],
@@ -401,6 +403,8 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       ),
     );
   }
+
+  // LaunchSearchGift() here
 
   Widget buildGifts(BuildContext context) {
     return _buildGiftList(context);
@@ -477,7 +481,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
               title: Text(dateList[index], textAlign: TextAlign.center),
               //trailing: Icon(Icons.card_giftcard),
               onTap: () {
-                // something
+                // Search for dates in Yelp or just google search
+
+                // Get the value from the list to pass on as a query to Yelp or Google
+                var query = dateList[index];
+                print(query);
+                _launchSearchDate(query);
               },
             ),
           ],
@@ -497,6 +506,48 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       // A callback that will return a widget.
       itemBuilder: _buildDateItem,
     );
+  }
+
+  _launchSearchDate(String query) async {
+    // Get list of available apps
+    List<Map<String, String>>_installedApps = await AppAvailability.getInstalledApps();
+
+    var url = " ";
+    int index = 0;
+    bool yelpIsNotHere = true;
+
+    while(index < _installedApps.length) {
+      if(_installedApps[index]["app_name"] == "Yelp") {
+        yelpIsNotHere = false;
+      }
+      index++;
+    }
+
+    if(yelpIsNotHere) {
+      url = 'https://google.com';
+    }
+    else {
+      // Split query if more than one word
+      List<String> splitString = [];
+      splitString = query.split(" ");
+
+      if(splitString.length < 2) {
+        url = 'https://www.yelp.com/search?find_desc=' + splitString[0];
+      }
+      else {
+        int lengthOfString = splitString.length;
+        url = 'https://www.yelp.com/search?find_desc=';
+        for(int i = 0; i < lengthOfString; i++) {
+          url += splitString[i] + "+";
+        }
+      }
+    }
+
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
 
