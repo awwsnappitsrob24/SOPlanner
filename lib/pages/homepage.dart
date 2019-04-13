@@ -299,13 +299,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   child: Column(
                     children: <Widget>[
                       Container(
-                        child: Expanded(child: buildGifts(context))
-                      ),
-
-                    ],
+                        child: Expanded(child: buildGifts(context)),
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
               // For Adding Date Ideas
               Scaffold(
@@ -313,9 +312,8 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   child: Column(
                     children: <Widget>[
                       Container(
-                        child: Expanded(child: buildDates(context))
+                        child: Expanded(child: buildDates(context)),
                       ),
-
                     ],
                   ),
                 ),
@@ -472,14 +470,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
             }
           });
         });
-
       },
+
       child: Card(
         child: Column(
           children: <Widget>[
             ListTile(
               title: Text(dateList[index], textAlign: TextAlign.center),
-              //trailing: Icon(Icons.card_giftcard),
               onTap: () {
                 // Search for dates in Yelp or just google search
 
