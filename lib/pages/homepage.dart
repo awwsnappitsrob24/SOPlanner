@@ -509,37 +509,21 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   }
 
   _launchSearchDate(String query) async {
-    // Get list of available apps
-    List<Map<String, String>>_installedApps = await AppAvailability.getInstalledApps();
-
     var url = " ";
-    int index = 0;
-    bool yelpIsNotHere = true;
 
-    while(index < _installedApps.length) {
-      if(_installedApps[index]["app_name"] == "Yelp") {
-        yelpIsNotHere = false;
-      }
-      index++;
-    }
+    // Open in Yelp if they can
+    // Split query if more than one word
+    List<String> splitString = [];
+    splitString = query.split(" ");
 
-    if(yelpIsNotHere) {
-      url = 'https://google.com';
+    if(splitString.length < 2) {
+      url = 'https://www.yelp.com/search?find_desc=' + splitString[0];
     }
     else {
-      // Split query if more than one word
-      List<String> splitString = [];
-      splitString = query.split(" ");
-
-      if(splitString.length < 2) {
-        url = 'https://www.yelp.com/search?find_desc=' + splitString[0];
-      }
-      else {
-        int lengthOfString = splitString.length;
-        url = 'https://www.yelp.com/search?find_desc=';
-        for(int i = 0; i < lengthOfString; i++) {
-          url += splitString[i] + "+";
-        }
+      int lengthOfString = splitString.length;
+      url = 'https://www.yelp.com/search?find_desc=';
+      for(int i = 0; i < lengthOfString; i++) {
+        url += splitString[i] + "+";
       }
     }
 
