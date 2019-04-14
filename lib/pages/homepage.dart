@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vivi_bday_app/helper_classes/ImageList.dart';
+import 'package:vivi_bday_app/pages/SendNotificationsPage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_appavailability/flutter_appavailability.dart';
 
@@ -40,7 +41,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     });
   }
 
-  // ToDo: bottom code works! Use shared preferences to get the fileNum and loop through list.
   @override
   void initState() {
 
@@ -49,11 +49,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     database.setPersistenceEnabled(true);
     database.setPersistenceCacheSizeBytes(10000000);
 
+    /**
     // Get image from firebase storage, can only get first image :(
     Directory myTempDir = Directory.systemTemp;
     String sampleFileName = '1.jpg';
     File myFile = File('${myTempDir.path}/$sampleFileName');
     imageList.add(myFile);
+        */
 
     // Get list of gifts and date ideas from firebase database at initial startup
     readGifts();
@@ -65,6 +67,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   }
 
   Future uploadImage() async {
+    /**
     var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
 
     setState(() {
@@ -90,6 +93,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     file.writeAsBytes(bytes.buffer.asInt8List(), mode: FileMode.write);
 
     imageList.add(file);
+        */
   }
 
 
@@ -319,10 +323,8 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                 ),
               ),
 
-              // For button to send notifications
-              Scaffold(
-
-              ),
+              // Go to SendNotifications page
+              SendNotificationsPage(),
             ],
           ),
         ),
