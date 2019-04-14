@@ -392,8 +392,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
             ListTile(
               title: Text(giftList[index], textAlign: TextAlign.center),
               onTap: () {
-                // Search for gifts in google search
+                // Search for gifts in google search (Etsy?)
 
+                // Get the value from the list to pass on as a query to Yelp or Google
+                var query = giftList[index];
+                _launchSearchGift(query);
               },
             ),
           ],
@@ -402,7 +405,40 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     );
   }
 
-  // LaunchSearchGift() here
+  _launchSearchGift(String query) async {
+
+    // Get all available apps that are installed;
+    List<Map<String, String>> availableApps = await AppAvailability.getInstalledApps();
+    for(int i = 0; i < availableApps.length; i++) {
+      print(availableApps[i]["app_name"]);
+    }
+
+    var url = " ";
+
+    // Open in Etsy, Amazon, Ebay, Wish if they can
+    // Split query if more than one word
+    List<String> splitString = [];
+    splitString = query.split(" ");
+
+    // Etsy test
+    if(splitString.length < 2) {
+      url = 'https://www.etsy.com/search?q=' + splitString[0];
+    }
+    else {
+      int lengthOfString = splitString.length;
+      url = 'https://www.etsy.com/search?q=';
+      for(int i = 0; i < lengthOfString; i++) {
+        url += splitString[i] + "+";
+      }
+    }
+
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
 
   Widget buildGifts(BuildContext context) {
     return _buildGiftList(context);
@@ -482,7 +518,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
                 // Get the value from the list to pass on as a query to Yelp or Google
                 var query = dateList[index];
-                print(query);
                 _launchSearchDate(query);
               },
             ),
