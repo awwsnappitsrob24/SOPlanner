@@ -1,4 +1,6 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class SendNotificationsPage extends StatefulWidget {
   @override
@@ -6,36 +8,52 @@ class SendNotificationsPage extends StatefulWidget {
 }
 
 class _SendNotificationsPageState extends State<SendNotificationsPage> {
+
+  final FirebaseMessaging _messaging = FirebaseMessaging();
+  String tokenValue = " ";
+
+  @override
+  void initState() {
+    super.initState();
+
+    notificationListeners();
+  }
+
+  void notificationListeners() {
+
+    _messaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print('on message $message');
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print('on resume $message');
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print('on launch $message');
+      },
+    );
+
+    _messaging.requestNotificationPermissions(
+      const IosNotificationSettings(
+        sound: true,
+        alert: true,
+        badge: true,
+      )
+    );
+
+    _messaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings setting) {
+      print('IOS Setting Registed');
+    });
+
+    _messaging.getToken().then((token) {
+      print(token);
+    });
+
+  }
+
   @override
   Widget build(BuildContext context) {
-    /**
-    return MaterialApp(
-      home: Scaffold(
-        body: Center (
-          child: Column (
-            children: <Widget>[
-              Container(
-                decoration: new BoxDecoration(
-                  image: new DecorationImage(
-                    image: new AssetImage("assets/images/date_page_image.jpg"),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: RaisedButton(
-                  onPressed: () {
-                    // Send push notification with random cute messages :)
-                  },
-                  child: Text('Cheer me up, please!'), color: Theme.of(context).primaryColor,
-                ),
-              )
-            ],
-          )
-        ),
-      ),
-
-    );
-        */
-
     return Container(
       decoration: new BoxDecoration(
         image: new DecorationImage(
@@ -56,6 +74,7 @@ class _SendNotificationsPageState extends State<SendNotificationsPage> {
               RaisedButton(
                 onPressed: () {
                   // Send push notification with random cute messages :)
+
                 },
                 child: Text('Cheer me up, please!'), color: Colors.deepPurple[100],
               ),
@@ -67,3 +86,6 @@ class _SendNotificationsPageState extends State<SendNotificationsPage> {
   }
 
 }
+
+
+
