@@ -25,7 +25,6 @@ class ImageList extends StatelessWidget {
       return Card(
         child: Column(
           children: <Widget>[
-            //new Image.file(images[index])
             new Image.file(images[index], fit: BoxFit.fill)
           ],
         ),

@@ -4,6 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vivi_bday_app/helper_classes/ImageList.dart';
 import 'package:vivi_bday_app/pages/SendNotificationsPage.dart';
@@ -20,26 +21,14 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   final List<File> imageList = [];
   final List<String> giftList = [];
   final List<String> dateList = [];
+  final List<String> imageFileList = [];
   File uploadedImage;
   String fileName, lastImageUrl = "";
-  int fileNum = 0, _listSize = 0;
+  int fileNum = 0;
   TextEditingController giftTextController = new TextEditingController();
   TextEditingController dateTextController = new TextEditingController();
 
   FirebaseDatabase database = new FirebaseDatabase();
-
-  saveListSizePreference(int size) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt("listsize", size);
-  }
-
-  getListSizePreference() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    setState(() {
-      _listSize = prefs.getInt("listsize");
-    });
-  }
 
   @override
   void initState() {
@@ -48,14 +37,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
     database.setPersistenceEnabled(true);
     database.setPersistenceCacheSizeBytes(10000000);
-
-    /**
-    // Get image from firebase storage, can only get first image :(
-    Directory myTempDir = Directory.systemTemp;
-    String sampleFileName = '1.jpg';
-    File myFile = File('${myTempDir.path}/$sampleFileName');
-    imageList.add(myFile);
-        */
 
     // Get list of gifts and date ideas from firebase database at initial startup
     readGifts();
@@ -67,7 +48,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   }
 
   Future uploadImage() async {
-    /**
     var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
 
     setState(() {
@@ -76,24 +56,17 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       }
     });
 
-    // Save this integer!
-    // Get this on login to determine the size of the image list
-    // Loop through image list this many times and get the file names (int.jpg)
-    // Add them to the list and expand them
-    fileNum++;
+    final File file = new File(uploadedImage.path);
+    final String baseFilename = basename(file.path);
 
-    final ByteData bytes = await rootBundle.load(uploadedImage.path);
-    final Directory tempDir = Directory.systemTemp;
-
-    // Rename file for simpler retrieval
-    // ignore: unnecessary_brace_in_string_interps
-    final String fileName = "${fileNum}.jpg";
-
-    final File file = File('${tempDir.path}/$fileName');
-    file.writeAsBytes(bytes.buffer.asInt8List(), mode: FileMode.write);
-
+    // Add to list to be displayed
     imageList.add(file);
-        */
+
+    // Use this to get all images from startup
+    imageFileList.add(baseFilename);
+    //for(int i = 0; i < imageFileList.length; i++) {
+    //  print(imageFileList[i]);
+    //}
   }
 
 
