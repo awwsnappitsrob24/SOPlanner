@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vivi_bday_app/helper_classes/ImageList.dart';
 import 'package:vivi_bday_app/pages/SendNotificationsPage.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,7 +19,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   final List<File> imageList = [];
   final List<String> giftList = [];
   final List<String> dateList = [];
-  final List<String> imageFileList = [];
   File uploadedImage;
   String fileName, lastImageUrl = "";
   int fileNum = 0;
@@ -38,13 +35,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     database.setPersistenceEnabled(true);
     database.setPersistenceCacheSizeBytes(10000000);
 
-    // Get list of gifts and date ideas from firebase database at initial startup
+    // Get list of gifts, dates, and images from firebase database at initial startup
+    readImages();
     readGifts();
     readDates();
 
     // Build everything in the start
     build(this.context);
-
   }
 
   Future uploadImage() async {
@@ -57,16 +54,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     });
 
     final File file = new File(uploadedImage.path);
-    final String baseFilename = basename(file.path);
 
     // Add to list to be displayed
     imageList.add(file);
 
-    // Use this to get all images from startup
-    imageFileList.add(baseFilename);
-    //for(int i = 0; i < imageFileList.length; i++) {
-    //  print(imageFileList[i]);
-    //}
+    // Send filename to DB soit can be read at startup
+    createImage(file);
   }
 
 
@@ -554,6 +547,15 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     });
   }
 
+  void createImage(File file) {
+    var randomNum = new Random();
+    var newNum = randomNum.nextInt(1000000);
+    var db = FirebaseDatabase.instance.reference().child("images").child(newNum.toString())
+        .set({
+      'title': file.path,
+    });
+  }
+
   void createDate(String dateName) {
     var randomNum = new Random();
     var newNum = randomNum.nextInt(1000000);
@@ -582,6 +584,19 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       dates.forEach((key, value) {
         setState(() {
           dateList.add(value["title"]);
+        });
+      });
+    });
+  }
+
+  void readImages() {
+    var db = FirebaseDatabase.instance.reference().child("images");
+    db.once().then((DataSnapshot snapshot){
+      Map<dynamic, dynamic> images = snapshot.value;
+      images.forEach((key, value) {
+        setState(() {
+          File savedFile = new File(value["title"]);
+          imageList.add(savedFile);
         });
       });
     });
