@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
+import 'package:vivi_bday_app/Setup/login.dart';
 import 'package:vivi_bday_app/helper_classes/ImageList.dart';
 import 'package:vivi_bday_app/pages/SendNotificationsPage.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,7 +14,6 @@ class Homepage extends StatefulWidget {
   @override
   _HomepageState createState() => _HomepageState();
 }
-
 
 class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<Homepage> {
   final List<File> imageList = [];
@@ -184,117 +184,135 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: Colors.deepPurple[200],
-      ),
-      home: DefaultTabController(
-        length: 4,
-        child: Scaffold(
-          drawer: Drawer(
-            child: Container(
-              color: Colors.deepPurple[100],
-              child: ListView(
-                children: <Widget>[
-                  UserAccountsDrawerHeader(
-                    //accountName: Text("Viviana Ruiz"),
-                    accountName: new Text("Viviana Ruiz", style: TextStyle(color: Colors.white),),
-                    accountEmail: new Text("viviruiz15@gmail.com", style: TextStyle(color: Colors.white),),
-                    currentAccountPicture: CircleAvatar(
-                      child: Image.asset('assets/images/profile_picture.jpg'),
-                    ),
-                    decoration: new BoxDecoration(
-                      image: new DecorationImage(
-                        image: new AssetImage("assets/images/account_drawer_bgimage.jpg"),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    title: Text("Upload Pictures"),
-                    trailing: Icon(Icons.image),
-                    onTap: () {
-                      uploadImage();
-                    },
-                  ),
-                  ListTile(
-                    title: Text("Add Gift Ideas"),
-                    trailing: Icon(Icons.card_giftcard),
-                    onTap: () {
-                      addGiftIdea(context);
-                    },
-                  ),
-                  ListTile(
-                    title: Text("Add Date Ideas"),
-                    trailing: Icon(Icons.restaurant),
-                    onTap: () {
-                      addDateIdea(context);
-                    },
-                  ),
-                ],
-              ),
-            )
-          ),
-          appBar: AppBar(
-            bottom: TabBar(
-              tabs: [
-                Tab(text: 'Pictures', icon: Icon(Icons.image)),
-                Tab(text: 'Gifts', icon: Icon(Icons.card_giftcard)),
-                Tab(text: 'Dates', icon: Icon(Icons.restaurant)),
-                Tab(text: 'Messages', icon: Icon(Icons.mood)),
-              ],
-            ),
-            title: Text('Welcome, Vivi!', style: TextStyle(color: Colors.yellow)),
-            centerTitle: true,
-          ),
-          body: TabBarView (
-            children: [
-              Scaffold(
-                body: Center(
-                  child: Column(
+    return new WillPopScope(
+      onWillPop: () async => false,
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primaryColor: Colors.deepPurple[200],
+        ),
+        home: DefaultTabController(
+          length: 4,
+          child: Scaffold(
+            drawer: Drawer(
+                child: Container(
+                  color: Colors.deepPurple[100],
+                  child: ListView(
                     children: <Widget>[
-                      Container(
-                        child: Expanded(child: ImageList(imageList))
+                      UserAccountsDrawerHeader(
+                        //accountName: Text("Viviana Ruiz"),
+                        accountName: new Text("Viviana Ruiz", style: TextStyle(color: Colors.white),),
+                        accountEmail: new Text("viviruiz15@gmail.com", style: TextStyle(color: Colors.white),),
+                        currentAccountPicture: CircleAvatar(
+                          child: Image.asset('assets/images/profile_picture.jpg'),
+                        ),
+                        decoration: new BoxDecoration(
+                          image: new DecorationImage(
+                            image: new AssetImage("assets/images/account_drawer_bgimage.jpg"),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
-
+                      ListTile(
+                        title: Text("Upload Pictures"),
+                        trailing: Icon(Icons.image),
+                        onTap: () {
+                          uploadImage();
+                        },
+                      ),
+                      ListTile(
+                        title: Text("Add Gift Ideas"),
+                        trailing: Icon(Icons.card_giftcard),
+                        onTap: () {
+                          addGiftIdea(context);
+                        },
+                      ),
+                      ListTile(
+                        title: Text("Add Date Ideas"),
+                        trailing: Icon(Icons.restaurant),
+                        onTap: () {
+                          addDateIdea(context);
+                        },
+                      ),
+                      ListTile(
+                        title: Text("Logout"),
+                        trailing: Icon(Icons.power_settings_new),
+                        onTap: () {
+                          logout();
+                        },
+                      ),
                     ],
                   ),
-                ),
+                )
+            ),
+            appBar: AppBar(
+              bottom: TabBar(
+                tabs: [
+                  Tab(text: 'Pictures', icon: Icon(Icons.image)),
+                  Tab(text: 'Gifts', icon: Icon(Icons.card_giftcard)),
+                  Tab(text: 'Dates', icon: Icon(Icons.restaurant)),
+                  Tab(text: 'Messages', icon: Icon(Icons.mood)),
+                ],
               ),
+              title: Text('Welcome, Vivi!', style: TextStyle(color: Colors.yellow)),
+              centerTitle: true,
+            ),
+            body: TabBarView (
+              children: [
+                Scaffold(
+                  body: Center(
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                            child: Expanded(child: ImageList(imageList))
+                        ),
 
-              // For Adding Gift Ideas
-              Scaffold(
-                body: Center(
-                  child: Column(
-                    children: <Widget>[
-                      Container(
-                        child: Expanded(child: buildGifts(context)),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // For Adding Gift Ideas
+                Scaffold(
+                  body: Center(
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          child: Expanded(child: buildGifts(context)),
                         )
                       ],
                     ),
                   ),
                 ),
 
-              // For Adding Date Ideas
-              Scaffold(
-                body: Center(
-                  child: Column(
-                    children: <Widget>[
-                      Container(
-                        child: Expanded(child: buildDates(context)),
-                      ),
-                    ],
+                // For Adding Date Ideas
+                Scaffold(
+                  body: Center(
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          child: Expanded(child: buildDates(context)),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              // Go to SendNotifications page
-              SendNotificationsPage(),
-            ],
+                // Go to SendNotifications page
+                SendNotificationsPage(),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  // Go back to login page
+  logout() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage())
     );
   }
 
