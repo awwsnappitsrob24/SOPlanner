@@ -38,6 +38,7 @@ dev_dependencies:
   flutter_appavailability: ^0.0.21
   firebase_messaging: ^4.0.0+3
   flutter_local_notifications: ^0.6.1
+  add_2_calendar: ^1.2.2
 
 
 

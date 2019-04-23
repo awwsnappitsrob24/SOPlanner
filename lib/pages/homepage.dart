@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:math';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:add_2_calendar/add_2_calendar.dart';
+import 'package:firebase_database/firebase_database.dart' hide Event;
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:vivi_bday_app/Setup/login.dart';
@@ -24,8 +24,8 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   int fileNum = 0;
   TextEditingController giftTextController = new TextEditingController();
   TextEditingController dateTextController = new TextEditingController();
-
   FirebaseDatabase database = new FirebaseDatabase();
+
 
   @override
   void initState() {
@@ -504,7 +504,43 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
                 // Get the value from the list to pass on as a query to Yelp or Google
                 var query = dateList[index];
-                _launchSearchDate(query);
+
+                // Create dialog box to either search for it on Yelp, or
+                // add a date to the calendar.
+
+                //_launchSearchDate(query);
+                //_addDateToCalendar(query);
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return SimpleDialog(
+                      title: Text('Date Add/Search', textAlign: TextAlign.center),
+                      backgroundColor: Colors.yellow[200],
+                      contentPadding: EdgeInsets.all(10.0),
+                      children: <Widget>[
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            RaisedButton(
+                              onPressed: () {
+                                _launchSearchDate(query);
+                              },
+
+                              child: Text('Search for Date Idea'), color: Colors.deepPurple[100],
+                            ),
+                            RaisedButton(
+                              onPressed: () {
+                                _addDateToCalendar(query);
+                              },
+                              child: Text('Add Date to Calendar'), color: Colors.deepPurple[100],
+                            ),
+                          ],
+                        )
+
+                      ],
+                    );
+                  }
+                );
               },
             ),
           ],
@@ -525,6 +561,17 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       itemBuilder: _buildDateItem,
     );
   }
+
+  _addDateToCalendar(String dateTitle) {
+    final Event dateEvent = Event(
+      title: dateTitle,
+      startDate: DateTime.now(),
+      endDate: DateTime.now(),
+    );
+
+    Add2Calendar.addEvent2Cal(dateEvent);
+  }
+
 
   _launchSearchDate(String query) async {
     var url = " ";
