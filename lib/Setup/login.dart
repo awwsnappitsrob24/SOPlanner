@@ -17,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
     return Container(
       decoration: new BoxDecoration(
         image: new DecorationImage(
-          image: new AssetImage("assets/images/vivi_bday_app_bgimage.jpg"),
+          image: new AssetImage("assets/images/login_bg_gif.gif"),
           fit: BoxFit.cover,
         ),
       ),

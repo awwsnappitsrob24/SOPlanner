@@ -39,7 +39,7 @@ class _SendNotificationsPageState extends State<SendNotificationsPage> {
     return Container(
       decoration: new BoxDecoration(
         image: new DecorationImage(
-          image: new AssetImage("assets/images/date_page_image.jpg"),
+          image: new AssetImage("assets/images/notification_gif.gif"),
           fit: BoxFit.cover,
         ),
       ),
@@ -53,10 +53,15 @@ class _SendNotificationsPageState extends State<SendNotificationsPage> {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              RaisedButton(
-                onPressed: showNotification,
-                child: Text('Press for a notification! :)'), color: Colors.deepPurple[100],
-              ),
+              new Container(
+                margin: const EdgeInsets.only(top: 150.0),
+                child: RaisedButton(
+                  onPressed: showNotification,
+                  child: Text('Press to cheer up! :)'), color: Colors.deepPurple[100],
+
+                ),
+              )
+
             ],
           ),
         ),

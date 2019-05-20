@@ -95,16 +95,16 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   FlatButton(
-                    child: new Text("OK"),
-                    onPressed: () {
-                      //Method to build the list of gifts and upload to firebase DB
-                      String gift = giftTextController.text;
-                      giftList.add(gift);
-                      createGift(gift);
+                      child: new Text("OK"),
+                      onPressed: () {
+                        //Method to build the list of gifts and upload to firebase DB
+                        String gift = giftTextController.text;
+                        giftList.add(gift);
+                        createGift(gift);
 
-                      // Close the dialog box
-                      Navigator.pop(context);
-                    }
+                        // Close the dialog box
+                        Navigator.pop(context);
+                      }
                   ),
 
                   FlatButton(
@@ -364,9 +364,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
             // Check for value in DB to delete
             if(value["title"] == giftDeleted) {
 
-            // Delete the node form Firebase DB
-            FirebaseDatabase.instance.reference().child("gifts")
-                .child(key).remove();
+              // Delete the node form Firebase DB
+              FirebaseDatabase.instance.reference().child("gifts")
+                  .child(key).remove();
             }
           });
         });
@@ -511,35 +511,35 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                 //_launchSearchDate(query);
                 //_addDateToCalendar(query);
                 showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return SimpleDialog(
-                      title: Text('Date Add/Search', textAlign: TextAlign.center),
-                      backgroundColor: Colors.yellow[200],
-                      contentPadding: EdgeInsets.all(10.0),
-                      children: <Widget>[
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            RaisedButton(
-                              onPressed: () {
-                                _launchSearchDate(query);
-                              },
+                    context: context,
+                    builder: (BuildContext context) {
+                      return SimpleDialog(
+                        title: Text('Date Add/Search', textAlign: TextAlign.center),
+                        backgroundColor: Colors.yellow[200],
+                        contentPadding: EdgeInsets.all(10.0),
+                        children: <Widget>[
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              RaisedButton(
+                                onPressed: () {
+                                  _launchSearchDate(query);
+                                },
 
-                              child: Text('Search for Date Idea'), color: Colors.deepPurple[100],
-                            ),
-                            RaisedButton(
-                              onPressed: () {
-                                _addDateToCalendar(query);
-                              },
-                              child: Text('Add Date to Calendar'), color: Colors.deepPurple[100],
-                            ),
-                          ],
-                        )
+                                child: Text('Search for Date Idea'), color: Colors.deepPurple[100],
+                              ),
+                              RaisedButton(
+                                onPressed: () {
+                                  _addDateToCalendar(query);
+                                },
+                                child: Text('Add Date to Calendar'), color: Colors.deepPurple[100],
+                              ),
+                            ],
+                          )
 
-                      ],
-                    );
-                  }
+                        ],
+                      );
+                    }
                 );
               },
             ),
@@ -607,7 +607,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     var randomNum = new Random();
     var newNum = randomNum.nextInt(1000000);
     var db = FirebaseDatabase.instance.reference().child("gifts").child(newNum.toString())
-      .set({
+        .set({
       'title': giftName,
     });
   }
@@ -667,6 +667,3 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     });
   }
 }
-
-
-
