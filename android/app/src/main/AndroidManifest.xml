@@ -12,7 +12,7 @@
 
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="vivi_bday_app"
+        android:label="Vivi's Bday App"
         android:icon="@mipmap/launcher_icon"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
