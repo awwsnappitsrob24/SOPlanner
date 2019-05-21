@@ -14,85 +14,88 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
 
-    return Container(
-      decoration: new BoxDecoration(
-        image: new DecorationImage(
-          image: new AssetImage("assets/images/login_bg_gif.gif"),
-          fit: BoxFit.cover,
+    return new WillPopScope(
+      onWillPop: () async => false,
+      child:Container(
+        decoration: new BoxDecoration(
+          image: new DecorationImage(
+            image: new AssetImage("assets/images/login_bg_gif.gif"),
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
 
-      child: Scaffold (
-        appBar: AppBar(
-          title: Text('Login', style: TextStyle(color: Colors.yellow)),
-        ),
-        resizeToAvoidBottomPadding: false,
-        backgroundColor: Colors.transparent,
-        body: Form(
-          key: _formKey,
+        child: Scaffold (
+          appBar: AppBar(
+            title: Text('Login', style: TextStyle(color: Colors.yellow)),
+          ),
+          resizeToAvoidBottomPadding: false,
+          backgroundColor: Colors.transparent,
+          body: Form(
+            key: _formKey,
 
-          // Login Form created here: Text fields and buttons
-          child: Column(
-            // Align text fields to center of page
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
+            // Login Form created here: Text fields and buttons
+            child: Column(
+              // Align text fields to center of page
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
 
-              children: <Widget>[
-                // TextFormField for Email
-                TextFormField (
-                  validator: (input) {
-                    if(input.isEmpty) {
-                      return 'Email cannot be empty.';
-                    }
-                  },
-                  onSaved: (input) => _email = input,
-                  decoration: InputDecoration(
-                    border: new OutlineInputBorder(
-                      borderRadius: const BorderRadius.all(
-                          const Radius.circular(10.0)
+                children: <Widget>[
+                  // TextFormField for Email
+                  TextFormField (
+                    validator: (input) {
+                      if(input.isEmpty) {
+                        return 'Email cannot be empty.';
+                      }
+                    },
+                    onSaved: (input) => _email = input,
+                    decoration: InputDecoration(
+                      border: new OutlineInputBorder(
+                        borderRadius: const BorderRadius.all(
+                            const Radius.circular(10.0)
+                        ),
                       ),
+                      contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
+                      filled: true,
+                      hintText: 'Email',
+                      hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
+                      fillColor: Colors.white70,
                     ),
-                    contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
-                    filled: true,
-                    hintText: 'Email',
-                    hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
-                    fillColor: Colors.white70,
                   ),
-                ),
 
-                TextFormField (
-                  validator: (input) {
-                    if(input.isEmpty) {
-                      return 'Password cannot be empty.';
-                    }
-                  },
-                  onSaved: (input) => _password = input,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    border: new OutlineInputBorder(
-                      borderRadius: const BorderRadius.all(
-                          const Radius.circular(10.0)
+                  TextFormField (
+                    validator: (input) {
+                      if(input.isEmpty) {
+                        return 'Password cannot be empty.';
+                      }
+                    },
+                    onSaved: (input) => _password = input,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      border: new OutlineInputBorder(
+                        borderRadius: const BorderRadius.all(
+                            const Radius.circular(10.0)
+                        ),
                       ),
+                      contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
+                      filled: true,
+                      hintText: 'Password',
+                      hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
+                      fillColor: Colors.white70,
                     ),
-                    contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
-                    filled: true,
-                    hintText: 'Password',
-                    hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
-                    fillColor: Colors.white70,
                   ),
-                ),
 
-                // Log in Button
-                RaisedButton(
-                  onPressed: login,
-                  child: Text('Log In'), color: Colors.deepPurple[100],
-                ),
+                  // Log in Button
+                  RaisedButton(
+                    onPressed: login,
+                    child: Text('Log In'), color: Colors.deepPurple[100],
+                  ),
 
-              ]
+                ]
+            )
           )
-        )
-      ),
+        ),
+      )
     );
   } // Widget
 
