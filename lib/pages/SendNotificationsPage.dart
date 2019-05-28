@@ -118,9 +118,8 @@ class _SendNotificationsPageState extends State<SendNotificationsPage> {
     cuteMessages.add("The world is so small compared to my love for you…");
     cuteMessages.add("My favorite place is by your side");
     cuteMessages.add("You are amazing and perfect in every way. Damn, autocorrect. I mean good morning. KIDDING! I love you!");
-    cuteMessages.add("You are amazing and perfect in every way. Damn, autocorrect. I mean good morning.");
     cuteMessages.add("My life has never been brighter ever since we met.");
-    cuteMessages.add("This might be jumping teh gun... but.. I can’t wait to marry you someday. Frfr");
+    cuteMessages.add("This might be jumping the gun... but.. I can’t wait to marry you someday. Frfr");
     cuteMessages.add("You are so beautiful. Never EVER doubt that!");
     cuteMessages.add("I love the way that you giggle whenever I say something stupid lol the cutest!");
     cuteMessages.add("I don’t know what my favorite thing about you is. I love every single part of you!");
@@ -130,6 +129,7 @@ class _SendNotificationsPageState extends State<SendNotificationsPage> {
     cuteMessages.add("If you're reading this and you've had a tough day... just know that tomorrow, the sun will rise and shine and it will be another day! Another day I get to be with the most wonderful human being that's ever graced this planet. I love you!");
     cuteMessages.add("You still give me butterflies! Especially when you walk out of your house and you walk to my car when I come pick you up lol");
     cuteMessages.add("Te amo más que nada en el mundo!");
+    cuteMessages.add("This is the 50th message. Couldn't think of anything to put here lol. Hope you're having an amazing day my love!");
 
     // Get a random index number to pick which message to send
     var rand = new Random();
