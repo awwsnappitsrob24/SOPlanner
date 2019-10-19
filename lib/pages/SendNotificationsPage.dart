@@ -111,7 +111,8 @@ class _SendNotificationsPageState extends State<SendNotificationsPage> {
     cuteMessages.add("I love the way you love me. It's nothing like I've ever had. Thank you for that :)");
     cuteMessages.add("You are so good to me … what did I ever do to deserve you?");
     cuteMessages.add("Love makes no sense if it is not to the right person. I feel very lucky to be with you!");
-    cuteMessages.add("I wish you two things: everything and nothing. Everything that makes you happy and nothing that makes you suffer. I love you!dmire you, I care for you, I love you, I respect you and I trust you. Unconditionally.");
+    cuteMessages.add("I wish you two things: everything and nothing. Everything that makes you happy and nothing that makes you suffer. I love you!"); 
+    cuteMessages.add("I admire you, I care for you, I love you, I respect you and I trust you. Unconditionally.");
     cuteMessages.add("I don’t want you to be perfect. I love your imperfections because they make my life as perfect as one can imagine.");
     cuteMessages.add("You are and always be the prettiest girl in the world. At least in my world. Because YOU are my world. And not only that: you are my whole universe!");
     cuteMessages.add("You are the most wonderful love I ever had. With you, I feel untouchable, invincible. You make me stronger, happier and wiser. Because not everybody knows what is love.");
