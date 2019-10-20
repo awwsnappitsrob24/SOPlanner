@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vivi_bday_app/pages/homepage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -9,136 +11,75 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   String _email, _password;
+  bool _isLoading = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
-
-  /**
-  @override
-  Widget build(BuildContext context) {
-
-    return new WillPopScope(
-      onWillPop: () async => false,
-      child:Container(
-        decoration: new BoxDecoration(
-          image: new DecorationImage(
-            image: new AssetImage("assets/images/login_bg_gif.gif"),
-            fit: BoxFit.cover,
-          ),
-        ),
-
-        child: Scaffold (
-          appBar: AppBar(
-            title: Text('Login', style: TextStyle(color: Colors.yellow)),
-          ),
-          resizeToAvoidBottomPadding: false,
-          backgroundColor: Colors.transparent,
-          body: Form(
-            key: _formKey,
-
-            // Login Form created here: Text fields and buttons
-            child: Column(
-              // Align text fields to center of page
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-
-                children: <Widget>[
-                  // TextFormField for Email
-                  TextFormField (
-                    validator: (input) {
-                      if(input.isEmpty) {
-                        return 'Email cannot be empty.';
-                      }
-                    },
-                    onSaved: (input) => _email = input,
-                    decoration: InputDecoration(
-                      border: new OutlineInputBorder(
-                        borderRadius: const BorderRadius.all(
-                            const Radius.circular(10.0)
-                        ),
-                      ),
-                      contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
-                      filled: true,
-                      hintText: 'Email',
-                      hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
-                      fillColor: Colors.white70,
-                    ),
-                  ),
-
-                  TextFormField (
-                    validator: (input) {
-                      if(input.isEmpty) {
-                        return 'Password cannot be empty.';
-                      }
-                    },
-                    onSaved: (input) => _password = input,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      border: new OutlineInputBorder(
-                        borderRadius: const BorderRadius.all(
-                            const Radius.circular(10.0)
-                        ),
-                      ),
-                      contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
-                      filled: true,
-                      hintText: 'Password',
-                      hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
-                      fillColor: Colors.white70,
-                    ),
-                  ),
-
-                  // Log in Button
-                  RaisedButton(
-                    onPressed: login,
-                    child: Text('Log In'), color: Colors.deepPurple[100],
-                  ),
-
-                ]
-            )
-          )
-        ),
-      )
-    );
-  } // Widget */
+  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0, color: Colors.white);
 
    @override
   Widget build(BuildContext context) {
     
-    final emailField = TextField(
+    /// Email TextField
+    /// - Cannot be empty
+    /// - Rounded border
+    /// - Pink prefix icon
+    /// - White text and hint text
+    final emailField = TextFormField(
+      validator: (input) {
+        if(input.isEmpty) {
+          return 'Email cannot be empty.'; // empty check
+        }
+      },
+      onSaved: (input) => _email = input, // save user input into variable for authentication
       style: style,
       decoration: InputDecoration(
         contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        enabledBorder: const OutlineInputBorder(
-          // width: 0.0 produces a thin "hairline" border
-          borderSide: const BorderSide(color: Colors.grey, width: 2.0,),
+        enabledBorder: OutlineInputBorder(
+          // border features
+          borderSide: BorderSide(color: Colors.grey, width: 2.0,),
 
           // circular border
           borderRadius: BorderRadius.all(Radius.circular(32.0)),
         ),
-        border: const OutlineInputBorder(),
-        labelStyle: new TextStyle(color: Colors.green),
+        filled: true,
         prefixIcon: Icon(Icons.email, color: Colors.pink[100]),
         hintText: "Email",
         hintStyle: TextStyle(color: Colors.white),
     ));
     
-    final passwordField = TextField(
-      obscureText: true,
-      style: style,
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          enabledBorder: const OutlineInputBorder(
-            // width: 0.0 produces a thin "hairline" border
-            borderSide: const BorderSide(color: Colors.grey, width: 2.0,),
 
-            // circular border
-            borderRadius: BorderRadius.all(Radius.circular(32.0)),
-          ),
-          prefixIcon: Icon(Icons.lock, color: Colors.pink[100]),
-          hintText: "Password",
-          hintStyle: TextStyle(color: Colors.white),
+    /// Password TextField
+    /// - Cannot be empty
+    /// - Rounded border
+    /// - Pink prefix icon
+    /// - White text and hint text
+    final passwordField = TextFormField(
+      validator: (input) {
+        if(input.isEmpty) {
+          return 'Password cannot be empty.'; // empty check
+        }
+      },
+      onSaved: (input) => _password = input, // save user input into variable for authentication
+      style: style,
+      obscureText: true,
+      decoration: InputDecoration(
+        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+        enabledBorder: OutlineInputBorder(
+          // border features
+          borderSide: BorderSide(color: Colors.grey, width: 2.0,),
+
+          // circular border
+          borderRadius: BorderRadius.all(Radius.circular(32.0)),
+        ),
+        prefixIcon: Icon(Icons.lock, color: Colors.pink[100]),
+        hintText: "Password",
+        hintStyle: TextStyle(color: Colors.white),
     ));
+  
     
+    /// Login Button
+    /// - Filled in blue
+    /// - White text
+    /// - Triggers "login" function when tapped
     final loginButon = Material(
       elevation: 5.0,
       borderRadius: BorderRadius.circular(30.0),
@@ -146,7 +87,10 @@ class _LoginPageState extends State<LoginPage> {
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () {},
+
+        // trigger login function here
+        onPressed: login,
+
         child: Text("Login",
             textAlign: TextAlign.center,
             style: style.copyWith(
@@ -155,62 +99,94 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Center(
+      resizeToAvoidBottomInset: false,  // avoid overflow when tapping on textfields
+      body: ModalProgressHUD(
         child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/images/login_bgimg.jpg"),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(36.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(
-                  height: 155.0,
-                  child: Image.asset(
-                    "assets/images/logo.png",
-                    fit: BoxFit.contain,
+          child: Form(
+            key: _formKey,
+            child: Center (
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/images/login_bgimg.jpg"), // background image to fit whole page
+                    fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(height: 70.0),
-                emailField,
-                SizedBox(height: 25.0),
-                passwordField,
-                SizedBox(
-                  height: 35.0,
+                child: Padding(
+                  padding: const EdgeInsets.all(36.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      SizedBox(
+                        height: 155.0,
+                        child: Image.asset(
+                          "assets/images/logo.png", // logo of the app
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      SizedBox(height: 70.0), // use these sizedboxes to represent spaces between widgets
+                      emailField, // email textfield that was built earlier
+                      SizedBox(height: 25.0),
+                      passwordField, // password textfield that was built earlier
+                      SizedBox(
+                        height: 35.0,
+                      ),
+                      loginButon, // login button that was built earlier
+                      SizedBox(
+                        height: 15.0,
+                      ),
+                    ],
+                  ),
                 ),
-                loginButon,
-                SizedBox(
-                  height: 15.0,
-                ),
-              ],
+              ),
             ),
-          ),
+          )
         ),
-      ),
+        inAsyncCall: _isLoading),
     );
   }
 
+  /// Login function to authenticate users using Firebase
   Future<void> login() async {
+
     // Validate fields
     final formState = _formKey.currentState;
     if(formState.validate()) {
       formState.save();
       try {
+        // When user presses login button, show Modal Progress HUD
+        setState(() {
+          _isLoading = true;
+        });
+
         // Create user
         FirebaseUser user = await FirebaseAuth.instance.signInWithEmailAndPassword
           (email: _email, password: _password);
 
+        // After authenticating, hide Modal Progress HUD
+        setState(() {
+          _isLoading = false;
+        });
+
         // If login is successful, go to homepage
         Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage()));
       } catch(e) {
-        // Error message
-        print(e.message);
+        
+        // Hide Modal Progress HUD
+        setState(() {
+          _isLoading = false;
+        });
+
+        // Error message in a toast
+        Fluttertoast.showToast(
+          msg: "Email and/or password are incorrect.",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+        );
       }
 
     }
