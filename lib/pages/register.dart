@@ -1,28 +1,84 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vivi_bday_app/pages/homepage.dart';
-import 'package:vivi_bday_app/pages/register.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-class LoginPage extends StatefulWidget {
+class RegisterPage extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  String _email, _password;
+class _RegisterPageState extends State<RegisterPage> {
+  String _firstName, _lastName, _email, _password;
   bool _isLoading = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0, color: Colors.white);
+  final databaseReference = Firestore.instance;
 
    @override
   Widget build(BuildContext context) {
     
+    /// First Name TextField
+    /// - Cannot be empty
+    /// - Rounded border
+    /// - White text and hint text
+    final firstNameField = TextFormField(
+      validator: (input) {
+        if(input.isEmpty) {
+          return 'First name cannot be empty.'; // empty check
+        }
+      },
+      onSaved: (input) => _firstName = input, // save user input into variable for authentication
+      style: style,
+      decoration: InputDecoration(
+        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+        enabledBorder: OutlineInputBorder(
+          // border features
+          borderSide: BorderSide(color: Colors.grey, width: 2.0,),
+
+          // circular border
+          borderRadius: BorderRadius.all(Radius.circular(32.0)),
+        ),
+        filled: true,
+        prefixIcon: Icon(Icons.person_add, color: Colors.pink[100]),
+        hintText: "First Name",
+        hintStyle: TextStyle(color: Colors.white),
+    ));
+
+
+    /// Last Name TextField
+    /// - Cannot be empty
+    /// - Rounded border
+    /// - White text and hint text
+    final lastNameField = TextFormField(
+      validator: (input) {
+        if(input.isEmpty) {
+          return 'Last name cannot be empty.'; // empty check
+        }
+      },
+      onSaved: (input) => _lastName = input, // save user input into variable for authentication
+      style: style,
+      decoration: InputDecoration(
+        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+        enabledBorder: OutlineInputBorder(
+          // border features
+          borderSide: BorderSide(color: Colors.grey, width: 2.0,),
+
+          // circular border
+          borderRadius: BorderRadius.all(Radius.circular(32.0)),
+        ),
+        filled: true,
+        prefixIcon: Icon(Icons.person_add, color: Colors.pink[100]),
+        hintText: "Last Name",
+        hintStyle: TextStyle(color: Colors.white),
+    ));
+
+
     /// Email TextField
     /// - Cannot be empty
     /// - Rounded border
-    /// - Pink prefix icon
     /// - White text and hint text
     final emailField = TextFormField(
       validator: (input) {
@@ -51,7 +107,6 @@ class _LoginPageState extends State<LoginPage> {
     /// Password TextField
     /// - Cannot be empty
     /// - Rounded border
-    /// - Pink prefix icon
     /// - White text and hint text
     final passwordField = TextFormField(
       validator: (input) {
@@ -77,11 +132,11 @@ class _LoginPageState extends State<LoginPage> {
     ));
   
     
-    /// Login Button
+    /// Register Button
     /// - Filled in blue
     /// - White text
-    /// - Triggers "login" function when tapped
-    final loginButton = Material(
+    /// - Triggers "register" function when tapped
+    final registerButton = Material(
       elevation: 5.0,
       borderRadius: BorderRadius.circular(30.0),
       color: Color(0xff01A0C7),
@@ -89,10 +144,10 @@ class _LoginPageState extends State<LoginPage> {
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
 
-        // trigger login function here
-        onPressed: login,
+        // trigger register function here
+        onPressed: register,
 
-        child: Text("Login",
+        child: Text("Register",
             textAlign: TextAlign.center,
             style: style.copyWith(
                 color: Colors.white, fontWeight: FontWeight.bold)),
@@ -119,35 +174,27 @@ class _LoginPageState extends State<LoginPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      SizedBox(
-                        height: 155.0,
-                        child: Image.asset(
-                          "assets/images/logo.png", // logo of the app
-                          fit: BoxFit.contain,
-                        ),
-                      ),
 
-                      SizedBox(height: 70.0), // use these sizedboxes to represent spaces between widgets
+                      SizedBox(height: 10.0), // use these sizedboxes to represent spaces between widgets
+                      firstNameField, // first name textfield that was built earlier
+
+                      SizedBox(height: 10.0),
+                      lastNameField, // password textfield that was built earlier
+
+                      SizedBox(height: 10.0),
                       emailField, // email textfield that was built earlier
 
-                      SizedBox(height: 25.0),
+                      SizedBox(height: 10.0),
                       passwordField, // password textfield that was built earlier
 
                       SizedBox(
-                        height: 35.0,
+                        height: 90.0,
                       ),
-                      loginButton, // login button that was built earlier
+                      registerButton, // register button that was built earlier
 
                       SizedBox(
-                        height: 15.0,
+                        height: 5.0,
                       ),
-                      InkWell(
-                        child: Text(
-                          "Don't have an account? Register here",
-                          style: TextStyle(color: Colors.blue[200]),
-                        ),
-                        onTap: gotoRegisterPage,
-                      )
                     ],
                   ),
                 ),
@@ -160,7 +207,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   /// Login function to authenticate users using Firebase
-  Future<void> login() async {
+  Future<void> register() async {
 
     // Validate fields
     final formState = _formKey.currentState;
@@ -172,16 +219,27 @@ class _LoginPageState extends State<LoginPage> {
           _isLoading = true;
         });
 
-        // Authenticate user
-        await FirebaseAuth.instance.signInWithEmailAndPassword
+        // Create user
+        await FirebaseAuth.instance.createUserWithEmailAndPassword
           (email: _email, password: _password);
+
+        // Store user's data in firestore for later retrieval
+        DocumentReference ref = await Firestore.instance.collection("users")
+        .add({
+          'firstName': _firstName,
+          'lastName': _lastName,
+          'email': _email,
+          'password': _password,
+        });
+        print(ref.documentID);
+        
 
         // After authenticating, hide Modal Progress HUD
         setState(() {
           _isLoading = false;
         });
 
-        // If login is successful, go to homepage
+        // If register is successful, go to homepage
         Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage()));
       } catch(e) {
         
@@ -192,22 +250,14 @@ class _LoginPageState extends State<LoginPage> {
 
         // Error message in a toast
         Fluttertoast.showToast(
-          msg: "Email and/or password are incorrect.",
+          msg: e.message,
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.red,
           textColor: Colors.white,
           fontSize: 16.0
         );
-
-        print(_email);
-        print(_password);
       }
     }
-  }
-
-  /// Function to go to Register page
-  void gotoRegisterPage() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()));
   }
 }
