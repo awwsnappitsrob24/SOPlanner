@@ -155,54 +155,51 @@ class _RegisterPageState extends State<RegisterPage> {
     );
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,  // avoid overflow when tapping on textfields
       body: ModalProgressHUD(
         child: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/login_bgimg.jpg"), // background image to fit whole page
+              fit: BoxFit.cover,
+            ),
+          ),
           child: Form(
             key: _formKey,
-            child: Center (
-              child: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("assets/images/login_bgimg.jpg"), // background image to fit whole page
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(36.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
+            child: Center (           
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(36.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
 
-                      SizedBox(height: 10.0), // use these sizedboxes to represent spaces between widgets
-                      firstNameField, // first name textfield that was built earlier
+                    SizedBox(height: 10.0), // use these sizedboxes to represent spaces between widgets
+                    firstNameField, // first name textfield that was built earlier
 
-                      SizedBox(height: 10.0),
-                      lastNameField, // password textfield that was built earlier
+                    SizedBox(height: 10.0),
+                    lastNameField, // password textfield that was built earlier
 
-                      SizedBox(height: 10.0),
-                      emailField, // email textfield that was built earlier
+                    SizedBox(height: 10.0),
+                    emailField, // email textfield that was built earlier
 
-                      SizedBox(height: 10.0),
-                      passwordField, // password textfield that was built earlier
+                    SizedBox(height: 10.0),
+                    passwordField, // password textfield that was built earlier
 
-                      SizedBox(
-                        height: 90.0,
-                      ),
-                      registerButton, // register button that was built earlier
+                    SizedBox(
+                      height: 90.0,
+                    ),
+                    registerButton, // register button that was built earlier
 
-                      SizedBox(
-                        height: 5.0,
-                      ),
-                    ],
-                  ),
+                    SizedBox(
+                      height: 5.0,
+                    ),
+                  ],
                 ),
               ),
             ),
           )
         ),
-        inAsyncCall: _isLoading),
+      inAsyncCall: _isLoading),
     );
   }
 

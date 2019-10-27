@@ -100,21 +100,20 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,  // avoid overflow when tapping on textfields
       body: ModalProgressHUD(
         child: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/login_bgimg.jpg"), // background image to fit whole page
+              fit: BoxFit.cover,
+            ),
+          ),
           child: Form(
             key: _formKey,
             child: Center (
-              child: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("assets/images/login_bgimg.jpg"), // background image to fit whole page
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(36.0),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(36.0),
+                child: Center(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -150,12 +149,12 @@ class _LoginPageState extends State<LoginPage> {
                       )
                     ],
                   ),
-                ),
-              ),
+                )
+              )
             ),
           )
         ),
-        inAsyncCall: _isLoading),
+      inAsyncCall: _isLoading),
     );
   }
 
