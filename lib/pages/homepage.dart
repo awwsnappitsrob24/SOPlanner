@@ -9,8 +9,13 @@ import 'package:vivi_bday_app/helper_classes/ImageList.dart';
 import 'package:vivi_bday_app/pages/SendNotificationsPage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_appavailability/flutter_appavailability.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Homepage extends StatefulWidget {
+  final User user;
+
+  const Homepage({Key key, this.user}): super(key: key);
+
   @override
   _HomepageState createState() => _HomepageState();
 }
@@ -20,12 +25,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   final List<String> giftList = [];
   final List<String> dateList = [];
   File uploadedImage;
-  String fileName, lastImageUrl = "";
+  User myUser;
+  String fileName, lastImageUrl = "", userFirstName, userLastName, userEmail;
   int fileNum = 0;
   TextEditingController giftTextController = new TextEditingController();
   TextEditingController dateTextController = new TextEditingController();
   FirebaseDatabase database = new FirebaseDatabase();
-
+  Image currentPic = Image.asset('assets/images/default_picture.jpg');
 
   @override
   void initState() {
@@ -39,6 +45,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     readImages();
     readGifts();
     readDates();
+
+    // Gets user information for the navigation drawer
+    getUserInfo();
+    //userFirstName = myUser.firstName;
+    //userLastName = myUser.lastName;
+    //userEmail = myUser.email;
 
     // Build everything in the start
     build(this.context);
@@ -188,9 +200,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       onWillPop: () async => false,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primaryColor: Colors.deepPurple[200],
-        ),
         home: DefaultTabController(
           length: 4,
           child: Scaffold(
@@ -200,17 +209,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   child: ListView(
                     children: <Widget>[
                       UserAccountsDrawerHeader(
-                        //accountName: Text("Viviana Ruiz"),
-                        accountName: new Text("Viviana Ruiz", style: TextStyle(color: Colors.white),),
-                        accountEmail: new Text("viviruiz15@gmail.com", style: TextStyle(color: Colors.white),),
+                        // Use variables gotten from firebase database to get user's name and email
+                        accountName: new Text('$userFirstName' + ' $userLastName', style: TextStyle(color: Colors.white),),
+                        accountEmail: new Text('$userEmail', style: TextStyle(color: Colors.white),),
                         currentAccountPicture: CircleAvatar(
-                          child: Image.asset('assets/images/profile_picture.jpg'),
-                        ),
-                        decoration: new BoxDecoration(
-                          image: new DecorationImage(
-                            image: new AssetImage("assets/images/account_drawer_bgimage.jpg"),
-                            fit: BoxFit.cover,
-                          ),
+                          // Let the user upload their own picture
+                          child: currentPic,
                         ),
                       ),
                       ListTile(
@@ -306,6 +310,22 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         ),
       ),
     );
+  }
+
+  // Read user's data from cloud firestore and display data in navigation drawer
+
+  void getUserInfo() {
+    // Store user's data in firestore for later retrieval
+    Firestore.instance
+    .collection('users')
+    .where("email", isEqualTo: widget.user.email)
+    .snapshots()
+    .listen((data) => 
+        data.documents.forEach((doc) {
+          userFirstName = doc['firstName'];
+          userLastName = doc['lastName'];
+          userEmail = doc['email'];
+        }));
   }
 
   // Go back to login page
@@ -507,9 +527,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
                 // Create dialog box to either search for it on Yelp, or
                 // add a date to the calendar.
-
-                //_launchSearchDate(query);
-                //_addDateToCalendar(query);
                 showDialog(
                     context: context,
                     builder: (BuildContext context) {

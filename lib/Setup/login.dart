@@ -5,9 +5,18 @@ import 'package:vivi_bday_app/pages/register.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends StatefulWidget {  
   @override
   _LoginPageState createState() => _LoginPageState();
+}
+
+// User class that will be passed to the homepage
+class User {
+  String firstName;
+  String lastName;
+  String email;
+
+  User({this.firstName, this.lastName, this.email});
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -180,8 +189,11 @@ class _LoginPageState extends State<LoginPage> {
           _isLoading = false;
         });
 
-        // If login is successful, go to homepage
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage()));
+        // If login is successful, go to homepage passing along the user's email
+        final user = User(
+          email: _email
+        );
+        Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage(user: user)));
       } catch(e) {
         
         // Hide Modal Progress HUD

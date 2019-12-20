@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:vivi_bday_app/pages/homepage.dart';
+import 'package:vivi_bday_app/Setup/login.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -236,8 +236,18 @@ class _RegisterPageState extends State<RegisterPage> {
           _isLoading = false;
         });
 
-        // If register is successful, go to homepage
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage()));
+        // If register is successful, go back to login so user can log in
+        Navigator.push(context, new MaterialPageRoute(builder: (context) => LoginPage()));
+
+        // Successful message in a toast
+        Fluttertoast.showToast(
+          msg: "User created!",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+        );
       } catch(e) {
         
         // Hide Modal Progress HUD
