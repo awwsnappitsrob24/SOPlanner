@@ -48,9 +48,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
     // Gets user information for the navigation drawer
     getUserInfo();
-    //userFirstName = myUser.firstName;
-    //userLastName = myUser.lastName;
-    //userEmail = myUser.email;
 
     // Build everything in the start
     build(this.context);
@@ -205,17 +202,30 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
           child: Scaffold(
             drawer: Drawer(
                 child: Container(
-                  color: Colors.deepPurple[100],
                   child: ListView(
                     children: <Widget>[
                       UserAccountsDrawerHeader(
                         // Use variables gotten from firebase database to get user's name and email
                         accountName: new Text('$userFirstName' + ' $userLastName', style: TextStyle(color: Colors.white),),
                         accountEmail: new Text('$userEmail', style: TextStyle(color: Colors.white),),
-                        currentAccountPicture: CircleAvatar(
-                          // Let the user upload their own picture
-                          child: currentPic,
+                        /**
+                        currentAccountPicture: GestureDetector(
+                          onTap: () {
+                            // change profile picture to what user picks
+                            Image tempProfilePic = ImagePicker.pickImage(source: ImageSource.gallery) as Image;
+
+                            setState(() {
+                              if(tempProfilePic != null) {
+                                currentPic = tempProfilePic;
+                              }
+                            });
+                            print('Clicked');
+                          },
+                          child:  CircleAvatar(
+                            child: currentPic,
+                          ), 
                         ),
+                        */
                       ),
                       ListTile(
                         title: Text("Upload Pictures"),
@@ -258,7 +268,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   Tab(text: 'Messages', icon: Icon(Icons.mood)),
                 ],
               ),
-              title: Text('Welcome, Vivi!', style: TextStyle(color: Colors.yellow)),
+              title: Text('Welcome,' + ' $userFirstName' + '!', style: TextStyle(color: Colors.yellow)),
               centerTitle: true,
             ),
             body: TabBarView (
@@ -396,7 +406,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         child: Column(
           children: <Widget>[
             ListTile(
-              title: Text(giftList[index], textAlign: TextAlign.center),
+              leading: Icon(Icons.card_giftcard),
+              title: Text(giftList[index], textAlign: TextAlign.left),
+              trailing: Icon(Icons.keyboard_arrow_right),
               onTap: () {
                 // Search for gifts in google search (Etsy?)
 
@@ -518,7 +530,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         child: Column(
           children: <Widget>[
             ListTile(
-              title: Text(dateList[index], textAlign: TextAlign.center),
+              leading: Icon(Icons.restaurant),
+              title: Text(dateList[index], textAlign: TextAlign.left),
+              trailing: Icon(Icons.keyboard_arrow_right),
               onTap: () {
                 // Search for dates in Yelp or just google search
 
