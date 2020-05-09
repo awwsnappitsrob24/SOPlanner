@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart' hide Event;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vivi_bday_app/Setup/login.dart';
+import 'package:vivi_bday_app/pages/settings.dart';
 import 'package:vivi_bday_app/pages/SendNotificationsPage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -194,6 +195,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                             print('Clicked');
                           },
                           child:  CircleAvatar(
+                            // change currentPic to whatever user chose to upload
                             child: currentPic,
                           ), 
                         ),
@@ -204,7 +206,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                           ),
                         ),
                       ),
-                     
+                      // Add gift idea tile
                       ListTile(
                         title: Text("Add Gift Ideas", style: TextStyle(color: Colors.blue[200])),
                         trailing: Icon(Icons.card_giftcard, color: Colors.yellow[200]),
@@ -212,6 +214,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                           addGiftIdea(context);
                         },
                       ),
+                      // Add date idea tile
                       ListTile(
                         title: Text("Add Date Ideas", style: TextStyle(color: Colors.blue[200])),
                         trailing: Icon(Icons.restaurant, color: Colors.yellow[200]),
@@ -219,6 +222,15 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                           addDateIdea(context);
                         },
                       ),
+                      // Settings tile
+                      ListTile(
+                        title: Text("Settings", style: TextStyle(color: Colors.blue[200])),
+                        trailing: Icon(Icons.settings, color: Colors.yellow[200]),
+                        onTap: () {
+                          goToSettingsPage();
+                        },
+                      ),
+                      // Logout tile
                       ListTile(
                         title: Text("Logout", style: TextStyle(color: Colors.blue[200])),
                         trailing: Icon(Icons.power_settings_new, color: Colors.yellow[200]),
@@ -276,6 +288,14 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
           ),
         ),
       ),
+    );
+  }
+
+  // Go to settings page if chosen on drawer
+  goToSettingsPage() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SettingsPage())
     );
   }
 
