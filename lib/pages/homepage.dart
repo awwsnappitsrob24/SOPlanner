@@ -176,8 +176,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
           child: Scaffold(
             drawer: Drawer(
                 child: Container(
-                  color: Colors.grey[300],
-                  child: ListView(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage("assets/images/login_bgimg.jpg"), // background image to fit whole page
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: ListView(          
                     children: <Widget>[
                       UserAccountsDrawerHeader(
                         // Use variables gotten from firebase database to get user's name and email
@@ -192,24 +197,31 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                             child: currentPic,
                           ), 
                         ),
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage("assets/images/drawer_header_bgimg.jpg"), // background image to fit whole page
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
+                     
                       ListTile(
-                        title: Text("Add Gift Ideas"),
-                        trailing: Icon(Icons.card_giftcard),
+                        title: Text("Add Gift Ideas", style: TextStyle(color: Colors.blue[200])),
+                        trailing: Icon(Icons.card_giftcard, color: Colors.yellow[200]),
                         onTap: () {
                           addGiftIdea(context);
                         },
                       ),
                       ListTile(
-                        title: Text("Add Date Ideas"),
-                        trailing: Icon(Icons.restaurant),
+                        title: Text("Add Date Ideas", style: TextStyle(color: Colors.blue[200])),
+                        trailing: Icon(Icons.restaurant, color: Colors.yellow[200]),
                         onTap: () {
                           addDateIdea(context);
                         },
                       ),
                       ListTile(
-                        title: Text("Logout"),
-                        trailing: Icon(Icons.power_settings_new),
+                        title: Text("Logout", style: TextStyle(color: Colors.blue[200])),
+                        trailing: Icon(Icons.power_settings_new, color: Colors.yellow[200]),
                         onTap: () {
                           logout();
                         },

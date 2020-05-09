@@ -66,12 +66,12 @@ flutter:
   assets:
     - assets/images/login_bgimg.jpg
     - assets/images/notification_gif.gif
-    - assets/images/account_drawer_bgimage.jpg
     - assets/images/profile_picture.jpg
     - assets/images/appbar_image.jpg
     - assets/images/date_page_image.jpg
     - assets/images/logo.png
     - assets/images/default_picture.jpg
+    - assets/images/drawer_header_bgimg.jpg
   #  - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.
