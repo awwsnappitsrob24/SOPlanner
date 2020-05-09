@@ -4,10 +4,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vivi_bday_app/Setup/login.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'dart:math';
 
 class RegisterPage extends StatefulWidget {
   @override
   _RegisterPageState createState() => _RegisterPageState();
+}
+
+// User ID class that will be passed to the login page and also passed to homepage
+class UserID {
+  int ID;
+
+  UserID({this.ID});
 }
 
 class _RegisterPageState extends State<RegisterPage> {
@@ -16,6 +24,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0, color: Colors.white);
   final databaseReference = Firestore.instance;
+
+  int userUniqueID;
 
    @override
   Widget build(BuildContext context) {
@@ -221,14 +231,16 @@ class _RegisterPageState extends State<RegisterPage> {
           (email: _email, password: _password);
 
         // Store user's data in firestore for later retrieval
+        var rng = new Random();
+        userUniqueID = rng.nextInt(1000000000);
         DocumentReference ref = await Firestore.instance.collection("users")
         .add({
           'firstName': _firstName,
           'lastName': _lastName,
           'email': _email,
           'password': _password,
+          'uniqueID' : userUniqueID,
         });
-        print(ref.documentID);
         
 
         // After authenticating, hide Modal Progress HUD
@@ -236,8 +248,13 @@ class _RegisterPageState extends State<RegisterPage> {
           _isLoading = false;
         });
 
+        // If register is successful, go to login passing along the user's ID
+        final userID = UserID(
+          ID: userUniqueID,
+        );
+
         // If register is successful, go back to login so user can log in
-        Navigator.push(context, new MaterialPageRoute(builder: (context) => LoginPage()));
+        Navigator.push(context, new MaterialPageRoute(builder: (context) => LoginPage(userID: userID)));
 
         // Successful message in a toast
         Fluttertoast.showToast(

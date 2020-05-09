@@ -2,14 +2,13 @@ import 'dart:io';
 import 'dart:math';
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:firebase_database/firebase_database.dart' hide Event;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:vivi_bday_app/Setup/login.dart';
 import 'package:vivi_bday_app/helper_classes/ImageList.dart';
 import 'package:vivi_bday_app/pages/SendNotificationsPage.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_appavailability/flutter_appavailability.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Homepage extends StatefulWidget {
   final User user;
@@ -25,12 +24,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   final List<String> giftList = [];
   final List<String> dateList = [];
   File uploadedImage;
-  User myUser;
-  String fileName, lastImageUrl = "", userFirstName, userLastName, userEmail;
+  String fileName, lastImageUrl = "", userFirstName, userLastName, userEmail, _email;
+  int userID, userUniqueID;
   int fileNum = 0;
   TextEditingController giftTextController = new TextEditingController();
   TextEditingController dateTextController = new TextEditingController();
   FirebaseDatabase database = new FirebaseDatabase();
+  FirebaseUser currentUser;
   Image currentPic = Image.asset('assets/images/default_picture.jpg');
 
   @override
@@ -41,13 +41,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     database.setPersistenceEnabled(true);
     database.setPersistenceCacheSizeBytes(10000000);
 
-    // Get list of gifts, dates, and images from firebase database at initial startup
+    // Gather user info (name and email) for nav drawer
+    getUserInfoForDrawer();
+
+    // Get user unique ID, list of gifts, dates, and images from firebase database at initial startup
     readImages();
     readGifts();
     readDates();
-
-    // Gets user information for the navigation drawer
-    getUserInfo();
 
     // Build everything in the start
     build(this.context);
@@ -67,7 +67,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     // Add to list to be displayed
     imageList.add(file);
 
-    // Send filename to DB soit can be read at startup
+    // Send filename to DB so it can be read at startup
     createImage(file);
   }
 
@@ -80,7 +80,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         builder: (BuildContext context) {
           return SimpleDialog(
             title: Text('Add Gift Idea', textAlign: TextAlign.center),
-            backgroundColor: Colors.yellow[200],
+            backgroundColor: Colors.blue[100],
             contentPadding: EdgeInsets.all(10.0),
             children: <Widget>[
               TextFormField (
@@ -139,7 +139,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         builder: (BuildContext context) {
           return SimpleDialog(
             title: Text('Add Date Idea', textAlign: TextAlign.center),
-            backgroundColor: Colors.yellow[200],
+            backgroundColor: Colors.blue[100],
             contentPadding: EdgeInsets.all(10.0),
             children: <Widget>[
               TextFormField (
@@ -202,30 +202,22 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
           child: Scaffold(
             drawer: Drawer(
                 child: Container(
+                  color: Colors.grey[300],
                   child: ListView(
                     children: <Widget>[
                       UserAccountsDrawerHeader(
                         // Use variables gotten from firebase database to get user's name and email
-                        accountName: new Text('$userFirstName' + ' $userLastName', style: TextStyle(color: Colors.white),),
-                        accountEmail: new Text('$userEmail', style: TextStyle(color: Colors.white),),
-                        /**
+                        accountName: new Text("${widget.user.firstName}" + " ${widget.user.lastName}", style: TextStyle(color: Colors.white),),
+                        accountEmail: new Text("${widget.user.email}", style: TextStyle(color: Colors.white),),
                         currentAccountPicture: GestureDetector(
                           onTap: () {
                             // change profile picture to what user picks
-                            Image tempProfilePic = ImagePicker.pickImage(source: ImageSource.gallery) as Image;
-
-                            setState(() {
-                              if(tempProfilePic != null) {
-                                currentPic = tempProfilePic;
-                              }
-                            });
                             print('Clicked');
                           },
                           child:  CircleAvatar(
                             child: currentPic,
                           ), 
                         ),
-                        */
                       ),
                       ListTile(
                         title: Text("Upload Pictures"),
@@ -268,7 +260,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   Tab(text: 'Messages', icon: Icon(Icons.mood)),
                 ],
               ),
-              title: Text('Welcome,' + ' $userFirstName' + '!', style: TextStyle(color: Colors.yellow)),
+              title: Text("Welcome, " + "${widget.user.firstName}" + '!', style: TextStyle(color: Colors.yellow)),
               centerTitle: true,
             ),
             body: TabBarView (
@@ -322,20 +314,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     );
   }
 
-  // Read user's data from cloud firestore and display data in navigation drawer
-
-  void getUserInfo() {
-    // Store user's data in firestore for later retrieval
-    Firestore.instance
-    .collection('users')
-    .where("email", isEqualTo: widget.user.email)
-    .snapshots()
-    .listen((data) => 
-        data.documents.forEach((doc) {
-          userFirstName = doc['firstName'];
-          userLastName = doc['lastName'];
-          userEmail = doc['email'];
-        }));
+  // Read user's data from cloud firestore and display data in navigation drawer HOW???
+  void getUserInfoForDrawer() {
+    print(widget.user.email);
+    print(widget.user.firstName);
+    print(widget.user.lastName);
   }
 
   // Go back to login page
@@ -424,13 +407,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   }
 
   _launchSearchGift(String query) async {
-
-    // Get all available apps that are installed;
-    List<Map<String, String>> availableApps = await AppAvailability.getInstalledApps();
-    for(int i = 0; i < availableApps.length; i++) {
-      print(availableApps[i]["app_name"]);
-    }
-
     var url = " ";
 
     // Open in Etsy, Amazon, Ebay, Wish if they can
@@ -634,10 +610,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   @override
   bool get wantKeepAlive => true;
 
+  // USE USERID INSIDE CHILD TO CREATE EXTRA LEVEL!! UserId -> gift/date -> gift idea/date idea
+  // widget.user.uniqueID.toString()??
   void createGift(String giftName) {
     var randomNum = new Random();
     var newNum = randomNum.nextInt(1000000);
-    var db = FirebaseDatabase.instance.reference().child("gifts").child(newNum.toString())
+    FirebaseDatabase.instance.reference().child("gifts").child(newNum.toString())
         .set({
       'title': giftName,
     });
@@ -646,7 +624,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   void createImage(File file) {
     var randomNum = new Random();
     var newNum = randomNum.nextInt(1000000);
-    var db = FirebaseDatabase.instance.reference().child("images").child(newNum.toString())
+    FirebaseDatabase.instance.reference().child("images").child(newNum.toString())
         .set({
       'title': file.path,
     });
@@ -655,7 +633,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   void createDate(String dateName) {
     var randomNum = new Random();
     var newNum = randomNum.nextInt(1000000);
-    var db = FirebaseDatabase.instance.reference().child("dates").child(newNum.toString())
+    FirebaseDatabase.instance.reference().child("dates").child(newNum.toString())
         .set({
       'title': dateName,
     });

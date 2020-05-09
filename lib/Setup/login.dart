@@ -4,8 +4,13 @@ import 'package:vivi_bday_app/pages/homepage.dart';
 import 'package:vivi_bday_app/pages/register.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginPage extends StatefulWidget {  
+  final UserID userID;
+
+  const LoginPage({Key key, this.userID}): super(key: key);
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -15,15 +20,19 @@ class User {
   String firstName;
   String lastName;
   String email;
+  UserID uniqueID;
 
-  User({this.firstName, this.lastName, this.email});
+  User({this.firstName, this.lastName, this.email, this.uniqueID});
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String _email, _password;
+  String _email, _password, userFName, userLName, userEmail;
+  int userID;
   bool _isLoading = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final currentUser = User();
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0, color: Colors.white);
+
 
    @override
   Widget build(BuildContext context) {
@@ -188,12 +197,12 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           _isLoading = false;
         });
+        
 
-        // If login is successful, go to homepage passing along the user's email
-        final user = User(
-          email: _email
-        );
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage(user: user)));
+        // Send user info to homepage.
+        sendUserInfoToHomepage();
+
+        
       } catch(e) {
         
         // Hide Modal Progress HUD
@@ -210,11 +219,29 @@ class _LoginPageState extends State<LoginPage> {
           textColor: Colors.white,
           fontSize: 16.0
         );
-
-        print(_email);
-        print(_password);
       }
     }
+  }
+
+  /// Create function here to get the user's information (userID) to pass on to the homepage
+  /// where the email is equal to the user's
+  void sendUserInfoToHomepage() {
+    Firestore.instance
+    .collection('users')
+    .where("email", isEqualTo: _email)
+    .snapshots()
+    .listen((data) => 
+        data.documents.forEach((doc) {
+          userEmail = doc['email'];
+          userFName = doc['firstName'];
+          userLName = doc['lastName'];
+
+          currentUser.email = userEmail;
+          currentUser.firstName = userFName;
+          currentUser.lastName = userLName;
+
+          Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage(user: currentUser)));
+        }));
   }
 
   /// Function to go to Register page
