@@ -3,10 +3,8 @@ import 'dart:math';
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:firebase_database/firebase_database.dart' hide Event;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:vivi_bday_app/Setup/login.dart';
-import 'package:vivi_bday_app/helper_classes/ImageList.dart';
 import 'package:vivi_bday_app/pages/SendNotificationsPage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -20,7 +18,6 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<Homepage> {
-  final List<File> imageList = [];
   final List<String> giftList = [];
   final List<String> dateList = [];
   File uploadedImage;
@@ -41,36 +38,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     database.setPersistenceEnabled(true);
     database.setPersistenceCacheSizeBytes(10000000);
 
-    // Gather user info (name and email) for nav drawer
-    getUserInfoForDrawer();
-
-    // Get user unique ID, list of gifts, dates, and images from firebase database at initial startup
-    readImages();
+    // Get user list of gifts, dates from firebase database at initial startup
     readGifts();
     readDates();
 
     // Build everything in the start
     build(this.context);
   }
-
-  Future uploadImage() async {
-    var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
-
-    setState(() {
-      if(tempImage != null) {
-        uploadedImage = tempImage;
-      }
-    });
-
-    final File file = new File(uploadedImage.path);
-
-    // Add to list to be displayed
-    imageList.add(file);
-
-    // Send filename to DB so it can be read at startup
-    createImage(file);
-  }
-
 
   Future addGiftIdea(BuildContext context) async {
     String _giftIdea;
@@ -198,7 +172,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         home: DefaultTabController(
-          length: 4,
+          length: 3,
           child: Scaffold(
             drawer: Drawer(
                 child: Container(
@@ -218,13 +192,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                             child: currentPic,
                           ), 
                         ),
-                      ),
-                      ListTile(
-                        title: Text("Upload Pictures"),
-                        trailing: Icon(Icons.image),
-                        onTap: () {
-                          uploadImage();
-                        },
                       ),
                       ListTile(
                         title: Text("Add Gift Ideas"),
@@ -254,7 +221,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
             appBar: AppBar(
               bottom: TabBar(
                 tabs: [
-                  Tab(text: 'Pictures', icon: Icon(Icons.image)),
                   Tab(text: 'Gifts', icon: Icon(Icons.card_giftcard)),
                   Tab(text: 'Dates', icon: Icon(Icons.restaurant)),
                   Tab(text: 'Messages', icon: Icon(Icons.mood)),
@@ -265,19 +231,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
             ),
             body: TabBarView (
               children: [
-                Scaffold(
-                  body: Center(
-                    child: Column(
-                      children: <Widget>[
-                        Container(
-                            child: Expanded(child: ImageList(imageList))
-                        ),
-
-                      ],
-                    ),
-                  ),
-                ),
-
                 // For Adding Gift Ideas
                 Scaffold(
                   body: Center(
@@ -312,13 +265,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         ),
       ),
     );
-  }
-
-  // Read user's data from cloud firestore and display data in navigation drawer HOW???
-  void getUserInfoForDrawer() {
-    print(widget.user.email);
-    print(widget.user.firstName);
-    print(widget.user.lastName);
   }
 
   // Go back to login page
@@ -621,15 +567,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     });
   }
 
-  void createImage(File file) {
-    var randomNum = new Random();
-    var newNum = randomNum.nextInt(1000000);
-    FirebaseDatabase.instance.reference().child("images").child(newNum.toString())
-        .set({
-      'title': file.path,
-    });
-  }
-
   void createDate(String dateName) {
     var randomNum = new Random();
     var newNum = randomNum.nextInt(1000000);
@@ -658,19 +595,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       dates.forEach((key, value) {
         setState(() {
           dateList.add(value["title"]);
-        });
-      });
-    });
-  }
-
-  void readImages() {
-    var db = FirebaseDatabase.instance.reference().child("images");
-    db.once().then((DataSnapshot snapshot){
-      Map<dynamic, dynamic> images = snapshot.value;
-      images.forEach((key, value) {
-        setState(() {
-          File savedFile = new File(value["title"]);
-          imageList.add(savedFile);
         });
       });
     });
