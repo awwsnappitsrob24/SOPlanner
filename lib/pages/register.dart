@@ -238,7 +238,6 @@ class _RegisterPageState extends State<RegisterPage> {
           'firstName': _firstName,
           'lastName': _lastName,
           'email': _email,
-          'password': _password,
           'uniqueID' : userUniqueID,
         });
         

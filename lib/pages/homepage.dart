@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:math';
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:firebase_database/firebase_database.dart' hide Event;
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vivi_bday_app/Setup/login.dart';
 import 'package:vivi_bday_app/pages/settings.dart';
@@ -28,7 +27,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   TextEditingController giftTextController = new TextEditingController();
   TextEditingController dateTextController = new TextEditingController();
   FirebaseDatabase database = new FirebaseDatabase();
-  FirebaseUser currentUser;
   Image currentPic = Image.asset('assets/images/default_picture.jpg');
 
   @override
@@ -59,10 +57,14 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
             contentPadding: EdgeInsets.all(10.0),
             children: <Widget>[
               TextFormField (
+                controller: giftTextController,
                 validator: (giftInput) {
                   if(giftInput.isEmpty) {
                     return 'Gift cannot be empty.';
                   }
+                  else {
+                    return null;          
+                  }               
                 },
                 onSaved: (giftInput) => _giftIdea = giftInput,
                 decoration: InputDecoration(
@@ -71,8 +73,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   hintText: 'Gift',
                   hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
                   fillColor: Colors.white70,
-                ),
-                controller: giftTextController,
+                )
               ),
 
               Row(
@@ -118,10 +119,14 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
             contentPadding: EdgeInsets.all(10.0),
             children: <Widget>[
               TextFormField (
+                controller: dateTextController,
                 validator: (dateInput) {
                   if(dateInput.isEmpty) {
                     return 'Date cannot be empty.';
                   }
+                  else {
+                    return null;          
+                  }      
                 },
                 onSaved: (dateInput) => _dateIdea = dateInput,
                 decoration: InputDecoration(
@@ -131,7 +136,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
                   fillColor: Colors.white70,
                 ),
-                controller: dateTextController,
               ),
 
               Row(
