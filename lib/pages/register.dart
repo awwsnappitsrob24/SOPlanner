@@ -260,7 +260,7 @@ class _RegisterPageState extends State<RegisterPage> {
           msg: "User created!",
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 16.0
         );

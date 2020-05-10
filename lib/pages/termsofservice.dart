@@ -16,6 +16,13 @@ class _TermsOfServiceState extends State<TermsOfServicePage> {
         appBar: AppBar(
           title: const Text('Terms of Service'),
         ), 
+        body: SingleChildScrollView(
+          child: Container(
+            child: Text(
+              '',
+            )
+          )
+        )
       )
     );
   }

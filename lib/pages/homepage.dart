@@ -2,11 +2,13 @@ import 'dart:io';
 import 'dart:math';
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:firebase_database/firebase_database.dart' hide Event;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vivi_bday_app/Setup/login.dart';
-import 'package:vivi_bday_app/pages/settings.dart';
+import 'package:vivi_bday_app/pages/termsofservice.dart';
 import 'package:vivi_bday_app/pages/SendNotificationsPage.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Homepage extends StatefulWidget {
   final User user;
@@ -26,6 +28,8 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   int fileNum = 0;
   TextEditingController giftTextController = new TextEditingController();
   TextEditingController dateTextController = new TextEditingController();
+  TextEditingController newPasswordController = new TextEditingController();
+  FirebaseUser currentUser;
   FirebaseDatabase database = new FirebaseDatabase();
   Image currentPic = Image.asset('assets/images/default_picture.jpg');
 
@@ -181,13 +185,8 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
           child: Scaffold(
             drawer: Drawer(
                 child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage("assets/images/login_bgimg.jpg"), // background image to fit whole page
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  child: ListView(          
+                  child: ListView(   
+                    padding: const EdgeInsets.all(0.0),       
                     children: <Widget>[
                       UserAccountsDrawerHeader(
                         // Use variables gotten from firebase database to get user's name and email
@@ -212,34 +211,45 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                       ),
                       // Add gift idea tile
                       ListTile(
-                        title: Text("Add Gift Ideas", style: TextStyle(color: Colors.blue[200])),
-                        trailing: Icon(Icons.card_giftcard, color: Colors.yellow[200]),
+                        title: Text("Add Gift Ideas"),
+                        trailing: Icon(Icons.card_giftcard, color: Colors.grey),
                         onTap: () {
                           addGiftIdea(context);
                         },
                       ),
                       // Add date idea tile
                       ListTile(
-                        title: Text("Add Date Ideas", style: TextStyle(color: Colors.blue[200])),
-                        trailing: Icon(Icons.restaurant, color: Colors.yellow[200]),
+                        title: Text("Add Date Ideas"),
+                        trailing: Icon(Icons.restaurant, color: Colors.grey),
                         onTap: () {
                           addDateIdea(context);
                         },
                       ),
+                      // Divider to divide app functions and app security
+                      Divider(),
                       // Settings tile
                       ListTile(
-                        title: Text("Settings", style: TextStyle(color: Colors.blue[200])),
-                        trailing: Icon(Icons.settings, color: Colors.yellow[200]),
+                        title: Text("Change Password"),
+                        trailing: Icon(Icons.lock, color: Colors.grey),
                         onTap: () {
-                          goToSettingsPage();
+                          showPasswordDialog();
                         },
                       ),
                       // Logout tile
                       ListTile(
-                        title: Text("Logout", style: TextStyle(color: Colors.blue[200])),
-                        trailing: Icon(Icons.power_settings_new, color: Colors.yellow[200]),
+                        title: Text("Logout"),
+                        trailing: Icon(Icons.power_settings_new, color: Colors.grey),
                         onTap: () {
                           logout();
+                        },
+                      ),
+                      // Divider to divide app security with terms of security
+                      Divider(),
+                      ListTile(
+                        title: Text("Terms of Security"),
+                        trailing: Icon(Icons.security, color: Colors.grey),
+                        onTap: () {
+                          viewTermsOfService();
                         },
                       ),
                     ],
@@ -295,11 +305,102 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     );
   }
 
-  // Go to settings page if chosen on drawer
-  goToSettingsPage() {
+  // Show dialog for changing password
+  void showPasswordDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text('New Password', textAlign: TextAlign.center),
+          backgroundColor: Colors.yellow[200],
+          contentPadding: EdgeInsets.all(10.0),
+          children: <Widget>[
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                TextFormField (
+                  controller: newPasswordController,
+                  obscureText: true,
+                  validator: (passwordInput) {
+                    if(passwordInput.isEmpty) {
+                      return 'Password cannot be empty.';
+                    }
+                    else {
+                      return null;          
+                    }      
+                  },
+                  decoration: InputDecoration(
+                    contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
+                    filled: true,
+                    hintText: 'Password',
+                    hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
+                    fillColor: Colors.white70,
+                  ),
+                ),
+                RaisedButton(
+                  onPressed: () {
+                    updatePassword(newPasswordController.text);
+                  },
+                  child: Text('Submit'), color: Colors.deepPurple[100],
+                ),
+              ],
+            )
+          ],
+        );
+      }
+    );
+  }
+
+  // Update password function
+  void updatePassword(String newPassword) async {
+      FirebaseUser user = await FirebaseAuth.instance.currentUser();
+
+      user.updatePassword(newPassword).then((_) {
+        // Password change was successful on toast
+        Fluttertoast.showToast(
+          msg: "Password changed! Please log in with new password",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0
+        );
+
+        // Log out and make user login again
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage())
+        );
+      }).catchError((error) {
+        // Error message in a toast
+        if(newPassword.isEmpty) {
+          Fluttertoast.showToast(
+            msg: "Password cannot be empty.",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+          );
+        }
+        else if(newPassword.length < 6) {
+          Fluttertoast.showToast(
+            msg: "Password must be at least 6 characters.",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+          );
+        }
+      });
+  }
+
+  // Go to Terms of Security page
+  void viewTermsOfService() {
     Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => SettingsPage())
+      context,
+      MaterialPageRoute(builder: (context) => TermsOfServicePage())
     );
   }
 
@@ -500,35 +601,35 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                 // Create dialog box to either search for it on Yelp, or
                 // add a date to the calendar.
                 showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return SimpleDialog(
-                        title: Text('Date Add/Search', textAlign: TextAlign.center),
-                        backgroundColor: Colors.yellow[200],
-                        contentPadding: EdgeInsets.all(10.0),
-                        children: <Widget>[
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              RaisedButton(
-                                onPressed: () {
-                                  _launchSearchDate(query);
-                                },
+                  context: context,
+                  builder: (BuildContext context) {
+                    return SimpleDialog(
+                      title: Text('Date Add/Search', textAlign: TextAlign.center),
+                      backgroundColor: Colors.yellow[200],
+                      contentPadding: EdgeInsets.all(10.0),
+                      children: <Widget>[
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            RaisedButton(
+                              onPressed: () {
+                                _launchSearchDate(query);
+                              },
 
-                                child: Text('Search for Date Idea'), color: Colors.deepPurple[100],
-                              ),
-                              RaisedButton(
-                                onPressed: () {
-                                  _addDateToCalendar(query);
-                                },
-                                child: Text('Add Date to Calendar'), color: Colors.deepPurple[100],
-                              ),
-                            ],
-                          )
+                              child: Text('Search for Date Idea'), color: Colors.deepPurple[100],
+                            ),
+                            RaisedButton(
+                              onPressed: () {
+                                _addDateToCalendar(query);
+                              },
+                              child: Text('Add Date to Calendar'), color: Colors.deepPurple[100],
+                            ),
+                          ],
+                        )
 
-                        ],
-                      );
-                    }
+                      ],
+                    );
+                  }
                 );
               },
             ),
