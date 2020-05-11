@@ -19,7 +19,8 @@ class _TermsOfServiceState extends State<TermsOfServicePage> {
         body: SingleChildScrollView(
           child: Container(
             child: Text(
-              '',
+              'SOPLANNER TERMS & CONDITIONS'
+              'Last updated: May 9, 2020' ,
             )
           )
         )

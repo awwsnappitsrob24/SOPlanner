@@ -22,7 +22,7 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<Homepage> {
   final List<String> giftList = [];
   final List<String> dateList = [];
-  File uploadedImage;
+  File newProfilePic;
   String fileName, lastImageUrl = "", userFirstName, userLastName, userEmail, _email;
   int userID, userUniqueID;
   int fileNum = 0;
@@ -31,7 +31,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   TextEditingController newPasswordController = new TextEditingController();
   FirebaseUser currentUser;
   FirebaseDatabase database = new FirebaseDatabase();
-  Image currentPic = Image.asset('assets/images/default_picture.jpg');
 
   @override
   void initState() {
@@ -192,16 +191,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                         // Use variables gotten from firebase database to get user's name and email
                         accountName: new Text("${widget.user.firstName}" + " ${widget.user.lastName}", style: TextStyle(color: Colors.white),),
                         accountEmail: new Text("${widget.user.email}", style: TextStyle(color: Colors.white),),
-                        currentAccountPicture: GestureDetector(
-                          onTap: () {
-                            // change profile picture to what user picks
-                            print('Clicked');
-                          },
-                          child:  CircleAvatar(
-                            // change currentPic to whatever user chose to upload
-                            child: currentPic,
-                          ), 
-                        ),
                         decoration: BoxDecoration(
                           image: DecorationImage(
                             image: AssetImage("assets/images/drawer_header_bgimg.jpg"), // background image to fit whole page
@@ -375,7 +364,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         // Error message in a toast
         if(newPassword.isEmpty) {
           Fluttertoast.showToast(
-            msg: "Password cannot be empty.",
+            msg: "Password can not be empty.",
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.BOTTOM,
             backgroundColor: Colors.red,
