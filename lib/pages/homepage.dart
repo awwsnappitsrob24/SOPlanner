@@ -24,7 +24,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   final List<String> dateList = [];
   File newProfilePic;
   String fileName, lastImageUrl = "", userFirstName, userLastName, userEmail, _email;
-  int userID, userUniqueID;
   int fileNum = 0;
   TextEditingController giftTextController = new TextEditingController();
   TextEditingController dateTextController = new TextEditingController();
@@ -87,8 +86,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                       onPressed: () {
                         //Method to build the list of gifts and upload to firebase DB
                         String gift = giftTextController.text;
-                        giftList.add(gift);
-                        createGift(gift);
+
+                        // Add it to giftList to be read, also to firebase db
+                        setState(() {
+                          giftList.add(gift);
+                          createGift(gift);
+                        });
 
                         // Close the dialog box
                         Navigator.pop(context);
@@ -149,8 +152,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                     onPressed: () {
                       //Method to build the list of gifts and upload to firebase DB
                       String date = dateTextController.text;
-                      dateList.add(date);
-                      createDate(date);
+
+                      // Add it to dateList to be read, also to firebase db
+                      setState(() {
+                        giftList.add(date);
+                        createGift(date);
+                      });
 
                       // Close the dialog box
                       Navigator.pop(context);
@@ -440,8 +447,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         }
 
         // Delete from firebase DB
-        // How to read data more than once??
-        var db = FirebaseDatabase.instance.reference().child("gifts");
+        var db = FirebaseDatabase.instance.reference()
+          .child(widget.user.uniqueID.toString())
+          .child("gifts");
         db.once().then((DataSnapshot snapshot){
           Map<dynamic,dynamic> gifts = snapshot.value;
           gifts.forEach((key, value) {
@@ -450,8 +458,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
             if(value["title"] == giftDeleted) {
 
               // Delete the node form Firebase DB
-              FirebaseDatabase.instance.reference().child("gifts")
-                  .child(key).remove();
+              FirebaseDatabase.instance.reference()
+                .child(widget.user.uniqueID.toString())
+                .child("gifts")
+                .child(key)
+                .remove();
             }
           });
         });
@@ -465,8 +476,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
               title: Text(giftList[index], textAlign: TextAlign.left),
               trailing: Icon(Icons.keyboard_arrow_right),
               onTap: () {
-                // Search for gifts in google search (Etsy?)
-
                 // Get the value from the list to pass on as a query to Yelp or Google
                 var query = giftList[index];
                 _launchSearchGift(query);
@@ -558,7 +567,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         }
 
         // Delete from firebase DB
-        var db = FirebaseDatabase.instance.reference().child("dates");
+        var db = FirebaseDatabase.instance.reference()
+          .child(widget.user.uniqueID.toString())
+          .child("dates");
         db.once().then((DataSnapshot snapshot){
           Map<dynamic,dynamic> dates = snapshot.value;
           dates.forEach((key, value) {
@@ -567,8 +578,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
             if(value["title"] == dateDeleted) {
 
               // Delete the node form Firebase DB
-              FirebaseDatabase.instance.reference().child("dates")
-                  .child(key).remove();
+              FirebaseDatabase.instance.reference()
+                .child(widget.user.uniqueID.toString())
+                .child("dates")
+                .child(key)
+                .remove();
             }
           });
         });
@@ -682,28 +696,37 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   @override
   bool get wantKeepAlive => true;
 
-  // USE USERID INSIDE CHILD TO CREATE EXTRA LEVEL!! UserId -> gift/date -> gift idea/date idea
-  // widget.user.uniqueID.toString()??
-  void createGift(String giftName) {
+  // Function that adds the gift idea the user entered and store it into realtime db
+  void createGift(String giftName) async {
     var randomNum = new Random();
     var newNum = randomNum.nextInt(1000000);
-    FirebaseDatabase.instance.reference().child("gifts").child(newNum.toString())
-        .set({
-      'title': giftName,
-    });
+    FirebaseDatabase.instance.reference()
+      .child(widget.user.uniqueID.toString())
+      .child("gifts")
+      .child(newNum.toString())
+      .set({
+        'title': giftName,
+      });
   }
 
-  void createDate(String dateName) {
+  // Function that adds the date idea the user entered and store it into realtime db
+  void createDate(String dateName) async {
     var randomNum = new Random();
     var newNum = randomNum.nextInt(1000000);
-    FirebaseDatabase.instance.reference().child("dates").child(newNum.toString())
-        .set({
-      'title': dateName,
-    });
+    FirebaseDatabase.instance.reference()
+      .child(widget.user.uniqueID.toString())
+      .child("dates")
+      .child(newNum.toString())
+      .set({
+        'title': dateName,
+      });
   }
 
+  // Reads gifts in firebase db and displays them on screen
   void readGifts() {
-    var db = FirebaseDatabase.instance.reference().child("gifts");
+    var db = FirebaseDatabase.instance.reference()
+      .child(widget.user.uniqueID.toString())
+      .child("gifts");
     db.once().then((DataSnapshot snapshot) {
       Map<dynamic, dynamic> gifts = snapshot.value;
       gifts.forEach((key, value) {
@@ -714,8 +737,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     });
   }
 
+  // Reads dates in firebase db and displays them on screen
   void readDates() {
-    var db = FirebaseDatabase.instance.reference().child("dates");
+    var db = FirebaseDatabase.instance.reference()
+      .child(widget.user.uniqueID.toString())
+      .child("dates");
     db.once().then((DataSnapshot snapshot){
       Map<dynamic, dynamic> dates = snapshot.value;
       dates.forEach((key, value) {

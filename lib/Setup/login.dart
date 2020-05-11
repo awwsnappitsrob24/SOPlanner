@@ -7,7 +7,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginPage extends StatefulWidget {  
-  final UserID userID;
+  final int userID;
 
   const LoginPage({Key key, this.userID}): super(key: key);
 
@@ -20,7 +20,7 @@ class User {
   String firstName;
   String lastName;
   String email;
-  UserID uniqueID;
+  int uniqueID;
 
   User({this.firstName, this.lastName, this.email, this.uniqueID});
 }
@@ -235,10 +235,12 @@ class _LoginPageState extends State<LoginPage> {
           userEmail = doc['email'];
           userFName = doc['firstName'];
           userLName = doc['lastName'];
-
+          userID = doc['uniqueID'];
+          
           currentUser.email = userEmail;
           currentUser.firstName = userFName;
           currentUser.lastName = userLName;
+          currentUser.uniqueID = userID;
 
           Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage(user: currentUser)));
         }));

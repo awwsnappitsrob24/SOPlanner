@@ -11,12 +11,6 @@ class RegisterPage extends StatefulWidget {
   _RegisterPageState createState() => _RegisterPageState();
 }
 
-// User ID class that will be passed to the login page and also passed to homepage
-class UserID {
-  int ID;
-
-  UserID({this.ID});
-}
 
 class _RegisterPageState extends State<RegisterPage> {
   String _firstName, _lastName, _email, _password;
@@ -233,7 +227,7 @@ class _RegisterPageState extends State<RegisterPage> {
         // Store user's data in firestore for later retrieval
         var rng = new Random();
         userUniqueID = rng.nextInt(1000000000);
-        DocumentReference ref = await Firestore.instance.collection("users")
+        await Firestore.instance.collection("users")
         .add({
           'firstName': _firstName,
           'lastName': _lastName,
@@ -247,13 +241,8 @@ class _RegisterPageState extends State<RegisterPage> {
           _isLoading = false;
         });
 
-        // If register is successful, go to login passing along the user's ID
-        final userID = UserID(
-          ID: userUniqueID,
-        );
-
         // If register is successful, go back to login so user can log in
-        Navigator.push(context, new MaterialPageRoute(builder: (context) => LoginPage(userID: userID)));
+        Navigator.push(context, new MaterialPageRoute(builder: (context) => LoginPage(userID: userUniqueID)));
 
         // Successful message in a toast
         Fluttertoast.showToast(
