@@ -472,14 +472,54 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         child: Column(
           children: <Widget>[
             ListTile(
-              leading: Icon(Icons.card_giftcard),
-              title: Text(giftList[index], textAlign: TextAlign.left),
-              trailing: Icon(Icons.keyboard_arrow_right),
-              onTap: () {
-                // Get the value from the list to pass on as a query to Yelp or Google
-                var query = giftList[index];
-                _launchSearchGift(query);
-              },
+              leading: IconButton(
+                icon: Icon(Icons.search),
+                onPressed: () {
+                  _launchSearchGift(giftList[index]);
+                },
+                alignment: Alignment.centerLeft,
+              ), 
+              contentPadding: EdgeInsets.all(3.0),
+              title:  Align(
+                child: new Text(giftList[index]),
+                alignment: Alignment.center,
+              ),
+              subtitle: Align(
+                child: new Text("crip"),
+                alignment: Alignment.center,
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () {
+                  var giftDeleted = giftList.elementAt(index);
+
+                  setState(() {
+                    giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
+                  });
+
+                  // Delete from firebase DB
+                  var db = FirebaseDatabase.instance.reference()
+                    .child(widget.user.uniqueID.toString())
+                    .child("gifts");
+                  db.once().then((DataSnapshot snapshot){
+                    Map<dynamic,dynamic> gifts = snapshot.value;
+                    gifts.forEach((key, value) {
+
+                      // Check for value in DB to delete
+                      if(value["title"] == giftDeleted) {
+
+                        // Delete the node form Firebase DB
+                        FirebaseDatabase.instance.reference()
+                          .child(widget.user.uniqueID.toString())
+                          .child("gifts")
+                          .child(key)
+                          .remove();
+                      }
+                    });
+                  });
+                },
+                alignment: Alignment.centerRight,
+              ),
             ),
           ],
         ),
@@ -490,18 +530,18 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   _launchSearchGift(String query) async {
     var url = " ";
 
-    // Open in Etsy, Amazon, Ebay, Wish if they can
+    // Open using Amazon as the main search 
     // Split query if more than one word
     List<String> splitString = [];
     splitString = query.split(" ");
 
     // Etsy test
     if(splitString.length < 2) {
-      url = 'https://www.etsy.com/search?q=' + splitString[0];
+      url = 'https://www.amazon.com/s?k=' + splitString[0];
     }
     else {
       int lengthOfString = splitString.length;
-      url = 'https://www.etsy.com/search?q=';
+      url = 'https://www.amazon.com/s?k=';
       for(int i = 0; i < lengthOfString; i++) {
         url += splitString[i] + "+";
       }
@@ -592,49 +632,29 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         child: Column(
           children: <Widget>[
             ListTile(
-              leading: Icon(Icons.restaurant),
-              title: Text(dateList[index], textAlign: TextAlign.left),
-              trailing: Icon(Icons.keyboard_arrow_right),
-              onTap: () {
-                // Search for dates in Yelp or just google search
-
-                // Get the value from the list to pass on as a query to Yelp or Google
-                var query = dateList[index];
-
-                // Create dialog box to either search for it on Yelp, or
-                // add a date to the calendar.
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return SimpleDialog(
-                      title: Text('Date Add/Search', textAlign: TextAlign.center),
-                      backgroundColor: Colors.yellow[200],
-                      contentPadding: EdgeInsets.all(10.0),
-                      children: <Widget>[
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            RaisedButton(
-                              onPressed: () {
-                                _launchSearchDate(query);
-                              },
-
-                              child: Text('Search for Date Idea'), color: Colors.deepPurple[100],
-                            ),
-                            RaisedButton(
-                              onPressed: () {
-                                _addDateToCalendar(query);
-                              },
-                              child: Text('Add Date to Calendar'), color: Colors.deepPurple[100],
-                            ),
-                          ],
-                        )
-
-                      ],
-                    );
-                  }
-                );
-              },
+              leading: IconButton(
+                icon: Icon(Icons.search),
+                onPressed: () {
+                  _launchSearchDate(dateList[index]);
+                },
+                alignment: Alignment.centerLeft,
+              ), 
+              contentPadding: EdgeInsets.all(3.0),
+              title:  Align(
+                child: new Text(dateList[index]),
+                alignment: Alignment.center,
+              ),
+              subtitle: Align(
+                child: new Text("crip"),
+                alignment: Alignment.center,
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.calendar_today),
+                onPressed: () {
+                  _addDateToCalendar(dateList[index]);
+                },
+                alignment: Alignment.centerRight,
+              ), 
             ),
           ],
         ),
