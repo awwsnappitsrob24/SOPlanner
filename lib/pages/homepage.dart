@@ -22,8 +22,10 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<Homepage> {
   final List<String> giftList = [];
   final List<String> dateList = [];
+  final List<String> giftDescriptionList = [];
+  final List<String> dateDescriptionList = [];
   File newProfilePic;
-  String fileName, lastImageUrl = "", userFirstName, userLastName, userEmail, _email;
+  String fileName, lastImageUrl = "", userFirstName, userLastName, userEmail;
   int fileNum = 0;
   TextEditingController giftTextController = new TextEditingController();
   TextEditingController dateTextController = new TextEditingController();
@@ -58,6 +60,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
             backgroundColor: Colors.blue[100],
             contentPadding: EdgeInsets.all(10.0),
             children: <Widget>[
+              // Gift idea text field
               TextFormField (
                 controller: giftTextController,
                 validator: (giftInput) {
@@ -77,29 +80,27 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   fillColor: Colors.white70,
                 )
               ),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   FlatButton(
-                      child: new Text("OK"),
-                      onPressed: () {
-                        //Method to build the list of gifts and upload to firebase DB
-                        String gift = giftTextController.text;
+                    child: Text('OK'), color: Colors.pink[50],
+                    onPressed: () {
+                      String gift = giftTextController.text;
 
-                        // Add it to giftList to be read, also to firebase db
-                        setState(() {
-                          giftList.add(gift);
-                          createGift(gift);
-                        });
+                      // Add it to giftList to be read, also to firebase db
+                      setState(() {
+                        giftList.add(gift);
+                        createGift(gift);
+                      });
 
-                        // Close the dialog box
-                        Navigator.pop(context);
-                      }
+                      // Close the dialog box
+                      Navigator.pop(context);
+                    }
                   ),
 
                   FlatButton(
-                    child: new Text("Cancel"),
+                    child: Text('Cancel'), color: Colors.pink[50],
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -143,20 +144,18 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   fillColor: Colors.white70,
                 ),
               ),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   FlatButton(
-                    child: new Text("OK"),
+                    child: Text('OK'), color: Colors.pink[50],
                     onPressed: () {
-                      //Method to build the list of gifts and upload to firebase DB
                       String date = dateTextController.text;
 
                       // Add it to dateList to be read, also to firebase db
                       setState(() {
-                        giftList.add(date);
-                        createGift(date);
+                        dateList.add(date);
+                        createDate(date);
                       });
 
                       // Close the dialog box
@@ -165,7 +164,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   ),
 
                   FlatButton(
-                    child: new Text("Cancel"),
+                    child: Text('Cancel'), color: Colors.pink[50],
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -260,7 +259,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   Tab(text: 'Messages', icon: Icon(Icons.mood)),
                 ],
               ),
-              title: Text("Welcome, " + "${widget.user.firstName}" + '!', style: TextStyle(color: Colors.yellow)),
+              title: Text("Welcome, " + "${widget.user.firstName}" + '!', style: TextStyle(color: Colors.white)),
               centerTitle: true,
             ),
             body: TabBarView (
@@ -308,7 +307,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text('New Password', textAlign: TextAlign.center),
-          backgroundColor: Colors.yellow[200],
+          backgroundColor: Colors.blue[100],
           contentPadding: EdgeInsets.all(10.0),
           children: <Widget>[
             Column(
@@ -333,11 +332,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                     fillColor: Colors.white70,
                   ),
                 ),
-                RaisedButton(
+                FlatButton(
                   onPressed: () {
                     updatePassword(newPasswordController.text);
                   },
-                  child: Text('Submit'), color: Colors.deepPurple[100],
+                  child: Text('Submit'), color: Colors.pink[50],
                 ),
               ],
             )
@@ -429,10 +428,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
           setState(() {
             giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
           });
-
-          for(int i = 0; i < giftList.length; i++) {
-            print(giftList[i]);
-          }
         }
         else {
           giftDeleted = giftList.elementAt(index);
@@ -482,10 +477,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
               contentPadding: EdgeInsets.all(3.0),
               title:  Align(
                 child: new Text(giftList[index]),
-                alignment: Alignment.center,
-              ),
-              subtitle: Align(
-                child: new Text("crip"),
                 alignment: Alignment.center,
               ),
               trailing: IconButton(
@@ -642,10 +633,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
               contentPadding: EdgeInsets.all(3.0),
               title:  Align(
                 child: new Text(dateList[index]),
-                alignment: Alignment.center,
-              ),
-              subtitle: Align(
-                child: new Text("crip"),
                 alignment: Alignment.center,
               ),
               trailing: IconButton(
