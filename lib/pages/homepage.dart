@@ -29,6 +29,8 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   int fileNum = 0;
   TextEditingController giftTextController = new TextEditingController();
   TextEditingController dateTextController = new TextEditingController();
+  TextEditingController giftDescController = new TextEditingController();
+  TextEditingController dateDescController = new TextEditingController();
   TextEditingController newPasswordController = new TextEditingController();
   FirebaseUser currentUser;
   FirebaseDatabase database = new FirebaseDatabase();
@@ -80,6 +82,16 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   fillColor: Colors.white70,
                 )
               ),
+              TextFormField (
+                controller: giftDescController,
+                decoration: InputDecoration(
+                  contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
+                  filled: true,
+                  hintText: 'Gift Description (optional)',
+                  hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
+                  fillColor: Colors.white70,
+                )
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -87,11 +99,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                     child: Text('OK'), color: Colors.pink[50],
                     onPressed: () {
                       String gift = giftTextController.text;
+                      String giftDesc = giftDescController.text;
 
                       // Add it to giftList to be read, also to firebase db
                       setState(() {
                         giftList.add(gift);
-                        createGift(gift);
+                        giftDescriptionList.add(giftDesc);
+                        createGift(gift, giftDesc);
                       });
 
                       // Close the dialog box
@@ -144,6 +158,16 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   fillColor: Colors.white70,
                 ),
               ),
+              TextFormField (
+                controller: dateDescController,
+                decoration: InputDecoration(
+                  contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
+                  filled: true,
+                  hintText: 'Date Description (optional)',
+                  hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
+                  fillColor: Colors.white70,
+                )
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -151,11 +175,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                     child: Text('OK'), color: Colors.pink[50],
                     onPressed: () {
                       String date = dateTextController.text;
+                      String dateDesc = dateDescController.text;
 
                       // Add it to dateList to be read, also to firebase db
                       setState(() {
                         dateList.add(date);
-                        createDate(date);
+                        dateDescriptionList.add(dateDesc);
+                        createDate(date, dateDesc);
                       });
 
                       // Close the dialog box
@@ -420,25 +446,26 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       ),
       onDismissed: (direction) {
         var giftDeleted = " ";
+        var giftDescDeleted = " ";
 
         // Delete the gift from the list
         if(giftList.length == 1) {
           giftDeleted = giftList.last;
+          giftDescDeleted = giftDescriptionList.last;
 
           setState(() {
             giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
+            giftDescriptionList.removeWhere((giftDescDelete) => giftDescDelete == giftDescDeleted);
           });
         }
         else {
           giftDeleted = giftList.elementAt(index);
+          giftDescDeleted = giftDescriptionList.elementAt(index);
 
           setState(() {
             giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
+            giftDescriptionList.removeWhere((giftDescDelete) => giftDescDelete == giftDescDeleted);
           });
-
-          for(int i = 0; i < giftList.length; i++) {
-            print(giftList[i]);
-          }
         }
 
         // Delete from firebase DB
@@ -479,14 +506,35 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                 child: new Text(giftList[index]),
                 alignment: Alignment.center,
               ),
+              subtitle:  Align(
+                child: new Text(giftDescriptionList[index]),
+                alignment: Alignment.center,
+              ),
               trailing: IconButton(
                 icon: Icon(Icons.delete),
                 onPressed: () {
                   var giftDeleted = giftList.elementAt(index);
+                  var giftDescDeleted = giftDescriptionList.elementAt(index);;
 
-                  setState(() {
-                    giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
-                  });
+                  // Delete the gift from the list
+                  if(giftList.length == 1) {
+                    giftDeleted = giftList.last;
+                    giftDescDeleted = giftDescriptionList.last;
+
+                    setState(() {
+                      giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
+                      giftDescriptionList.removeWhere((giftDescDelete) => giftDescDelete == giftDescDeleted);
+                    });
+                  }
+                  else {
+                    giftDeleted = giftList.elementAt(index);
+                    giftDescDeleted = giftDescriptionList.elementAt(index);
+
+                    setState(() {
+                      giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
+                      giftDescriptionList.removeWhere((giftDescDelete) => giftDescDelete == giftDescDeleted);
+                    });
+                  }
 
                   // Delete from firebase DB
                   var db = FirebaseDatabase.instance.reference()
@@ -572,29 +620,26 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       ),
       onDismissed: (direction) {
         var dateDeleted = " ";
+        var dateDescDeleted = " ";
 
         // Delete the gift from the list
         if(dateList.length == 1) {
           dateDeleted = dateList.last;
+          dateDescDeleted = dateDescriptionList.last;
 
           setState(() {
             dateList.removeWhere((dateDelete) => dateDelete == dateDeleted);
+            dateDescriptionList.removeWhere((dateDescDelete) => dateDescDelete == dateDescDeleted);
           });
-
-          for(int i = 0; i < dateList.length; i++) {
-            print(dateList[i]);
-          }
         }
         else {
           dateDeleted = dateList.elementAt(index);
+          dateDescDeleted = dateDescriptionList.elementAt(index);
 
           setState(() {
             dateList.removeWhere((dateDelete) => dateDelete == dateDeleted);
+            dateDescriptionList.removeWhere((dateDescDelete) => dateDescDelete == dateDescDeleted);
           });
-
-          for(int i = 0; i < dateList.length; i++) {
-            print(dateList[i]);
-          }
         }
 
         // Delete from firebase DB
@@ -633,6 +678,10 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
               contentPadding: EdgeInsets.all(3.0),
               title:  Align(
                 child: new Text(dateList[index]),
+                alignment: Alignment.center,
+              ),
+              subtitle:  Align(
+                child: new Text(dateDescriptionList[index]),
                 alignment: Alignment.center,
               ),
               trailing: IconButton(
@@ -704,7 +753,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   bool get wantKeepAlive => true;
 
   // Function that adds the gift idea the user entered and store it into realtime db
-  void createGift(String giftName) async {
+  void createGift(String giftName, String giftDesc) async {
     var randomNum = new Random();
     var newNum = randomNum.nextInt(1000000);
     FirebaseDatabase.instance.reference()
@@ -713,11 +762,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       .child(newNum.toString())
       .set({
         'title': giftName,
+        'description': giftDesc,
       });
   }
 
   // Function that adds the date idea the user entered and store it into realtime db
-  void createDate(String dateName) async {
+  void createDate(String dateName, String dateDesc) async {
     var randomNum = new Random();
     var newNum = randomNum.nextInt(1000000);
     FirebaseDatabase.instance.reference()
@@ -726,6 +776,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       .child(newNum.toString())
       .set({
         'title': dateName,
+        'description': dateDesc,
       });
   }
 
@@ -739,6 +790,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       gifts.forEach((key, value) {
         setState(() {
           giftList.add(value["title"]);
+          giftDescriptionList.add(value["description"]);
         });
       });
     });
@@ -754,6 +806,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       dates.forEach((key, value) {
         setState(() {
           dateList.add(value["title"]);
+          dateDescriptionList.add(value["description"]);
         });
       });
     });
