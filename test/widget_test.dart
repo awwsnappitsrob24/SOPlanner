@@ -11,20 +11,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vivi_bday_app/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  // Test login page widgets
+  testWidgets('Login page button, email and password user information', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verify that button is found
+    expect(find.byType(MaterialButton), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    // Verify that email text form field is found
+    // Enter text to be verified later
+    expect(find.byKey(Key('emailtextformfield')), findsOneWidget);
+    expect(find.byKey(Key('passwordtextformfield')), findsOneWidget);
+    await tester.pump();
+    await tester.enterText(find.byKey(Key('emailtextformfield')), "a@a.com");
+    await tester.enterText(find.byKey(Key('passwordtextformfield')), "aaaaaa");
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify that the email and password were entered for login
+    expect(find.text("a@a.com"), findsOneWidget); 
+    expect(find.text("aaaaaa"), findsOneWidget); 
   });
 }

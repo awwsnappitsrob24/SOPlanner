@@ -7,9 +7,9 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginPage extends StatefulWidget {  
-  final int userID;
+  int userID;
 
-  const LoginPage({Key key, this.userID}): super(key: key);
+  LoginPage({Key key, this.userID}): super(key: key);
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -43,6 +43,7 @@ class _LoginPageState extends State<LoginPage> {
     /// - Pink prefix icon
     /// - White text and hint text
     final emailField = TextFormField(
+      key: Key('emailtextformfield'),
       validator: (input) {
         if(input.isEmpty) {
           return 'Email cannot be empty.'; // empty check
@@ -72,6 +73,7 @@ class _LoginPageState extends State<LoginPage> {
     /// - Pink prefix icon
     /// - White text and hint text
     final passwordField = TextFormField(
+      key: Key('passwordtextformfield'),
       validator: (input) {
         if(input.isEmpty) {
           return 'Password cannot be empty.'; // empty check
