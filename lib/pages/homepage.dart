@@ -448,47 +448,17 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         var giftDeleted = " ";
         var giftDescDeleted = " ";
 
-        // Delete the gift from the list
         if(giftList.length == 1) {
           giftDeleted = giftList.last;
           giftDescDeleted = giftDescriptionList.last;
-
-          setState(() {
-            giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
-            giftDescriptionList.removeWhere((giftDescDelete) => giftDescDelete == giftDescDeleted);
-          });
         }
         else {
           giftDeleted = giftList.elementAt(index);
-          giftDescDeleted = giftDescriptionList.elementAt(index);
-
-          setState(() {
-            giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
-            giftDescriptionList.removeWhere((giftDescDelete) => giftDescDelete == giftDescDeleted);
-          });
+          giftDescDeleted  = giftDescriptionList.elementAt(index);
         }
 
-        // Delete from firebase DB
-        var db = FirebaseDatabase.instance.reference()
-          .child(widget.user.uniqueID.toString())
-          .child("gifts");
-        db.once().then((DataSnapshot snapshot){
-          Map<dynamic,dynamic> gifts = snapshot.value;
-          gifts.forEach((key, value) {
-
-            // Check for value in DB to delete
-            if(value["title"] == giftDeleted) {
-
-              // Delete the node form Firebase DB
-              FirebaseDatabase.instance.reference()
-                .child(widget.user.uniqueID.toString())
-                .child("gifts")
-                .child(key)
-                .remove();
-            }
-          });
-        });
-
+        // Delete the gift from the list
+        deleteGift(giftDeleted, giftDescDeleted, index);
       },
       child: Card(
         child: Column(
@@ -514,48 +484,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                 icon: Icon(Icons.delete),
                 onPressed: () {
                   var giftDeleted = giftList.elementAt(index);
-                  var giftDescDeleted = giftDescriptionList.elementAt(index);;
+                  var giftDescDeleted = giftDescriptionList.elementAt(index);
 
-                  // Delete the gift from the list
-                  if(giftList.length == 1) {
-                    giftDeleted = giftList.last;
-                    giftDescDeleted = giftDescriptionList.last;
-
-                    setState(() {
-                      giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
-                      giftDescriptionList.removeWhere((giftDescDelete) => giftDescDelete == giftDescDeleted);
-                    });
-                  }
-                  else {
-                    giftDeleted = giftList.elementAt(index);
-                    giftDescDeleted = giftDescriptionList.elementAt(index);
-
-                    setState(() {
-                      giftList.removeWhere((giftDelete) => giftDelete == giftDeleted);
-                      giftDescriptionList.removeWhere((giftDescDelete) => giftDescDelete == giftDescDeleted);
-                    });
-                  }
-
-                  // Delete from firebase DB
-                  var db = FirebaseDatabase.instance.reference()
-                    .child(widget.user.uniqueID.toString())
-                    .child("gifts");
-                  db.once().then((DataSnapshot snapshot){
-                    Map<dynamic,dynamic> gifts = snapshot.value;
-                    gifts.forEach((key, value) {
-
-                      // Check for value in DB to delete
-                      if(value["title"] == giftDeleted) {
-
-                        // Delete the node form Firebase DB
-                        FirebaseDatabase.instance.reference()
-                          .child(widget.user.uniqueID.toString())
-                          .child("gifts")
-                          .child(key)
-                          .remove();
-                      }
-                    });
-                  });
+                  deleteGift(giftDeleted, giftDescDeleted, index);
                 },
                 alignment: Alignment.centerRight,
               ),
@@ -626,42 +557,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         if(dateList.length == 1) {
           dateDeleted = dateList.last;
           dateDescDeleted = dateDescriptionList.last;
-
-          setState(() {
-            dateList.removeWhere((dateDelete) => dateDelete == dateDeleted);
-            dateDescriptionList.removeWhere((dateDescDelete) => dateDescDelete == dateDescDeleted);
-          });
         }
         else {
           dateDeleted = dateList.elementAt(index);
           dateDescDeleted = dateDescriptionList.elementAt(index);
-
-          setState(() {
-            dateList.removeWhere((dateDelete) => dateDelete == dateDeleted);
-            dateDescriptionList.removeWhere((dateDescDelete) => dateDescDelete == dateDescDeleted);
-          });
         }
 
-        // Delete from firebase DB
-        var db = FirebaseDatabase.instance.reference()
-          .child(widget.user.uniqueID.toString())
-          .child("dates");
-        db.once().then((DataSnapshot snapshot){
-          Map<dynamic,dynamic> dates = snapshot.value;
-          dates.forEach((key, value) {
-
-            // Check for value in DB to delete
-            if(value["title"] == dateDeleted) {
-
-              // Delete the node form Firebase DB
-              FirebaseDatabase.instance.reference()
-                .child(widget.user.uniqueID.toString())
-                .child("dates")
-                .child(key)
-                .remove();
-            }
-          });
-        });
+        deleteDate(dateDeleted, dateDescDeleted, index);
       },
 
       child: Card(
@@ -808,6 +710,94 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
           dateList.add(value["title"]);
           dateDescriptionList.add(value["description"]);
         });
+      });
+    });
+  }
+
+  // Function to delete gift from list and firebase db
+  void deleteGift(String giftToDelete, String giftDescToDelete, int index) {
+    // Delete the gift from the list
+    if(giftList.length == 1) {
+      giftToDelete = giftList.last;
+      giftDescToDelete = giftDescriptionList.last;
+
+      setState(() {
+        giftList.removeWhere((giftDelete) => giftDelete == giftToDelete);
+        giftDescriptionList.removeWhere((giftDescDelete) => giftDescDelete == giftDescToDelete);
+      });
+    }
+    else {
+      giftToDelete = giftList.elementAt(index);
+      giftDescToDelete = giftDescriptionList.elementAt(index);
+
+      setState(() {
+        giftList.removeWhere((giftDelete) => giftDelete == giftToDelete);
+        giftDescriptionList.removeWhere((giftDescDelete) => giftDescDelete == giftDescToDelete);
+      });
+    }
+
+    // Delete from firebase DB
+    var db = FirebaseDatabase.instance.reference()
+      .child(widget.user.uniqueID.toString())
+      .child("gifts");
+    db.once().then((DataSnapshot snapshot){
+      Map<dynamic,dynamic> gifts = snapshot.value;
+      gifts.forEach((key, value) {
+
+        // Check for value in DB to delete
+        if(value["title"] == giftToDelete) {
+
+          // Delete the node form Firebase DB
+          FirebaseDatabase.instance.reference()
+            .child(widget.user.uniqueID.toString())
+            .child("gifts")
+            .child(key)
+            .remove();
+        }
+      });
+    });
+  }
+
+    // Function to delete date from list and firebase db
+    void deleteDate(String dateToDelete, String dateDescToDelete, int index) {
+    // Delete the date from the list
+    if(dateList.length == 1) {
+      dateToDelete = dateList.last;
+      dateDescToDelete = dateDescriptionList.last;
+
+      setState(() {
+        dateList.removeWhere((dateDelete) => dateDelete == dateToDelete);
+        dateDescriptionList.removeWhere((dateDescDelete) => dateDescDelete == dateDescToDelete);
+      });
+    }
+    else {
+      dateToDelete = dateList.elementAt(index);
+      dateDescToDelete = dateDescriptionList.elementAt(index);
+
+      setState(() {
+        dateList.removeWhere((dateDelete) => dateDelete == dateToDelete);
+        dateDescriptionList.removeWhere((dateDescDelete) => dateDescDelete == dateDescToDelete);
+      });
+    }
+
+    // Delete from firebase DB
+    var db = FirebaseDatabase.instance.reference()
+      .child(widget.user.uniqueID.toString())
+      .child("dates");
+    db.once().then((DataSnapshot snapshot){
+      Map<dynamic,dynamic> dates = snapshot.value;
+      dates.forEach((key, value) {
+
+        // Check for value in DB to delete
+        if(value["title"] == dateToDelete) {
+
+          // Delete the node form Firebase DB
+          FirebaseDatabase.instance.reference()
+            .child(widget.user.uniqueID.toString())
+            .child("dates")
+            .child(key)
+            .remove();
+        }
       });
     });
   }
