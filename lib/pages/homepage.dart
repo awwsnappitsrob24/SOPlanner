@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vivi_bday_app/Setup/login.dart';
 import 'package:vivi_bday_app/pages/termsofservice.dart';
-import 'package:vivi_bday_app/pages/SendNotificationsPage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -20,17 +19,21 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<Homepage> {
+  final List<String> tripList = [];
   final List<String> giftList = [];
   final List<String> dateList = [];
   final List<String> giftDescriptionList = [];
   final List<String> dateDescriptionList = [];
+  final List<String> tripDescriptionList = [];
   File newProfilePic;
   String fileName, lastImageUrl = "", userFirstName, userLastName, userEmail;
   int fileNum = 0;
   TextEditingController giftTextController = new TextEditingController();
   TextEditingController dateTextController = new TextEditingController();
+  TextEditingController tripTextController = new TextEditingController();
   TextEditingController giftDescController = new TextEditingController();
   TextEditingController dateDescController = new TextEditingController();
+  TextEditingController tripDescController = new TextEditingController();
   TextEditingController newPasswordController = new TextEditingController();
   FirebaseUser currentUser;
   FirebaseDatabase database = new FirebaseDatabase();
@@ -43,13 +46,92 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     database.setPersistenceEnabled(true);
     database.setPersistenceCacheSizeBytes(10000000);
 
-    // Get user list of gifts, dates from firebase database at initial startup
+    // Get user list of trips, gifts, dates from firebase database at initial startup
+    readTrips();
     readGifts();
     readDates();
 
     // Build everything in the start
     build(this.context);
   }
+
+  Future addTripIdea(BuildContext context) async {
+    String _tripIdea;
+
+    showDialog(
+        context: context,
+        
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            title: Text('Add Trip Idea', textAlign: TextAlign.center),
+            backgroundColor: Colors.blue[100],
+            contentPadding: EdgeInsets.all(10.0),
+            children: <Widget>[
+              TextFormField (
+                controller: tripTextController,
+                validator: (tripInput) {
+                  if(tripInput.isEmpty) {
+                    return 'Trip cannot be empty.';
+                  }
+                  else {
+                    return null;          
+                  }      
+                },
+                onSaved: (tripInput) => _tripIdea = tripInput,
+                decoration: InputDecoration(
+                  contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
+                  filled: true,
+                  hintText: 'Trip',
+                  hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
+                  fillColor: Colors.white70,
+                ),
+              ),
+              TextFormField (
+                controller: tripDescController,
+                decoration: InputDecoration(
+                  contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
+                  filled: true,
+                  hintText: 'Trip Description (optional)',
+                  hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
+                  fillColor: Colors.white70,
+                )
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  FlatButton(
+                    child: Text('OK'), color: Colors.pink[50],
+                    onPressed: () {
+                      String trip = tripTextController.text;
+                      String tripDesc = tripDescController.text;
+
+                      // Add it to tripList to be read, also to firebase db
+                      setState(() {
+                        tripList.add(trip);
+                        tripDescriptionList.add(tripDesc);
+                        createTrip(trip, tripDesc);
+                      });
+
+                      // Close the dialog box
+                      Navigator.pop(context);
+                    },
+                  ),
+
+                  FlatButton(
+                    child: Text('Cancel'), color: Colors.pink[50],
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  )
+                ],
+              )
+
+            ],
+          );
+        }
+    );
+  }
+
 
   Future addGiftIdea(BuildContext context) async {
     String _giftIdea;
@@ -133,6 +215,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
     showDialog(
         context: context,
+        
         builder: (BuildContext context) {
           return SimpleDialog(
             title: Text('Add Date Idea', textAlign: TextAlign.center),
@@ -230,9 +313,17 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                           ),
                         ),
                       ),
+                      // Add trip idea tile
+                      ListTile(
+                        title: Text("Add Trip Idea"),
+                        trailing: Icon(Icons.local_airport, color: Colors.grey),
+                        onTap: () {
+                          addTripIdea(context);
+                        },
+                      ),
                       // Add gift idea tile
                       ListTile(
-                        title: Text("Add Gift Ideas"),
+                        title: Text("Add Gift Idea"),
                         trailing: Icon(Icons.card_giftcard, color: Colors.grey),
                         onTap: () {
                           addGiftIdea(context);
@@ -240,7 +331,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                       ),
                       // Add date idea tile
                       ListTile(
-                        title: Text("Add Date Ideas"),
+                        title: Text("Add Date Idea"),
                         trailing: Icon(Icons.restaurant, color: Colors.grey),
                         onTap: () {
                           addDateIdea(context);
@@ -280,9 +371,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
             appBar: AppBar(
               bottom: TabBar(
                 tabs: [
+                  Tab(text: 'Trips', icon: Icon(Icons.local_airport)),
                   Tab(text: 'Gifts', icon: Icon(Icons.card_giftcard)),
-                  Tab(text: 'Dates', icon: Icon(Icons.restaurant)),
-                  Tab(text: 'Messages', icon: Icon(Icons.mood)),
+                  Tab(text: 'Dates', icon: Icon(Icons.restaurant)),                  
                 ],
               ),
               title: Text("Welcome, " + "${widget.user.firstName}" + '!', style: TextStyle(color: Colors.white)),
@@ -290,6 +381,19 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
             ),
             body: TabBarView (
               children: [
+                // For Adding Trip Ideas
+                Scaffold(
+                  body: Center(
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          child: Expanded(child: buildTrips(context)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
                 // For Adding Gift Ideas
                 Scaffold(
                   body: Center(
@@ -315,9 +419,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                     ),
                   ),
                 ),
-
-                // Go to SendNotifications page
-                SendNotificationsPage(),
               ],
             ),
           ),
@@ -433,6 +534,96 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     );
   }
 
+  Widget buildTrips(BuildContext context) {
+    return _buildTripList(context);
+  }
+
+  ListView _buildTripList(context) {
+    return ListView.builder(
+      // Must have an item count equal to the number of items!
+      itemCount: tripList.length,
+      // A callback that will return a widget.
+      itemBuilder: _buildTripItem,
+    );
+  }
+
+  Widget _buildTripItem(BuildContext context, int index) {
+    return Dismissible(
+      key: Key(tripList[index]),
+      background: Container(
+        alignment: AlignmentDirectional.center,
+        color: Colors.red,
+        child: Icon(
+          Icons.delete_forever,
+          color: Colors.white,
+        ),
+      ),
+      onDismissed: (direction) {
+        var tripDeleted = " ";
+        var tripDescDeleted = " ";
+
+        if(giftList.length == 1) {
+          tripDeleted = tripList.last;
+          tripDescDeleted = tripDescriptionList.last;
+        }
+        else {
+          tripDeleted = tripList.elementAt(index);
+          tripDescDeleted  = tripDescriptionList.elementAt(index);
+        }
+
+        // Delete the gift from the list
+        deleteTrip(tripDeleted, tripDescDeleted, index);
+      },
+      child: Card(
+        child: Column(
+          children: <Widget>[
+            ListTile(
+              leading: IconButton(
+                icon: Icon(Icons.local_airport),
+                onPressed: () {
+                  bookTrip(tripList[index]);
+                },
+                alignment: Alignment.centerLeft,
+              ), 
+              contentPadding: EdgeInsets.all(3.0),
+              title:  Align(
+                child: new Text(tripList[index]),
+                alignment: Alignment.center,
+              ),
+              subtitle:  Align(
+                child: new Text(tripDescriptionList[index]),
+                alignment: Alignment.center,
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.delete_forever),
+                onPressed: () {
+                  var tripDeleted = tripList.elementAt(index);
+                  var tripDescDeleted = tripDescriptionList.elementAt(index);
+
+                  deleteTrip(tripDeleted, tripDescDeleted, index);
+                },
+                alignment: Alignment.centerRight,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildGifts(BuildContext context) {
+    return _buildGiftList(context);
+  }
+
+  ListView _buildGiftList(context) {
+    return ListView.builder(
+      // Must have an item count equal to the number of items!
+      itemCount: giftList.length,
+      // A callback that will return a widget.
+      itemBuilder: _buildGiftItem,
+    );
+  }
+
   Widget _buildGiftItem(BuildContext context, int index) {
     return Dismissible(
       key: Key(giftList[index]),
@@ -467,7 +658,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
               leading: IconButton(
                 icon: Icon(Icons.search),
                 onPressed: () {
-                  _launchSearchGift(giftList[index]);
+                  launchSearchGift(giftList[index]);
                 },
                 alignment: Alignment.centerLeft,
               ), 
@@ -481,7 +672,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                 alignment: Alignment.center,
               ),
               trailing: IconButton(
-                icon: Icon(Icons.delete),
+                icon: Icon(Icons.delete_forever),
                 onPressed: () {
                   var giftDeleted = giftList.elementAt(index);
                   var giftDescDeleted = giftDescriptionList.elementAt(index);
@@ -494,47 +685,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
           ],
         ),
       ),
-    );
-  }
-
-  _launchSearchGift(String query) async {
-    var url = " ";
-
-    // Open using Amazon as the main search 
-    // Split query if more than one word
-    List<String> splitString = [];
-    splitString = query.split(" ");
-
-    // Etsy test
-    if(splitString.length < 2) {
-      url = 'https://www.amazon.com/s?k=' + splitString[0];
-    }
-    else {
-      int lengthOfString = splitString.length;
-      url = 'https://www.amazon.com/s?k=';
-      for(int i = 0; i < lengthOfString; i++) {
-        url += splitString[i] + "+";
-      }
-    }
-
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
-
-  Widget buildGifts(BuildContext context) {
-    return _buildGiftList(context);
-  }
-
-  ListView _buildGiftList(context) {
-    return ListView.builder(
-      // Must have an item count equal to the number of items!
-      itemCount: giftList.length,
-      // A callback that will return a widget.
-      itemBuilder: _buildGiftItem,
     );
   }
 
@@ -573,7 +723,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
               leading: IconButton(
                 icon: Icon(Icons.search),
                 onPressed: () {
-                  _launchSearchDate(dateList[index]);
+                  launchSearchDate(dateList[index]);
                 },
                 alignment: Alignment.centerLeft,
               ), 
@@ -613,6 +763,60 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     );
   }
 
+  bookTrip(String query) async {
+    var url = " ";
+
+    // Open using Expedia as the main search 
+    // Split query if more than one word
+    List<String> splitString = [];
+    splitString = query.split(" ");
+
+    // Expedia test
+    if(splitString.length < 2) {
+      url = 'https://www.expedia.com/Hotel-Search?destination=' + splitString[0];
+    }
+    else {
+      int lengthOfString = splitString.length;
+      url = 'https://www.expedia.com/Hotel-Search?destination=';
+      for(int i = 0; i < lengthOfString; i++) {
+        url += splitString[i] + "+";
+      }
+    }
+
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  } 
+
+  launchSearchGift(String query) async {
+    var url = " ";
+
+    // Open using Amazon as the main search 
+    // Split query if more than one word
+    List<String> splitString = [];
+    splitString = query.split(" ");
+
+    // Amazon test
+    if(splitString.length < 2) {
+      url = 'https://www.amazon.com/s?k=' + splitString[0];
+    }
+    else {
+      int lengthOfString = splitString.length;
+      url = 'https://www.amazon.com/s?k=';
+      for(int i = 0; i < lengthOfString; i++) {
+        url += splitString[i] + "+";
+      }
+    }
+
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   _addDateToCalendar(String dateTitle) {
     final Event dateEvent = Event(
       title: dateTitle,
@@ -624,7 +828,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   }
 
 
-  _launchSearchDate(String query) async {
+  launchSearchDate(String query) async {
     var url = " ";
 
     // Open in Yelp if they can
@@ -654,6 +858,20 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   @override
   bool get wantKeepAlive => true;
 
+  // Function that adds the trip idea the user entered and store it into realtime db
+  void createTrip(String tripName, String tripDesc) async {
+    var randomNum = new Random();
+    var newNum = randomNum.nextInt(1000000);
+    FirebaseDatabase.instance.reference()
+      .child(widget.user.uniqueID.toString())
+      .child("trips")
+      .child(newNum.toString())
+      .set({
+        'title': tripName,
+        'description': tripDesc,
+      });
+  }
+
   // Function that adds the gift idea the user entered and store it into realtime db
   void createGift(String giftName, String giftDesc) async {
     var randomNum = new Random();
@@ -680,6 +898,22 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         'title': dateName,
         'description': dateDesc,
       });
+  }
+
+  // Reads trips in firebase db and displays them on screen
+  void readTrips() {
+     var db = FirebaseDatabase.instance.reference()
+      .child(widget.user.uniqueID.toString())
+      .child("trips");
+    db.once().then((DataSnapshot snapshot) {
+      Map<dynamic, dynamic> gifts = snapshot.value;
+      gifts.forEach((key, value) {
+        setState(() {
+          tripList.add(value["title"]);
+          tripDescriptionList.add(value["description"]);
+        });
+      });
+    });
   }
 
   // Reads gifts in firebase db and displays them on screen
@@ -710,6 +944,50 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
           dateList.add(value["title"]);
           dateDescriptionList.add(value["description"]);
         });
+      });
+    });
+  }
+
+  // Function to delete trip from list and firebase db
+  void deleteTrip(String tripToDelete, String tripDescToDelete, int index) {
+    // Delete the gift from the list
+    if(tripList.length == 1) {
+      tripToDelete = tripList.last;
+      tripDescToDelete = tripDescriptionList.last;
+
+      setState(() {
+        tripList.removeWhere((tripDelete) => tripDelete == tripToDelete);
+        tripDescriptionList.removeWhere((tripDescDelete) => tripDescDelete == tripDescToDelete);
+      });
+    }
+    else {
+      tripToDelete = tripList.elementAt(index);
+      tripDescToDelete = tripDescriptionList.elementAt(index);
+
+      setState(() {
+        tripList.removeWhere((tripDelete) => tripDelete == tripToDelete);
+        tripDescriptionList.removeWhere((tripDescDelete) => tripDescDelete == tripDescToDelete);
+      });
+    }
+
+    // Delete from firebase DB
+    var db = FirebaseDatabase.instance.reference()
+      .child(widget.user.uniqueID.toString())
+      .child("trips");
+    db.once().then((DataSnapshot snapshot){
+      Map<dynamic,dynamic> trips = snapshot.value;
+      trips.forEach((key, value) {
+
+        // Check for value in DB to delete
+        if(value["title"] == tripToDelete) {
+
+          // Delete the node form Firebase DB
+          FirebaseDatabase.instance.reference()
+            .child(widget.user.uniqueID.toString())
+            .child("trips")
+            .child(key)
+            .remove();
+        }
       });
     });
   }
@@ -758,8 +1036,8 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     });
   }
 
-    // Function to delete date from list and firebase db
-    void deleteDate(String dateToDelete, String dateDescToDelete, int index) {
+  // Function to delete date from list and firebase db
+  void deleteDate(String dateToDelete, String dateDescToDelete, int index) {
     // Delete the date from the list
     if(dateList.length == 1) {
       dateToDelete = dateList.last;
