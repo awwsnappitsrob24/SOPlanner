@@ -12,8 +12,8 @@
 
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="Vivi's Bday App"
-        android:icon="@mipmap/launcher_icon"
+        android:label="SOPlanner"
+        android:icon="@mipmap/soplanner_icon"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".MainActivity"
