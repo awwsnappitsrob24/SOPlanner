@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:764837191976:android:360caa383a297008",
+        "mobilesdk_app_id": "1:764837191976:android:34b2dc6d4b39f709d1b01d",
         "android_client_info": {
-          "package_name": "com.example.vivi_bday_app"
+          "package_name": "com.robien.vivi_bday_app"
         }
       },
       "oauth_client": [
