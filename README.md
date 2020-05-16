@@ -19,6 +19,13 @@
 - [Contributors](#contributors)
 - [Acknowledgments](#acknowledgments)
 
+<br>
+
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+![GitHub repo size](https://img.shields.io/github/repo-size/awwsnappitsrob24/SOPlanner)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/awwsnappitsrob24/SOPlanner)
+
+
 ## Introduction
 
 Add trips, gifts, and date ideas you want to plan for your significant other. Book your next trip using Expedia. Shop for gifts using Amazon. Search for your next date using Yelp. Built with Flutter with Google Firebase.
