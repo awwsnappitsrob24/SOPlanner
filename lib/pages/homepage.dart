@@ -574,38 +574,44 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         // Delete the gift from the list
         deleteTrip(tripDeleted, tripDescDeleted, index);
       },
-      child: Card(
-        child: Column(
-          children: <Widget>[
-            ListTile(
-              leading: IconButton(
-                icon: Icon(Icons.local_airport),
-                onPressed: () {
-                  bookTrip(tripList[index]);
-                },
-                alignment: Alignment.centerLeft,
-              ), 
-              contentPadding: EdgeInsets.all(3.0),
-              title:  Align(
-                child: new Text(tripList[index]),
-                alignment: Alignment.center,
-              ),
-              subtitle:  Align(
-                child: new Text(tripDescriptionList[index]),
-                alignment: Alignment.center,
-              ),
-              trailing: IconButton(
-                icon: Icon(Icons.delete_forever),
-                onPressed: () {
-                  var tripDeleted = tripList.elementAt(index);
-                  var tripDescDeleted = tripDescriptionList.elementAt(index);
+      child: Container(
+        padding: EdgeInsets.fromLTRB(10,10,10,0),
+        height: 150,
+        width: double.maxFinite,
+        child: Card(
+          elevation: 5,
+          child: Column(
+            children: <Widget>[
+              ListTile(
+                leading: IconButton(
+                  icon: Icon(Icons.local_airport),
+                  onPressed: () {
+                    bookTrip(tripList[index]);
+                  },
+                  alignment: Alignment.centerLeft,
+                ), 
+                contentPadding: EdgeInsets.all(3.0),
+                title:  Align(
+                  child: new Text(tripList[index]),
+                  alignment: Alignment.center,
+                ),
+                subtitle:  Align(
+                  child: new Text(tripDescriptionList[index]),
+                  alignment: Alignment.center,
+                ),
+                trailing: IconButton(
+                  icon: Icon(Icons.delete_forever),
+                  onPressed: () {
+                    var tripDeleted = tripList.elementAt(index);
+                    var tripDescDeleted = tripDescriptionList.elementAt(index);
 
-                  deleteTrip(tripDeleted, tripDescDeleted, index);
-                },
-                alignment: Alignment.centerRight,
+                    deleteTrip(tripDeleted, tripDescDeleted, index);
+                  },
+                  alignment: Alignment.centerRight,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
