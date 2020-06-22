@@ -8,6 +8,7 @@ import 'package:vivi_bday_app/Setup/login.dart';
 import 'package:vivi_bday_app/pages/termsofservice.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class Homepage extends StatefulWidget {
   final User user;
@@ -26,14 +27,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   final List<String> dateDescriptionList = [];
   final List<String> tripDescriptionList = [];
   File newProfilePic;
-  String fileName, lastImageUrl = "", userFirstName, userLastName, userEmail;
+  String fileName, lastImageUrl = "", userFirstName, userLastName, userEmail, dateChosen;
   int fileNum = 0;
   TextEditingController giftTextController = new TextEditingController();
   TextEditingController dateTextController = new TextEditingController();
   TextEditingController tripTextController = new TextEditingController();
-  TextEditingController giftDescController = new TextEditingController();
-  TextEditingController dateDescController = new TextEditingController();
-  TextEditingController tripDescController = new TextEditingController();
   TextEditingController newPasswordController = new TextEditingController();
   FirebaseUser currentUser;
   FirebaseDatabase database = new FirebaseDatabase();
@@ -51,12 +49,15 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     readGifts();
     readDates();
 
+    //tripList.clear();
+    //tripDescriptionList.clear();
+
     // Build everything in the start
     build(this.context);
   }
 
   Future addTripIdea(BuildContext context) async {
-    String _tripIdea;
+    String _tripIdea, _date;
 
     showDialog(
         context: context,
@@ -86,16 +87,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   fillColor: Colors.white70,
                 ),
               ),
-              TextFormField (
-                controller: tripDescController,
-                decoration: InputDecoration(
-                  contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
-                  filled: true,
-                  hintText: 'Trip Description (optional)',
-                  hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
-                  fillColor: Colors.white70,
-                )
-              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -103,18 +94,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                     child: Text('OK'), color: Colors.pink[50],
                     onPressed: () {
                       String trip = tripTextController.text;
-                      String tripDesc = tripDescController.text;
-
-                      // Add it to tripList to be read, also to firebase db
-                      setState(() {
-                        tripList.add(trip);
-                        tripDescriptionList.add(tripDesc);
-                        createTrip(trip, tripDesc);
-                      });
-
+                     
                       // Close the dialog box
                       Navigator.pop(context);
-                    },
+
+                      showStartDatePicker(trip);
+                    }
                   ),
 
                   FlatButton(
@@ -164,16 +149,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   fillColor: Colors.white70,
                 )
               ),
-              TextFormField (
-                controller: giftDescController,
-                decoration: InputDecoration(
-                  contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
-                  filled: true,
-                  hintText: 'Gift Description (optional)',
-                  hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
-                  fillColor: Colors.white70,
-                )
-              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -181,13 +156,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                     child: Text('OK'), color: Colors.pink[50],
                     onPressed: () {
                       String gift = giftTextController.text;
-                      String giftDesc = giftDescController.text;
 
                       // Add it to giftList to be read, also to firebase db
                       setState(() {
                         giftList.add(gift);
-                        giftDescriptionList.add(giftDesc);
-                        createGift(gift, giftDesc);
+                        //giftDescriptionList.add(giftDesc);
+                        //createGift(gift, giftDesc);
                       });
 
                       // Close the dialog box
@@ -241,16 +215,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   fillColor: Colors.white70,
                 ),
               ),
-              TextFormField (
-                controller: dateDescController,
-                decoration: InputDecoration(
-                  contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
-                  filled: true,
-                  hintText: 'Date Description (optional)',
-                  hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
-                  fillColor: Colors.white70,
-                )
-              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -258,13 +222,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                     child: Text('OK'), color: Colors.pink[50],
                     onPressed: () {
                       String date = dateTextController.text;
-                      String dateDesc = dateDescController.text;
 
                       // Add it to dateList to be read, also to firebase db
                       setState(() {
                         dateList.add(date);
-                        dateDescriptionList.add(dateDesc);
-                        createDate(date, dateDesc);
+                        //dateDescriptionList.add(dateDesc);
+                        //createDate(date, dateDesc);
                       });
 
                       // Close the dialog box
@@ -576,40 +539,94 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       },
       child: Container(
         padding: EdgeInsets.fromLTRB(10,10,10,0),
-        height: 150,
+        height: 200,
         width: double.maxFinite,
         child: Card(
           elevation: 5,
-          child: Column(
+          child: Stack(
             children: <Widget>[
-              ListTile(
-                leading: IconButton(
-                  icon: Icon(Icons.local_airport),
-                  onPressed: () {
-                    bookTrip(tripList[index]);
-                  },
-                  alignment: Alignment.centerLeft,
-                ), 
-                contentPadding: EdgeInsets.all(3.0),
-                title:  Align(
-                  child: new Text(tripList[index]),
-                  alignment: Alignment.center,
+              /*
+              Align(
+                child: Image.asset(
+                  "your_image",
+                  width: 150,
+                  height: 100,
+                  fit: BoxFit.cover,
                 ),
-                subtitle:  Align(
-                  child: new Text(tripDescriptionList[index]),
-                  alignment: Alignment.center,
-                ),
-                trailing: IconButton(
-                  icon: Icon(Icons.delete_forever),
-                  onPressed: () {
-                    var tripDeleted = tripList.elementAt(index);
-                    var tripDescDeleted = tripDescriptionList.elementAt(index);
-
-                    deleteTrip(tripDeleted, tripDescDeleted, index);
-                  },
-                  alignment: Alignment.centerRight,
-                ),
+              ),*/
+              // Trip name text
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 15, 0, 0),
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Text(tripList[index], style: TextStyle(fontSize: 25)),
+                    ),
+                  ),
+                  // Trip date text
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 5, 0, 0),
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Text(tripDescriptionList[index]),
+                    ),
+                  ),
+                ],
               ),
+              // 3 icons on the right side of the card
+              SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    // Booking icon
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0,15,0,0),
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: IconButton(
+                          icon: Icon(Icons.local_airport),
+                          onPressed: () {
+                            bookTrip(tripList[index]);
+                          },
+                        ),
+                      )
+                    ),
+                    // Add to Calendar icon
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0,0,0,0),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: IconButton(
+                        icon: Icon(Icons.calendar_today),
+                          onPressed: () {
+                            _addDateToCalendar(tripList[index]);
+                          },
+                        ),
+                      )
+                    ),
+                    // Delete trip button
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0,0,0,0),
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: IconButton(
+                            icon: Icon(Icons.delete_forever),
+                            onPressed: () {
+                              var tripDeleted = tripList.elementAt(index);
+                              var tripDescDeleted = tripDescriptionList.elementAt(index);
+
+                              deleteTrip(tripDeleted, tripDescDeleted, index);
+                            },
+                          ),
+                      )
+                    ),
+                  ],
+                )
+              )
             ],
           ),
         ),
@@ -916,7 +933,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       gifts.forEach((key, value) {
         setState(() {
           tripList.add(value["title"]);
-          tripDescriptionList.add(value["description"]);
         });
       });
     });
@@ -1084,5 +1100,38 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         }
       });
     });
+  }
+
+  void showStartDatePicker(String tripName)  {
+    String _date;
+
+    DatePicker.showDatePicker(
+      context,
+      showTitleActions: true,
+      theme: DatePickerTheme(
+        headerColor: Colors.orange[200],
+        backgroundColor: Colors.blue[200],
+        itemStyle: TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+        doneStyle: TextStyle(color: Colors.white, fontSize: 16)
+      ),
+      onChanged: (date) {
+        print('change $date');
+      },
+      onConfirm: (date) {
+        print('confirm $date');
+        _date = '${date.month}/${date.day}/${date.year}';
+        dateChosen = _date;
+
+        // Add it to tripList to be read, also to firebase db
+        setState(() {
+          tripList.add(tripName);
+          tripDescriptionList.add(dateChosen);
+          createTrip(tripName, dateChosen);       
+        });
+      },
+      currentTime: DateTime.now(),
+      locale: LocaleType.en,
+    );
   }
 }
