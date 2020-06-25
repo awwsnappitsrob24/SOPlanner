@@ -55,6 +55,8 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     //tripDescriptionList.clear();
     //giftList.clear();
     //giftDescriptionList.clear();
+    //dateList.clear();
+    //dateDescriptionList.clear();
 
     // Build everything in the start
     build(this.context);
@@ -101,8 +103,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                      
                       // Close the dialog box
                       Navigator.pop(context);
-
-                      showStartDatePicker(trip);
+          
+                      // Add date chosen to list and firebase db
+                      showTripPicker(trip);                   
                     }
                   ),
 
@@ -153,18 +156,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   fillColor: Colors.white70,
                 )
               ),
-              // Gift description textfield
-              TextFormField (
-                controller: giftDescController,
-                onSaved: (giftInput) => _giftIdea = giftInput,
-                decoration: InputDecoration(
-                  contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
-                  filled: true,
-                  hintText: 'Description (optional)',
-                  hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
-                  fillColor: Colors.white70,
-                ),
-              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -194,7 +185,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   )
                 ],
               )
-
             ],
           );
         }
@@ -240,15 +230,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                     onPressed: () {
                       String date = dateTextController.text;
 
-                      // Add it to dateList to be read, also to firebase db
-                      setState(() {
-                        dateList.add(date);
-                        //dateDescriptionList.add(dateDesc);
-                        //createDate(date, dateDesc);
-                      });
-
                       // Close the dialog box
                       Navigator.pop(context);
+          
+                      // Add date chosen to list and firebase db
+                      showDatePicker(date);  
                     },
                   ),
 
@@ -722,64 +708,99 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   }
 
   Widget _buildDateItem(BuildContext context, int index) {
-    return Dismissible(
-      key: Key(dateList[index]),
-      background: Container(
-        alignment: AlignmentDirectional.center,
-        color: Colors.red,
-        child: Icon(
-          Icons.delete_forever,
-          color: Colors.white,
-        ),
-      ),
-      onDismissed: (direction) {
-        var dateDeleted = " ";
-        var dateDescDeleted = " ";
-
-        // Delete the gift from the list
-        if(dateList.length == 1) {
-          dateDeleted = dateList.last;
-          dateDescDeleted = dateDescriptionList.last;
-        }
-        else {
-          dateDeleted = dateList.elementAt(index);
-          dateDescDeleted = dateDescriptionList.elementAt(index);
-        }
-
-        deleteDate(dateDeleted, dateDescDeleted, index);
-      },
-
+    return Container(
+      padding: EdgeInsets.fromLTRB(10,10,10,0),
+      height: 200,
+      width: double.maxFinite,
       child: Card(
-        child: Column(
+        elevation: 5,
+        child: Stack(
           children: <Widget>[
-            ListTile(
-              leading: IconButton(
-                icon: Icon(Icons.search),
-                onPressed: () {
-                  launchSearchDate(dateList[index]);
-                },
-                alignment: Alignment.centerLeft,
-              ), 
-              contentPadding: EdgeInsets.all(3.0),
-              title:  Align(
-                child: new Text(dateList[index]),
-                alignment: Alignment.center,
+            /*
+            Align(
+              child: Image.asset(
+                "your_image",
+                width: 150,
+                height: 100,
+                fit: BoxFit.cover,
               ),
-              subtitle:  Align(
-                child: new Text(dateDescriptionList[index]),
-                alignment: Alignment.center,
-              ),
-              trailing: IconButton(
-                icon: Icon(Icons.calendar_today),
-                onPressed: () {
-                  _addDateToCalendar(dateList[index]);
-                },
-                alignment: Alignment.centerRight,
-              ), 
+            ),*/
+            // Trip name text
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 15, 0, 0),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(dateList[index], style: TextStyle(fontSize: 25)),
+                  ),
+                ),
+                // Trip date text
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 5, 0, 0),
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(dateDescriptionList[index]),
+                  ),
+                ),
+              ],
             ),
+            // 3 icons on the right side of the card
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  // Searching at Yelp icon
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0,15,0,0),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: IconButton(
+                        icon: Icon(Icons.search),
+                        onPressed: () {
+                          launchSearchDate(dateList[index]);
+                        },
+                      ),
+                    )
+                  ),
+                  // Add to Calendar icon
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0,0,0,0),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                      icon: Icon(Icons.calendar_today),
+                        onPressed: () {
+                          _addDateToCalendar(dateList[index]);
+                        },
+                      ),
+                    )
+                  ),
+                  // Delete date button
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0,0,0,0),
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: IconButton(
+                          icon: Icon(Icons.delete_forever),
+                          onPressed: () {
+                            var dateDeleted = dateList.elementAt(index);
+                            var dateDescDeleted = dateDescriptionList.elementAt(index);
+
+                            deleteDate(dateDeleted, dateDescDeleted, index);
+                          },
+                        ),
+                    )
+                  ),
+                ],
+              )
+            )
           ],
         ),
-      ),
+      ) 
     );
   }
 
@@ -1113,7 +1134,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     });
   }
 
-  void showStartDatePicker(String tripName)  {
+  // Function to let user to choose the date of the trip and
+  // add it to the list and Firebase db
+  void showTripPicker(String tripName)  {
     String _date;
 
     DatePicker.showDatePicker(
@@ -1126,6 +1149,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
             color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
         doneStyle: TextStyle(color: Colors.white, fontSize: 16)
       ),
+      minTime: DateTime.now(),
       onChanged: (date) {
         print('change $date');
       },
@@ -1139,6 +1163,42 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
           tripList.add(tripName);
           tripDescriptionList.add(dateChosen);
           createTrip(tripName, dateChosen);       
+        });
+      },
+      currentTime: DateTime.now(),
+      locale: LocaleType.en,
+    );
+  }
+
+  // Function to let user to choose the date of the date and
+  // add it to the list and Firebase db
+  void showDatePicker(String dateName)  {
+    String _date;
+
+    DatePicker.showDatePicker(
+      context,
+      showTitleActions: true,
+      theme: DatePickerTheme(
+        headerColor: Colors.orange[200],
+        backgroundColor: Colors.blue[200],
+        itemStyle: TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+        doneStyle: TextStyle(color: Colors.white, fontSize: 16)
+      ),
+      minTime: DateTime.now(),
+      onChanged: (date) {
+        print('change $date');
+      },
+      onConfirm: (date) {
+        print('confirm $date');
+        _date = '${date.month}/${date.day}/${date.year}';
+        dateChosen = _date;
+
+        // Add it to tripList to be read, also to firebase db
+        setState(() {
+          dateList.add(dateName);
+          dateDescriptionList.add(dateChosen);
+          createDate(dateName, dateChosen);       
         });
       },
       currentTime: DateTime.now(),
