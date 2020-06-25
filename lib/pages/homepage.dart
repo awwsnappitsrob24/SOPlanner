@@ -31,7 +31,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   int fileNum = 0;
   TextEditingController giftTextController = new TextEditingController();
   TextEditingController dateTextController = new TextEditingController();
+  TextEditingController giftDescController = new TextEditingController();
   TextEditingController tripTextController = new TextEditingController();
+  TextEditingController tripDescController = new TextEditingController();
   TextEditingController newPasswordController = new TextEditingController();
   FirebaseUser currentUser;
   FirebaseDatabase database = new FirebaseDatabase();
@@ -51,6 +53,8 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
     //tripList.clear();
     //tripDescriptionList.clear();
+    //giftList.clear();
+    //giftDescriptionList.clear();
 
     // Build everything in the start
     build(this.context);
@@ -149,6 +153,18 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   fillColor: Colors.white70,
                 )
               ),
+              // Gift description textfield
+              TextFormField (
+                controller: giftDescController,
+                onSaved: (giftInput) => _giftIdea = giftInput,
+                decoration: InputDecoration(
+                  contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
+                  filled: true,
+                  hintText: 'Description (optional)',
+                  hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
+                  fillColor: Colors.white70,
+                ),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -156,12 +172,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                     child: Text('OK'), color: Colors.pink[50],
                     onPressed: () {
                       String gift = giftTextController.text;
+                      String giftDesc = giftDescController.text;
 
                       // Add it to giftList to be read, also to firebase db
                       setState(() {
                         giftList.add(gift);
-                        //giftDescriptionList.add(giftDesc);
-                        //createGift(gift, giftDesc);
+                        giftDescriptionList.add(giftDesc);
+                        createGift(gift, giftDesc);
                       });
 
                       // Close the dialog box
@@ -511,126 +528,99 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   }
 
   Widget _buildTripItem(BuildContext context, int index) {
-    return Dismissible(
-      key: Key(tripList[index]),
-      background: Container(
-        alignment: AlignmentDirectional.center,
-        color: Colors.red,
-        child: Icon(
-          Icons.delete_forever,
-          color: Colors.white,
-        ),
-      ),
-      onDismissed: (direction) {
-        var tripDeleted = " ";
-        var tripDescDeleted = " ";
-
-        if(giftList.length == 1) {
-          tripDeleted = tripList.last;
-          tripDescDeleted = tripDescriptionList.last;
-        }
-        else {
-          tripDeleted = tripList.elementAt(index);
-          tripDescDeleted  = tripDescriptionList.elementAt(index);
-        }
-
-        // Delete the gift from the list
-        deleteTrip(tripDeleted, tripDescDeleted, index);
-      },
-      child: Container(
-        padding: EdgeInsets.fromLTRB(10,10,10,0),
-        height: 200,
-        width: double.maxFinite,
-        child: Card(
-          elevation: 5,
-          child: Stack(
-            children: <Widget>[
-              /*
-              Align(
-                child: Image.asset(
-                  "your_image",
-                  width: 150,
-                  height: 100,
-                  fit: BoxFit.cover,
-                ),
-              ),*/
-              // Trip name text
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(15, 15, 0, 0),
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(tripList[index], style: TextStyle(fontSize: 25)),
-                    ),
+    return Container(
+      padding: EdgeInsets.fromLTRB(10,10,10,0),
+      height: 200,
+      width: double.maxFinite,
+      child: Card(
+        elevation: 5,
+        child: Stack(
+          children: <Widget>[
+            /*
+            Align(
+              child: Image.asset(
+                "your_image",
+                width: 150,
+                height: 100,
+                fit: BoxFit.cover,
+              ),
+            ),*/
+            // Trip name text
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 15, 0, 0),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(tripList[index], style: TextStyle(fontSize: 25)),
                   ),
-                  // Trip date text
+                ),
+                // Trip date text
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 5, 0, 0),
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(tripDescriptionList[index]),
+                  ),
+                ),
+              ],
+            ),
+            // 3 icons on the right side of the card
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  // Booking icon
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(15, 5, 0, 0),
-                      child: Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Text(tripDescriptionList[index]),
-                    ),
+                    padding: const EdgeInsets.fromLTRB(0,15,0,0),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: IconButton(
+                        icon: Icon(Icons.local_airport),
+                        onPressed: () {
+                          bookTrip(tripList[index]);
+                        },
+                      ),
+                    )
+                  ),
+                  // Add to Calendar icon
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0,0,0,0),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                      icon: Icon(Icons.calendar_today),
+                        onPressed: () {
+                          _addDateToCalendar(tripList[index]);
+                        },
+                      ),
+                    )
+                  ),
+                  // Delete trip button
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0,0,0,0),
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: IconButton(
+                          icon: Icon(Icons.delete_forever),
+                          onPressed: () {
+                            var tripDeleted = tripList.elementAt(index);
+                            var tripDescDeleted = tripDescriptionList.elementAt(index);
+
+                            deleteTrip(tripDeleted, tripDescDeleted, index);
+                          },
+                        ),
+                    )
                   ),
                 ],
-              ),
-              // 3 icons on the right side of the card
-              SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    // Booking icon
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0,15,0,0),
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        child: IconButton(
-                          icon: Icon(Icons.local_airport),
-                          onPressed: () {
-                            bookTrip(tripList[index]);
-                          },
-                        ),
-                      )
-                    ),
-                    // Add to Calendar icon
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0,0,0,0),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: IconButton(
-                        icon: Icon(Icons.calendar_today),
-                          onPressed: () {
-                            _addDateToCalendar(tripList[index]);
-                          },
-                        ),
-                      )
-                    ),
-                    // Delete trip button
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0,0,0,0),
-                      child: Align(
-                        alignment: Alignment.bottomRight,
-                        child: IconButton(
-                            icon: Icon(Icons.delete_forever),
-                            onPressed: () {
-                              var tripDeleted = tripList.elementAt(index);
-                              var tripDescDeleted = tripDescriptionList.elementAt(index);
-
-                              deleteTrip(tripDeleted, tripDescDeleted, index);
-                            },
-                          ),
-                      )
-                    ),
-                  ],
-                )
               )
-            ],
-          ),
+            )
+          ],
         ),
-      ),
+      ) 
     );
   }
 
@@ -648,66 +638,86 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   }
 
   Widget _buildGiftItem(BuildContext context, int index) {
-    return Dismissible(
-      key: Key(giftList[index]),
-      background: Container(
-        alignment: AlignmentDirectional.center,
-        color: Colors.red,
-        child: Icon(
-          Icons.delete_forever,
-          color: Colors.white,
-        ),
-      ),
-      onDismissed: (direction) {
-        var giftDeleted = " ";
-        var giftDescDeleted = " ";
-
-        if(giftList.length == 1) {
-          giftDeleted = giftList.last;
-          giftDescDeleted = giftDescriptionList.last;
-        }
-        else {
-          giftDeleted = giftList.elementAt(index);
-          giftDescDeleted  = giftDescriptionList.elementAt(index);
-        }
-
-        // Delete the gift from the list
-        deleteGift(giftDeleted, giftDescDeleted, index);
-      },
+    return Container(
+      padding: EdgeInsets.fromLTRB(10,10,10,0),
+      height: 150,
+      width: double.maxFinite,
       child: Card(
-        child: Column(
+        elevation: 5,
+        child: Stack(
           children: <Widget>[
-            ListTile(
-              leading: IconButton(
-                icon: Icon(Icons.search),
-                onPressed: () {
-                  launchSearchGift(giftList[index]);
-                },
-                alignment: Alignment.centerLeft,
-              ), 
-              contentPadding: EdgeInsets.all(3.0),
-              title:  Align(
-                child: new Text(giftList[index]),
-                alignment: Alignment.center,
+            /*
+            Align(
+              child: Image.asset(
+                "your_image",
+                width: 150,
+                height: 100,
+                fit: BoxFit.cover,
               ),
-              subtitle:  Align(
-                child: new Text(giftDescriptionList[index]),
-                alignment: Alignment.center,
-              ),
-              trailing: IconButton(
-                icon: Icon(Icons.delete_forever),
-                onPressed: () {
-                  var giftDeleted = giftList.elementAt(index);
-                  var giftDescDeleted = giftDescriptionList.elementAt(index);
-
-                  deleteGift(giftDeleted, giftDescDeleted, index);
-                },
-                alignment: Alignment.centerRight,
-              ),
+            ),*/
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                // Gift name text
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 15, 0, 0),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(giftList[index], style: TextStyle(fontSize: 25)),
+                  ),
+                ),
+                // Gift description text
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 5, 0, 0),
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(giftDescriptionList[index]),
+                  ),
+                ),
+              ],
             ),
+            // 2 icons on the right side of the card
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  // Searching icon
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0,15,0,0),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: IconButton(
+                        icon: Icon(Icons.search),
+                        onPressed: () {
+                          launchSearchGift(giftList[index]);
+                        },
+                      ),
+                    )
+                  ),
+                  // Delete gift button
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0,0,0,0),
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: IconButton(
+                          icon: Icon(Icons.delete_forever),
+                          onPressed: () {
+                            var giftDeleted = giftList.elementAt(index);
+                            var giftDescDeleted = giftDescriptionList.elementAt(index);
+
+                            deleteGift(giftDeleted, giftDescDeleted, index);
+                          },
+                        ),
+                    )
+                  ),
+                ],
+              )
+            )
           ],
         ),
-      ),
+      ) 
     );
   }
 
@@ -933,6 +943,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       gifts.forEach((key, value) {
         setState(() {
           tripList.add(value["title"]);
+          tripDescriptionList.add(value["description"]);
         });
       });
     });
