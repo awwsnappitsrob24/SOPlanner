@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:firebase_database/firebase_database.dart' hide Event;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:vivi_bday_app/Setup/login.dart';
+import 'package:vivi_bday_app/pages/login.dart';
 import 'package:vivi_bday_app/models/user.dart';
 import 'package:vivi_bday_app/helpers/helper_functions.dart';
 import 'package:vivi_bday_app/pages/termsofservice.dart';

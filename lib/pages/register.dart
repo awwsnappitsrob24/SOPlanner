@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vivi_bday_app/services/auth_services.dart';
 import 'package:vivi_bday_app/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:vivi_bday_app/Setup/login.dart';
+import 'package:vivi_bday_app/pages/login.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'dart:math';

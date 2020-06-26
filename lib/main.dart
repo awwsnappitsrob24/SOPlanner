@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vivi_bday_app/Setup/login.dart';
+import 'package:vivi_bday_app/pages/login.dart';
 
 void main() => runApp(MyApp());
 
