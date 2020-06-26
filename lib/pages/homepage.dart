@@ -1,12 +1,11 @@
 import 'dart:io';
 import 'dart:math';
-import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:firebase_database/firebase_database.dart' hide Event;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vivi_bday_app/Setup/login.dart';
+import 'package:vivi_bday_app/helpers/helper_functions.dart';
 import 'package:vivi_bday_app/pages/termsofservice.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
@@ -567,7 +566,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                       child: IconButton(
                         icon: Icon(Icons.local_airport),
                         onPressed: () {
-                          bookTrip(tripList[index]);
+                          HelperFunctions.bookTrip(tripList[index]);
                         },
                       ),
                     )
@@ -580,7 +579,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                       child: IconButton(
                       icon: Icon(Icons.calendar_today),
                         onPressed: () {
-                          _addDateToCalendar(tripList[index]);
+                          HelperFunctions.addDateToCalendar(tripList[index]);
                         },
                       ),
                     )
@@ -677,7 +676,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                       child: IconButton(
                         icon: Icon(Icons.search),
                         onPressed: () {
-                          launchSearchGift(giftList[index]);
+                          HelperFunctions.launchSearchGift(giftList[index]);
                         },
                       ),
                     )
@@ -761,7 +760,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                       child: IconButton(
                         icon: Icon(Icons.search),
                         onPressed: () {
-                          launchSearchDate(dateList[index]);
+                          HelperFunctions.launchSearchDate(dateList[index]);
                         },
                       ),
                     )
@@ -774,7 +773,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                       child: IconButton(
                       icon: Icon(Icons.calendar_today),
                         onPressed: () {
-                          _addDateToCalendar(dateList[index]);
+                          HelperFunctions.addDateToCalendar(dateList[index]);
                         },
                       ),
                     )
@@ -816,98 +815,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       itemBuilder: _buildDateItem,
     );
   }
-
-  bookTrip(String query) async {
-    var url = " ";
-
-    // Open using Expedia as the main search 
-    // Split query if more than one word
-    List<String> splitString = [];
-    splitString = query.split(" ");
-
-    // Expedia test
-    if(splitString.length < 2) {
-      url = 'https://www.expedia.com/Hotel-Search?destination=' + splitString[0];
-    }
-    else {
-      int lengthOfString = splitString.length;
-      url = 'https://www.expedia.com/Hotel-Search?destination=';
-      for(int i = 0; i < lengthOfString; i++) {
-        url += splitString[i] + "+";
-      }
-    }
-
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  } 
-
-  launchSearchGift(String query) async {
-    var url = " ";
-
-    // Open using Amazon as the main search 
-    // Split query if more than one word
-    List<String> splitString = [];
-    splitString = query.split(" ");
-
-    // Amazon test
-    if(splitString.length < 2) {
-      url = 'https://www.amazon.com/s?k=' + splitString[0];
-    }
-    else {
-      int lengthOfString = splitString.length;
-      url = 'https://www.amazon.com/s?k=';
-      for(int i = 0; i < lengthOfString; i++) {
-        url += splitString[i] + "+";
-      }
-    }
-
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
-  _addDateToCalendar(String dateTitle) {
-    final Event dateEvent = Event(
-      title: dateTitle,
-      startDate: DateTime.now(),
-      endDate: DateTime.now(),
-    );
-
-    Add2Calendar.addEvent2Cal(dateEvent);
-  }
-
-
-  launchSearchDate(String query) async {
-    var url = " ";
-
-    // Open in Yelp if they can
-    // Split query if more than one word
-    List<String> splitString = [];
-    splitString = query.split(" ");
-
-    if(splitString.length < 2) {
-      url = 'https://www.yelp.com/search?find_desc=' + splitString[0];
-    }
-    else {
-      int lengthOfString = splitString.length;
-      url = 'https://www.yelp.com/search?find_desc=';
-      for(int i = 0; i < lengthOfString; i++) {
-        url += splitString[i] + "+";
-      }
-    }
-
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
 
   @override
   bool get wantKeepAlive => true;
