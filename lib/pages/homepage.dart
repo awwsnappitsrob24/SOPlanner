@@ -341,7 +341,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                         title: Text("Terms of Security"),
                         trailing: Icon(Icons.security, color: Colors.grey),
                         onTap: () {
-                          viewTermsOfService();
+                          // Go to terms of services page
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => TermsOfServicePage())
+                          );
                         },
                       ),
                     ],
@@ -457,7 +461,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   void updatePassword(String newPassword) async {
       FirebaseUser user = await FirebaseAuth.instance.currentUser();
 
-      user.updatePassword(newPassword).then((_) {
+      user.updatePassword(newPassword).then((_) async {
         // Password change was successful on toast
         Fluttertoast.showToast(
           msg: "Password changed! Please log in with new password",
@@ -469,10 +473,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         );
 
         // Log out and make user login again
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage())
-        );
+        signOut();
       }).catchError((error) {
         // Error message in a toast
         if(newPassword.isEmpty) {
@@ -496,14 +497,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
           );
         }
       });
-  }
-
-  // Go to Terms of Security page
-  void viewTermsOfService() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => TermsOfServicePage())
-    );
   }
 
   // Sign user out then go back to login page

@@ -17,7 +17,6 @@ class AuthServices {
     await _auth.signOut();
   }
 
-  // To do: register, update password
   // Function to register a user for the app and store their info to Firebase
   Future<void> register(User newUser, String _email, String _password) async {
     await _auth.createUserWithEmailAndPassword
