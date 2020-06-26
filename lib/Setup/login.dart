@@ -192,8 +192,6 @@ class _LoginPageState extends State<LoginPage> {
           _isLoading = true;
         });
 
-        print(_email);
-        print(_password);
         await auth.login(_email, _password);
 
         setState(() {

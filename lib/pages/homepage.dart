@@ -9,6 +9,7 @@ import 'package:vivi_bday_app/helpers/helper_functions.dart';
 import 'package:vivi_bday_app/pages/termsofservice.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:vivi_bday_app/services/auth_services.dart';
 
 class Homepage extends StatefulWidget {
   final User user;
@@ -37,6 +38,8 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   TextEditingController newPasswordController = new TextEditingController();
   FirebaseUser currentUser;
   FirebaseDatabase database = new FirebaseDatabase();
+  AuthServices auth = AuthServices();
+
 
   @override
   void initState() {
@@ -329,7 +332,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                         title: Text("Logout"),
                         trailing: Icon(Icons.power_settings_new, color: Colors.grey),
                         onTap: () {
-                          logout();
+                          signOut();
                         },
                       ),
                       // Divider to divide app security with terms of security
@@ -503,8 +506,10 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     );
   }
 
-  // Go back to login page
-  logout() {
+  // Sign user out then go back to login page
+  signOut() async {
+    await auth.logout();
+
     Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => LoginPage())
