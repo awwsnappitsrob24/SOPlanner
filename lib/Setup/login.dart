@@ -169,7 +169,8 @@ class _LoginPageState extends State<LoginPage> {
                           style: TextStyle(color: Colors.blue[200]),
                         ),
                         onTap: () {
-                          gotoRegisterPage();
+                          // Go to register page
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()));
                         },
                       )
                     ],
@@ -232,10 +233,5 @@ class _LoginPageState extends State<LoginPage> {
 
           Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage(user: currentUser)));
         }));
-  }
-
-  /// Function to go to Register page
-  void gotoRegisterPage() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()));
   }
 }

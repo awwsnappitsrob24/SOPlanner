@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vivi_bday_app/services/auth_services.dart';
+import 'package:vivi_bday_app/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vivi_bday_app/Setup/login.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -18,8 +20,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0, color: Colors.white);
   final databaseReference = Firestore.instance;
-
-  int userUniqueID;
+  AuthServices auth = AuthServices();
+  int _uniqueID;
 
    @override
   Widget build(BuildContext context) {
@@ -34,7 +36,11 @@ class _RegisterPageState extends State<RegisterPage> {
           return 'First name cannot be empty.'; // empty check
         }
       },
-      onSaved: (input) => _firstName = input, // save user input into variable for authentication
+      onSaved: (input) {
+        setState(() {
+          _firstName = input;
+        });
+      }, // save user input into variable for authentication
       style: style,
       decoration: InputDecoration(
         contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
@@ -62,7 +68,11 @@ class _RegisterPageState extends State<RegisterPage> {
           return 'Last name cannot be empty.'; // empty check
         }
       },
-      onSaved: (input) => _lastName = input, // save user input into variable for authentication
+      onSaved: (input) {
+        setState(() {
+          _lastName = input;
+        });
+      }, // save user input into variable for authentication
       style: style,
       decoration: InputDecoration(
         contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
@@ -90,7 +100,11 @@ class _RegisterPageState extends State<RegisterPage> {
           return 'Email cannot be empty.'; // empty check
         }
       },
-      onSaved: (input) => _email = input, // save user input into variable for authentication
+      onSaved: (input) {
+        setState(() {
+          _email = input;
+        });
+      }, // save user input into variable for authentication
       style: style,
       decoration: InputDecoration(
         contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
@@ -118,7 +132,11 @@ class _RegisterPageState extends State<RegisterPage> {
           return 'Password cannot be empty.'; // empty check
         }
       },
-      onSaved: (input) => _password = input, // save user input into variable for authentication
+      onSaved: (input){{
+        setState(() {
+          _password = input;
+        });
+      }}, // save user input into variable for authentication
       style: style,
       obscureText: true,
       decoration: InputDecoration(
@@ -149,7 +167,7 @@ class _RegisterPageState extends State<RegisterPage> {
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
 
         // trigger register function here
-        onPressed: register,
+        onPressed: signUp,
 
         child: Text("Register",
             textAlign: TextAlign.center,
@@ -208,7 +226,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   /// Login function to authenticate users using Firebase
-  Future<void> register() async {
+  signUp() async {
 
     // Validate fields
     final formState = _formKey.currentState;
@@ -221,20 +239,16 @@ class _RegisterPageState extends State<RegisterPage> {
         });
 
         // Create user
-        await FirebaseAuth.instance.createUserWithEmailAndPassword
-          (email: _email, password: _password);
-
-        // Store user's data in firestore for later retrieval
         var rng = new Random();
-        userUniqueID = rng.nextInt(1000000000);
-        await Firestore.instance.collection("users")
-        .add({
-          'firstName': _firstName,
-          'lastName': _lastName,
-          'email': _email,
-          'uniqueID' : userUniqueID,
-        });
-        
+        _uniqueID = rng.nextInt(1000000000);
+        User newUser = User();
+        newUser.firstName = _firstName;
+        newUser.lastName = _lastName;
+        newUser.email = _email;
+        newUser.uniqueID = _uniqueID;
+
+        // Call function to register user
+        await auth.register(newUser, _email, _password);
 
         // After authenticating, hide Modal Progress HUD
         setState(() {
@@ -242,7 +256,7 @@ class _RegisterPageState extends State<RegisterPage> {
         });
 
         // If register is successful, go back to login so user can log in
-        Navigator.push(context, new MaterialPageRoute(builder: (context) => LoginPage(userID: userUniqueID)));
+        Navigator.push(context, new MaterialPageRoute(builder: (context) => LoginPage(userID: _uniqueID)));
 
         // Successful message in a toast
         Fluttertoast.showToast(
