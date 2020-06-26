@@ -4,6 +4,7 @@ import 'package:firebase_database/firebase_database.dart' hide Event;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vivi_bday_app/Setup/login.dart';
+import 'package:vivi_bday_app/models/user.dart';
 import 'package:vivi_bday_app/helpers/helper_functions.dart';
 import 'package:vivi_bday_app/pages/termsofservice.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -151,6 +152,17 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
                   filled: true,
                   hintText: 'Gift',
+                  hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
+                  fillColor: Colors.white70,
+                )
+              ),
+              // Gift description text field
+              TextFormField (
+                controller: giftDescController,
+                decoration: InputDecoration(
+                  contentPadding: new EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
+                  filled: true,
+                  hintText: 'Description (optional)',
                   hintStyle: TextStyle(fontSize: 20.0 , color: Colors.grey[700]),
                   fillColor: Colors.white70,
                 )

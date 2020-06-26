@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:vivi_bday_app/models/user.dart';
+import 'package:vivi_bday_app/services/auth_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vivi_bday_app/pages/homepage.dart';
 import 'package:vivi_bday_app/pages/register.dart';
@@ -15,21 +17,12 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
 }
 
-// User class that will be passed to the homepage
-class User {
-  String firstName;
-  String lastName;
-  String email;
-  int uniqueID;
-
-  User({this.firstName, this.lastName, this.email, this.uniqueID});
-}
-
 class _LoginPageState extends State<LoginPage> {
   String _email, _password, userFName, userLName, userEmail;
   int userID;
   bool _isLoading = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  AuthServices auth = AuthServices();
   final currentUser = User();
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0, color: Colors.white);
 
@@ -49,7 +42,11 @@ class _LoginPageState extends State<LoginPage> {
           return 'Email cannot be empty.'; // empty check
         }
       },
-      onSaved: (input) => _email = input, // save user input into variable for authentication
+      onSaved: (input) {
+        setState(() {
+          _email = input;
+        });
+      }, // save user input into variable for authentication
       style: style,
       decoration: InputDecoration(
         contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
@@ -79,7 +76,11 @@ class _LoginPageState extends State<LoginPage> {
           return 'Password cannot be empty.'; // empty check
         }
       },
-      onSaved: (input) => _password = input, // save user input into variable for authentication
+      onSaved: (input) {
+        setState(() {
+          _password = input;
+        });
+      }, // save user input into variable for authentication
       style: style,
       obscureText: true,
       decoration: InputDecoration(
@@ -110,7 +111,9 @@ class _LoginPageState extends State<LoginPage> {
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
 
         // trigger login function here
-        onPressed: login,
+        onPressed: () {
+          signIn();
+        },
 
         child: Text("Login",
             textAlign: TextAlign.center,
@@ -165,7 +168,9 @@ class _LoginPageState extends State<LoginPage> {
                           "Don't have an account? Register here",
                           style: TextStyle(color: Colors.blue[200]),
                         ),
-                        onTap: gotoRegisterPage,
+                        onTap: () {
+                          gotoRegisterPage();
+                        },
                       )
                     ],
                   ),
@@ -178,41 +183,29 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  /// Login function to authenticate users using Firebase
-  Future<void> login() async {
+  signIn() async {
+    if (_formKey.currentState.validate()) {
+      _formKey.currentState.save();
 
-    // Validate fields
-    final formState = _formKey.currentState;
-    if(formState.validate()) {
-      formState.save();
       try {
-        // When user presses login button, show Modal Progress HUD
         setState(() {
           _isLoading = true;
         });
 
-        // Authenticate user
-        await FirebaseAuth.instance.signInWithEmailAndPassword
-          (email: _email, password: _password);
+        print(_email);
+        print(_password);
+        await auth.login(_email, _password);
 
-        // After authenticating, hide Modal Progress HUD
         setState(() {
           _isLoading = false;
         });
-        
 
-        // Send user info to homepage.
-        sendUserInfoToHomepage();
-
-        
+        populateUserInfo(currentUser);
       } catch(e) {
-        
-        // Hide Modal Progress HUD
         setState(() {
           _isLoading = false;
         });
 
-        // Error message in a toast
         Fluttertoast.showToast(
           msg: "Email and/or password are incorrect.",
           toastLength: Toast.LENGTH_LONG,
@@ -221,28 +214,23 @@ class _LoginPageState extends State<LoginPage> {
           textColor: Colors.white,
           fontSize: 16.0
         );
-      }
+      }     
     }
   }
-
+  
   /// Create function here to get the user's information (userID) to pass on to the homepage
   /// where the email is equal to the user's
-  void sendUserInfoToHomepage() {
+  void populateUserInfo(currentUser) {
     Firestore.instance
     .collection('users')
     .where("email", isEqualTo: _email)
     .snapshots()
     .listen((data) => 
         data.documents.forEach((doc) {
-          userEmail = doc['email'];
-          userFName = doc['firstName'];
-          userLName = doc['lastName'];
-          userID = doc['uniqueID'];
-          
-          currentUser.email = userEmail;
-          currentUser.firstName = userFName;
-          currentUser.lastName = userLName;
-          currentUser.uniqueID = userID;
+          currentUser.email = doc['email'];
+          currentUser.firstName = doc['firstName'];
+          currentUser.lastName = doc['lastName'];
+          currentUser.uniqueID = doc['uniqueID'];
 
           Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage(user: currentUser)));
         }));
