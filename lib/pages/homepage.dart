@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vivi_bday_app/pages/login.dart';
 import 'package:vivi_bday_app/models/user.dart';
+import 'package:vivi_bday_app/models/trip.dart';
 import 'package:vivi_bday_app/helpers/helper_functions.dart';
 import 'package:vivi_bday_app/pages/termsofservice.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -39,6 +40,8 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   FirebaseUser currentUser;
   FirebaseDatabase database = new FirebaseDatabase();
   AuthServices auth = AuthServices();
+  Trip myTrip = Trip();
+  User myUser = Homepage().user;
 
 
   @override
@@ -102,13 +105,14 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   FlatButton(
                     child: Text('OK'), color: Colors.pink[50],
                     onPressed: () {
-                      String trip = tripTextController.text;
+                      String tripName = tripTextController.text;
+                      myTrip.tripName = tripName;
                      
                       // Close the dialog box
                       Navigator.pop(context);
           
                       // Add date chosen to list and firebase db
-                      showTripPicker(trip);                   
+                      showTripPicker(myTrip);                   
                     }
                   ),
 
@@ -829,8 +833,10 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   @override
   bool get wantKeepAlive => true;
 
+  // CREATE MODEL CLASSES FOR TRIPS, GIFTS, AND DATES
+  // e.g: Trips will have trip name and trip description, etc.
   // Function that adds the trip idea the user entered and store it into realtime db
-  void createTrip(String tripName, String tripDesc) async {
+  void createTrip(Trip newTrip) async {
     var randomNum = new Random();
     var newNum = randomNum.nextInt(1000000);
     FirebaseDatabase.instance.reference()
@@ -838,8 +844,8 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       .child("trips")
       .child(newNum.toString())
       .set({
-        'title': tripName,
-        'description': tripDesc,
+        'title': newTrip.tripName,
+        'description': newTrip.tripDate,
       });
   }
 
@@ -1053,7 +1059,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
   // Function to let user to choose the date of the trip and
   // add it to the list and Firebase db
-  void showTripPicker(String tripName)  {
+  void showTripPicker(Trip trip)  {
     String _date;
 
     DatePicker.showDatePicker(
@@ -1073,13 +1079,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       onConfirm: (date) {
         print('confirm $date');
         _date = '${date.month}/${date.day}/${date.year}';
-        dateChosen = _date;
+        trip.tripDate = _date;
 
         // Add it to tripList to be read, also to firebase db
         setState(() {
-          tripList.add(tripName);
-          tripDescriptionList.add(dateChosen);
-          createTrip(tripName, dateChosen);       
+          tripList.add(trip.tripName);
+          tripDescriptionList.add(trip.tripDate);
+          createTrip(trip);              
         });
       },
       currentTime: DateTime.now(),
