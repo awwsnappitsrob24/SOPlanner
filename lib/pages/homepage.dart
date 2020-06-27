@@ -11,6 +11,7 @@ import 'package:vivi_bday_app/pages/termsofservice.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:vivi_bday_app/services/auth_services.dart';
+import 'package:vivi_bday_app/services/db_services.dart';
 
 class Homepage extends StatefulWidget {
   final User user;
@@ -40,6 +41,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   FirebaseUser currentUser;
   FirebaseDatabase database = new FirebaseDatabase();
   AuthServices auth = AuthServices();
+  DBServices dbservice = DBServices();
   Trip myTrip = Trip();
   User myUser = Homepage().user;
 
@@ -833,22 +835,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   @override
   bool get wantKeepAlive => true;
 
-  // CREATE MODEL CLASSES FOR TRIPS, GIFTS, AND DATES
-  // e.g: Trips will have trip name and trip description, etc.
-  // Function that adds the trip idea the user entered and store it into realtime db
-  void createTrip(Trip newTrip) async {
-    var randomNum = new Random();
-    var newNum = randomNum.nextInt(1000000);
-    FirebaseDatabase.instance.reference()
-      .child(widget.user.uniqueID.toString())
-      .child("trips")
-      .child(newNum.toString())
-      .set({
-        'title': newTrip.tripName,
-        'description': newTrip.tripDate,
-      });
-  }
-
   // Function that adds the gift idea the user entered and store it into realtime db
   void createGift(String giftName, String giftDesc) async {
     var randomNum = new Random();
@@ -1085,7 +1071,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         setState(() {
           tripList.add(trip.tripName);
           tripDescriptionList.add(trip.tripDate);
-          createTrip(trip);              
+          dbservice.createTrip(trip, widget.user.uniqueID);              
         });
       },
       currentTime: DateTime.now(),
