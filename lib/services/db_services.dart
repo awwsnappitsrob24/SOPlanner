@@ -1,10 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:vivi_bday_app/models/user.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vivi_bday_app/models/user.dart';
 import 'package:vivi_bday_app/models/trip.dart';
 import 'package:vivi_bday_app/models/gift.dart';
+import 'package:vivi_bday_app/models/date.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 
 class DBServices {
@@ -38,6 +38,20 @@ class DBServices {
       .set({
         'title': newGift.giftName,
         'description': newGift.giftDescription,
+      });
+  }
+
+    // Function to add gift ideas to Firebase
+  void createDate(Date newDate, int userID) async {
+    var randomNum = new Random();
+    var newNum = randomNum.nextInt(1000000);
+    FirebaseDatabase.instance.reference()
+      .child(userID.toString())
+      .child("dates")
+      .child(newNum.toString())
+      .set({
+        'title': newDate.dateName,
+        'description': newDate.dateDescription,
       });
   }
 }

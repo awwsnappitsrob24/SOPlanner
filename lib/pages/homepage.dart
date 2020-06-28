@@ -1,18 +1,19 @@
-import 'dart:io';
 import 'dart:math';
-import 'package:firebase_database/firebase_database.dart' hide Event;
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:vivi_bday_app/pages/login.dart';
 import 'package:vivi_bday_app/models/user.dart';
 import 'package:vivi_bday_app/models/trip.dart';
 import 'package:vivi_bday_app/models/gift.dart';
+import 'package:vivi_bday_app/models/date.dart';
 import 'package:vivi_bday_app/helpers/helper_functions.dart';
-import 'package:vivi_bday_app/pages/termsofservice.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:vivi_bday_app/services/auth_services.dart';
 import 'package:vivi_bday_app/services/db_services.dart';
+import 'package:vivi_bday_app/pages/login.dart';
+import 'package:vivi_bday_app/pages/termsofservice.dart';
+import 'package:firebase_database/firebase_database.dart' hide Event;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+
 
 class Homepage extends StatefulWidget {
   final User user;
@@ -30,22 +31,19 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   final List<String> giftDescriptionList = [];
   final List<String> dateDescriptionList = [];
   final List<String> tripDescriptionList = [];
-  File newProfilePic;
-  String fileName, lastImageUrl = "", userFirstName, userLastName, userEmail, dateChosen;
-  int fileNum = 0;
+  String userFirstName, userLastName, userEmail, dateChosen;
   TextEditingController giftTextController = new TextEditingController();
   TextEditingController dateTextController = new TextEditingController();
   TextEditingController giftDescController = new TextEditingController();
   TextEditingController tripTextController = new TextEditingController();
   TextEditingController tripDescController = new TextEditingController();
   TextEditingController newPasswordController = new TextEditingController();
-  FirebaseUser currentUser;
   FirebaseDatabase database = new FirebaseDatabase();
   AuthServices auth = AuthServices();
   DBServices dbservice = DBServices();
   Trip myTrip = Trip();
   Gift myGift = Gift();
-
+  Date myDate = Date();
 
   @override
   void initState() {
@@ -56,9 +54,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     database.setPersistenceCacheSizeBytes(10000000);
 
     // Get user list of trips, gifts, dates from firebase database at initial startup
+    // cover them inside setState??
     readTrips();
     readGifts();
     readDates();
+
 
     //tripList.clear();
     //tripDescriptionList.clear();
@@ -248,13 +248,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   FlatButton(
                     child: Text('OK'), color: Colors.pink[50],
                     onPressed: () {
-                      String date = dateTextController.text;
+                      myDate.dateName = dateTextController.text;
 
                       // Close the dialog box
                       Navigator.pop(context);
           
                       // Add date chosen to list and firebase db
-                      showDatePicker(date);  
+                      showDatePicker(myDate);  
                     },
                   ),
 
@@ -740,7 +740,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                 fit: BoxFit.cover,
               ),
             ),*/
-            // Trip name text
+            // Date name text
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -752,7 +752,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                       child: Text(dateList[index], style: TextStyle(fontSize: 25)),
                   ),
                 ),
-                // Trip date text
+                // Date description text
                 Padding(
                   padding: const EdgeInsets.fromLTRB(15, 5, 0, 0),
                     child: Align(
@@ -834,34 +834,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
   @override
   bool get wantKeepAlive => true;
-
-  // Function that adds the gift idea the user entered and store it into realtime db
-  void createGift(String giftName, String giftDesc) async {
-    var randomNum = new Random();
-    var newNum = randomNum.nextInt(1000000);
-    FirebaseDatabase.instance.reference()
-      .child(widget.user.uniqueID.toString())
-      .child("gifts")
-      .child(newNum.toString())
-      .set({
-        'title': giftName,
-        'description': giftDesc,
-      });
-  }
-
-  // Function that adds the date idea the user entered and store it into realtime db
-  void createDate(String dateName, String dateDesc) async {
-    var randomNum = new Random();
-    var newNum = randomNum.nextInt(1000000);
-    FirebaseDatabase.instance.reference()
-      .child(widget.user.uniqueID.toString())
-      .child("dates")
-      .child(newNum.toString())
-      .set({
-        'title': dateName,
-        'description': dateDesc,
-      });
-  }
 
   // Reads trips in firebase db and displays them on screen
   void readTrips() {
@@ -1081,8 +1053,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
   // Function to let user to choose the date of the date and
   // add it to the list and Firebase db
-  void showDatePicker(String dateName)  {
-    String _date;
+  void showDatePicker(Date _date)  {
 
     DatePicker.showDatePicker(
       context,
@@ -1100,14 +1071,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
       },
       onConfirm: (date) {
         print('confirm $date');
-        _date = '${date.month}/${date.day}/${date.year}';
-        dateChosen = _date;
+        _date.dateDescription = '${date.month}/${date.day}/${date.year}';
 
-        // Add it to tripList to be read, also to firebase db
+        // Add it to dateList to be read, also to firebase db
         setState(() {
-          dateList.add(dateName);
-          dateDescriptionList.add(dateChosen);
-          createDate(dateName, dateChosen);       
+          dateList.add(_date.dateName);
+          dateDescriptionList.add(_date.dateDescription);
+          dbservice.createDate(_date, widget.user.uniqueID);       
         });
       },
       currentTime: DateTime.now(),
