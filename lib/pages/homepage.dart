@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:vivi_bday_app/models/user.dart';
 import 'package:vivi_bday_app/models/trip.dart';
@@ -598,14 +597,13 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                     child: Align(
                       alignment: Alignment.bottomRight,
                       child: IconButton(
-                          icon: Icon(Icons.delete_forever),
-                          onPressed: () {
-                            var tripDeleted = tripList.elementAt(index);
-                            var tripDescDeleted = tripDescriptionList.elementAt(index);
-
-                            deleteTrip(tripDeleted, tripDescDeleted, index);
-                          },
-                        ),
+                        icon: Icon(Icons.delete_forever),
+                        onPressed: () {
+                          var tripDeleted = tripList.elementAt(index);
+                          var tripDescDeleted = tripDescriptionList.elementAt(index);
+                          removeTrip(tripDeleted, tripDescDeleted, index);
+                        },
+                      ),
                     )
                   ),
                 ],
@@ -699,8 +697,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                           onPressed: () {
                             var giftDeleted = giftList.elementAt(index);
                             var giftDescDeleted = giftDescriptionList.elementAt(index);
-
-                            deleteGift(giftDeleted, giftDescDeleted, index);
+                            removeGift(giftDeleted, giftDescDeleted, index);
                           },
                         ),
                     )
@@ -796,8 +793,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                           onPressed: () {
                             var dateDeleted = dateList.elementAt(index);
                             var dateDescDeleted = dateDescriptionList.elementAt(index);
-
-                            deleteDate(dateDeleted, dateDescDeleted, index);
+                            removeDate(dateDeleted, dateDescDeleted, index);
                           },
                         ),
                     )
@@ -871,7 +867,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
 
 
   // Function to delete trip from list and firebase db
-  void deleteTrip(String tripToDelete, String tripDescToDelete, int index) {
+  void removeTrip(String tripToDelete, String tripDescToDelete, int index) {
     // Delete the gift from the list
     if(tripList.length == 1) {
       tripToDelete = tripList.last;
@@ -893,29 +889,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     }
 
     // Delete from firebase DB
-    var db = FirebaseDatabase.instance.reference()
-      .child(widget.user.uniqueID.toString())
-      .child("trips");
-    db.once().then((DataSnapshot snapshot){
-      Map<dynamic,dynamic> trips = snapshot.value;
-      trips.forEach((key, value) {
-
-        // Check for value in DB to delete
-        if(value["title"] == tripToDelete) {
-
-          // Delete the node form Firebase DB
-          FirebaseDatabase.instance.reference()
-            .child(widget.user.uniqueID.toString())
-            .child("trips")
-            .child(key)
-            .remove();
-        }
-      });
-    });
+    dbservice.deleteTrip(tripToDelete, widget.user.uniqueID);
   }
 
   // Function to delete gift from list and firebase db
-  void deleteGift(String giftToDelete, String giftDescToDelete, int index) {
+  void removeGift(String giftToDelete, String giftDescToDelete, int index) {
     // Delete the gift from the list
     if(giftList.length == 1) {
       giftToDelete = giftList.last;
@@ -937,29 +915,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     }
 
     // Delete from firebase DB
-    var db = FirebaseDatabase.instance.reference()
-      .child(widget.user.uniqueID.toString())
-      .child("gifts");
-    db.once().then((DataSnapshot snapshot){
-      Map<dynamic,dynamic> gifts = snapshot.value;
-      gifts.forEach((key, value) {
-
-        // Check for value in DB to delete
-        if(value["title"] == giftToDelete) {
-
-          // Delete the node form Firebase DB
-          FirebaseDatabase.instance.reference()
-            .child(widget.user.uniqueID.toString())
-            .child("gifts")
-            .child(key)
-            .remove();
-        }
-      });
-    });
+    dbservice.deleteGift(giftToDelete, widget.user.uniqueID);
   }
 
   // Function to delete date from list and firebase db
-  void deleteDate(String dateToDelete, String dateDescToDelete, int index) {
+  void removeDate(String dateToDelete, String dateDescToDelete, int index) {
     // Delete the date from the list
     if(dateList.length == 1) {
       dateToDelete = dateList.last;
@@ -981,25 +941,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     }
 
     // Delete from firebase DB
-    var db = FirebaseDatabase.instance.reference()
-      .child(widget.user.uniqueID.toString())
-      .child("dates");
-    db.once().then((DataSnapshot snapshot){
-      Map<dynamic,dynamic> dates = snapshot.value;
-      dates.forEach((key, value) {
-
-        // Check for value in DB to delete
-        if(value["title"] == dateToDelete) {
-
-          // Delete the node form Firebase DB
-          FirebaseDatabase.instance.reference()
-            .child(widget.user.uniqueID.toString())
-            .child("dates")
-            .child(key)
-            .remove();
-        }
-      });
-    });
+    dbservice.deleteDate(dateToDelete, widget.user.uniqueID);
   }
 
   // Function to let user to choose the date of the trip and

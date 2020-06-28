@@ -60,6 +60,7 @@ class DBServices {
   /// and dates from Firebase db. These objects are displayed 
   /// at startup in a list of Cards.
 
+  // Reads trips in firebase db and displays them on screen
   DatabaseReference readTrips(List<String> tripList, List<String> tripDescList, int userID) {
     return FirebaseDatabase.instance.reference()
       .child(userID.toString())
@@ -78,5 +79,72 @@ class DBServices {
     return FirebaseDatabase.instance.reference()
       .child(userID.toString())
       .child("dates");
+  }
+
+
+  /// The following functions are delete functions to remove trips, gifts, 
+  /// and dates from Firebase db. Duplicates are also removed, if any.
+  
+  // Function to delete a selected trip idea from the list from db
+  void deleteTrip(String tripName, int userID) {
+    var db = FirebaseDatabase.instance.reference()
+      .child(userID.toString())
+      .child("trips");
+    db.once().then((DataSnapshot snapshot){
+      Map<dynamic,dynamic> trips = snapshot.value;
+      trips.forEach((key, value) {
+        // Check for value in DB to delete
+        if(value["title"] == tripName) {
+          // Delete the node form Firebase DB
+          FirebaseDatabase.instance.reference()
+            .child(userID.toString())
+            .child("trips")
+            .child(key)
+            .remove();
+        }
+      });
+    });
+  }
+
+  // Function to delete a selected gift idea from the list from db
+  void deleteGift(String giftName, int userID) {
+    var db = FirebaseDatabase.instance.reference()
+      .child(userID.toString())
+      .child("gifts");
+    db.once().then((DataSnapshot snapshot){
+      Map<dynamic,dynamic> gifts = snapshot.value;
+      gifts.forEach((key, value) {
+        // Check for value in DB to delete
+        if(value["title"] == giftName) {
+          // Delete the node form Firebase DB
+          FirebaseDatabase.instance.reference()
+            .child(userID.toString())
+            .child("gifts")
+            .child(key)
+            .remove();
+        }
+      });
+    });
+  }
+
+  // Function to delete a selected trip idea from the list from db
+  void deleteDate(String dateName, int userID) {
+    var db = FirebaseDatabase.instance.reference()
+      .child(userID.toString())
+      .child("dates");
+    db.once().then((DataSnapshot snapshot){
+      Map<dynamic,dynamic> dates = snapshot.value;
+      dates.forEach((key, value) {
+        // Check for value in DB to delete
+        if(value["title"] == dateName) {
+          // Delete the node form Firebase DB
+          FirebaseDatabase.instance.reference()
+            .child(userID.toString())
+            .child("dates")
+            .child(key)
+            .remove();
+        }
+      });
+    });
   }
 }
