@@ -53,19 +53,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     database.setPersistenceEnabled(true);
     database.setPersistenceCacheSizeBytes(10000000);
 
-    // Get user list of trips, gifts, dates from firebase database at initial startup
-    // cover them inside setState??
-    readTrips();
-    readGifts();
-    readDates();
-
-
-    //tripList.clear();
-    //tripDescriptionList.clear();
-    //giftList.clear();
-    //giftDescriptionList.clear();
-    //dateList.clear();
-    //dateDescriptionList.clear();
+    // Get user list of trips, gifts, dates from firebase
+    // database at initial startup
+    getTripsAtStartup();
+    getGiftsAtStartup();
+    getDatesAtStartup();
 
     // Build everything in the start
     build(this.context);
@@ -836,13 +828,11 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   bool get wantKeepAlive => true;
 
   // Reads trips in firebase db and displays them on screen
-  void readTrips() {
-     var db = FirebaseDatabase.instance.reference()
-      .child(widget.user.uniqueID.toString())
-      .child("trips");
-    db.once().then((DataSnapshot snapshot) {
-      Map<dynamic, dynamic> gifts = snapshot.value;
-      gifts.forEach((key, value) {
+  void getTripsAtStartup() {
+    dbservice.readTrips(tripList, tripDescriptionList, widget.user.uniqueID)
+      .once().then((DataSnapshot snapshot) {
+      Map<dynamic, dynamic> trips = snapshot.value;
+      trips.forEach((key, value) {
         setState(() {
           tripList.add(value["title"]);
           tripDescriptionList.add(value["description"]);
@@ -852,11 +842,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   }
 
   // Reads gifts in firebase db and displays them on screen
-  void readGifts() {
-    var db = FirebaseDatabase.instance.reference()
-      .child(widget.user.uniqueID.toString())
-      .child("gifts");
-    db.once().then((DataSnapshot snapshot) {
+  void getGiftsAtStartup() {
+    dbservice.readGifts(giftList, giftDescriptionList, widget.user.uniqueID)
+      .once().then((DataSnapshot snapshot) {
       Map<dynamic, dynamic> gifts = snapshot.value;
       gifts.forEach((key, value) {
         setState(() {
@@ -868,11 +856,9 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   }
 
   // Reads dates in firebase db and displays them on screen
-  void readDates() {
-    var db = FirebaseDatabase.instance.reference()
-      .child(widget.user.uniqueID.toString())
-      .child("dates");
-    db.once().then((DataSnapshot snapshot){
+  void getDatesAtStartup() {
+    dbservice.readDates(dateList, dateDescriptionList, widget.user.uniqueID)
+      .once().then((DataSnapshot snapshot) {
       Map<dynamic, dynamic> dates = snapshot.value;
       dates.forEach((key, value) {
         setState(() {
@@ -881,7 +867,8 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
         });
       });
     });
-  }
+  } 
+
 
   // Function to delete trip from list and firebase db
   void deleteTrip(String tripToDelete, String tripDescToDelete, int index) {

@@ -41,7 +41,7 @@ class DBServices {
       });
   }
 
-    // Function to add gift ideas to Firebase
+  // Function to add gift ideas to Firebase
   void createDate(Date newDate, int userID) async {
     var randomNum = new Random();
     var newNum = randomNum.nextInt(1000000);
@@ -53,5 +53,30 @@ class DBServices {
         'title': newDate.dateName,
         'description': newDate.dateDescription,
       });
+  }
+
+
+  /// The following functions are read functions to get trips, gifts, 
+  /// and dates from Firebase db. These objects are displayed 
+  /// at startup in a list of Cards.
+
+  DatabaseReference readTrips(List<String> tripList, List<String> tripDescList, int userID) {
+    return FirebaseDatabase.instance.reference()
+      .child(userID.toString())
+      .child("trips");
+  }
+
+  // Reads gifts in firebase db and displays them on screen
+  DatabaseReference readGifts(List<String> giftList, List<String> giftDescList, int userID) {
+    return FirebaseDatabase.instance.reference()
+      .child(userID.toString())
+      .child("gifts");
+  }
+
+  // Reads dates in firebase db and displays them on screen
+  DatabaseReference readDates(List<String> dateList, List<String> dateDescList, int userID) {
+    return FirebaseDatabase.instance.reference()
+      .child(userID.toString())
+      .child("dates");
   }
 }
