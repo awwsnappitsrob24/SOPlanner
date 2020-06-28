@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:vivi_bday_app/pages/login.dart';
 import 'package:vivi_bday_app/models/user.dart';
 import 'package:vivi_bday_app/models/trip.dart';
+import 'package:vivi_bday_app/models/gift.dart';
 import 'package:vivi_bday_app/helpers/helper_functions.dart';
 import 'package:vivi_bday_app/pages/termsofservice.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -43,7 +44,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
   AuthServices auth = AuthServices();
   DBServices dbservice = DBServices();
   Trip myTrip = Trip();
-  User myUser = Homepage().user;
+  Gift myGift = Gift();
 
 
   @override
@@ -107,8 +108,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   FlatButton(
                     child: Text('OK'), color: Colors.pink[50],
                     onPressed: () {
-                      String tripName = tripTextController.text;
-                      myTrip.tripName = tripName;
+                      myTrip.tripName = tripTextController.text;
                      
                       // Close the dialog box
                       Navigator.pop(context);
@@ -182,14 +182,14 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
                   FlatButton(
                     child: Text('OK'), color: Colors.pink[50],
                     onPressed: () {
-                      String gift = giftTextController.text;
-                      String giftDesc = giftDescController.text;
-
+                      myGift.giftName = giftTextController.text;
+                      myGift.giftDescription = giftDescController.text;
+                      
                       // Add it to giftList to be read, also to firebase db
                       setState(() {
-                        giftList.add(gift);
-                        giftDescriptionList.add(giftDesc);
-                        createGift(gift, giftDesc);
+                        giftList.add(myGift.giftName);
+                        giftDescriptionList.add(myGift.giftDescription);
+                        dbservice.createGift(myGift, widget.user.uniqueID);
                       });
 
                       // Close the dialog box
