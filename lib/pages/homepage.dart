@@ -52,8 +52,7 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     database.setPersistenceEnabled(true);
     database.setPersistenceCacheSizeBytes(10000000);
 
-    // Get user list of trips, gifts, dates from firebase
-    // database at initial startup
+    // Get user list of trips, gifts, dates from firebase database at initial startup
     getTripsAtStartup();
     getGiftsAtStartup();
     getDatesAtStartup();
@@ -865,14 +864,12 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     });
   } 
 
-
   // Function to delete trip from list and firebase db
   void removeTrip(String tripToDelete, String tripDescToDelete, int index) {
     // Delete the gift from the list
     if(tripList.length == 1) {
       tripToDelete = tripList.last;
       tripDescToDelete = tripDescriptionList.last;
-
       setState(() {
         tripList.removeWhere((tripDelete) => tripDelete == tripToDelete);
         tripDescriptionList.removeWhere((tripDescDelete) => tripDescDelete == tripDescToDelete);
@@ -881,7 +878,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     else {
       tripToDelete = tripList.elementAt(index);
       tripDescToDelete = tripDescriptionList.elementAt(index);
-
       setState(() {
         tripList.removeWhere((tripDelete) => tripDelete == tripToDelete);
         tripDescriptionList.removeWhere((tripDescDelete) => tripDescDelete == tripDescToDelete);
@@ -898,7 +894,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     if(giftList.length == 1) {
       giftToDelete = giftList.last;
       giftDescToDelete = giftDescriptionList.last;
-
       setState(() {
         giftList.removeWhere((giftDelete) => giftDelete == giftToDelete);
         giftDescriptionList.removeWhere((giftDescDelete) => giftDescDelete == giftDescToDelete);
@@ -907,7 +902,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     else {
       giftToDelete = giftList.elementAt(index);
       giftDescToDelete = giftDescriptionList.elementAt(index);
-
       setState(() {
         giftList.removeWhere((giftDelete) => giftDelete == giftToDelete);
         giftDescriptionList.removeWhere((giftDescDelete) => giftDescDelete == giftDescToDelete);
@@ -924,7 +918,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     if(dateList.length == 1) {
       dateToDelete = dateList.last;
       dateDescToDelete = dateDescriptionList.last;
-
       setState(() {
         dateList.removeWhere((dateDelete) => dateDelete == dateToDelete);
         dateDescriptionList.removeWhere((dateDescDelete) => dateDescDelete == dateDescToDelete);
@@ -933,7 +926,6 @@ class _HomepageState extends State<Homepage> with AutomaticKeepAliveClientMixin<
     else {
       dateToDelete = dateList.elementAt(index);
       dateDescToDelete = dateDescriptionList.elementAt(index);
-
       setState(() {
         dateList.removeWhere((dateDelete) => dateDelete == dateToDelete);
         dateDescriptionList.removeWhere((dateDescDelete) => dateDescDelete == dateDescToDelete);
