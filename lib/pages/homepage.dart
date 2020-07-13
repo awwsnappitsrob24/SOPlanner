@@ -31,6 +31,9 @@ class _HomepageState extends State<Homepage>
   final List<String> giftDescriptionList = [];
   final List<String> dateDescriptionList = [];
   final List<String> tripDescriptionList = [];
+  final List<String> tripImageUrlList = [];
+  final List<String> giftImageUrlList = [];
+  final List<String> dateImageUrlList = [];
   String userFirstName, userLastName, userEmail, dateChosen;
   Future<String> imageContentUrl;
   TextEditingController giftTextController = new TextEditingController();
@@ -54,13 +57,21 @@ class _HomepageState extends State<Homepage>
     database.setPersistenceEnabled(true);
     database.setPersistenceCacheSizeBytes(10000000);
 
+    /*
+    tripList.clear();
+    giftList.clear();
+    dateList.clear();
+    tripDescriptionList.clear();
+    giftDescriptionList.clear();
+    dateDescriptionList.clear();
+    tripImageUrlList.clear();
+    giftImageUrlList.clear();
+    dateImageUrlList.clear(); */
+
     // Get user list of trips, gifts, dates from firebase database at initial startup
     getTripsAtStartup();
     getGiftsAtStartup();
     getDatesAtStartup();
-
-    /*Todo: how do I extract the string result from this method and put it on Image.network function???? */
-    imageContentUrl = apiservice.fetchImage();
 
     // Build everything in the start
     build(this.context);
@@ -102,8 +113,11 @@ class _HomepageState extends State<Homepage>
                   FlatButton(
                       child: Text('OK'),
                       color: Colors.pink[50],
-                      onPressed: () {
+                      onPressed: () async {
+                        // Set trip attributes
                         myTrip.tripName = tripTextController.text;
+                        myTrip.imageUrl =
+                            await apiservice.fetchImage(myTrip.tripName);
 
                         // Close the dialog box
                         Navigator.pop(context);
@@ -533,21 +547,13 @@ class _HomepageState extends State<Homepage>
           child: Stack(
             children: <Widget>[
               Align(
-                child: FutureBuilder(
-                    future: imageContentUrl,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image: NetworkImage(snapshot.data.toString()),
-                                fit: BoxFit.fill),
-                          ),
-                        );
-                      } else {
-                        return Center(child: CircularProgressIndicator());
-                      }
-                    }),
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: NetworkImage(tripImageUrlList[index]),
+                        fit: BoxFit.fill),
+                  ),
+                ),
               ),
               // Trip name text
               Column(
@@ -617,7 +623,13 @@ class _HomepageState extends State<Homepage>
                             var tripDeleted = tripList.elementAt(index);
                             var tripDescDeleted =
                                 tripDescriptionList.elementAt(index);
-                            removeTrip(tripDeleted, tripDescDeleted, index);
+                            var tripImgUrlDeleted =
+                                tripImageUrlList.elementAt(index);
+                            Trip tripObjToDelete = Trip(
+                                tripName: tripDeleted,
+                                tripDate: tripDescDeleted,
+                                imageUrl: tripImgUrlDeleted);
+                            removeTrip(tripObjToDelete, index);
                           },
                         ),
                       )),
@@ -842,6 +854,10 @@ class _HomepageState extends State<Homepage>
         setState(() {
           tripList.add(value["title"]);
           tripDescriptionList.add(value["description"]);
+          tripImageUrlList.add(value["imageUrl"]);
+          print(tripList.length);
+          print(tripDescriptionList.length);
+          print(tripImageUrlList.length);
         });
       });
     });
@@ -880,28 +896,19 @@ class _HomepageState extends State<Homepage>
   }
 
   // Function to delete trip from list and firebase db
-  void removeTrip(String tripToDelete, String tripDescToDelete, int index) {
+  void removeTrip(Trip tripDelete, int index) {
     // Delete the gift from the list
-    if (tripList.length == 1) {
-      tripToDelete = tripList.last;
-      tripDescToDelete = tripDescriptionList.last;
-      setState(() {
-        tripList.removeWhere((tripDelete) => tripDelete == tripToDelete);
-        tripDescriptionList.removeWhere(
-            (tripDescDelete) => tripDescDelete == tripDescToDelete);
-      });
-    } else {
-      tripToDelete = tripList.elementAt(index);
-      tripDescToDelete = tripDescriptionList.elementAt(index);
-      setState(() {
-        tripList.removeWhere((tripDelete) => tripDelete == tripToDelete);
-        tripDescriptionList.removeWhere(
-            (tripDescDelete) => tripDescDelete == tripDescToDelete);
-      });
-    }
+    setState(() {
+      tripList.removeAt(index);
+      tripDescriptionList.removeAt(index);
+      tripImageUrlList.removeAt(index);
+      print(tripList.length);
+      print(tripDescriptionList.length);
+      print(tripImageUrlList.length);
+    });
 
     // Delete from firebase DB
-    dbservice.deleteTrip(tripToDelete, widget.user.uniqueID);
+    dbservice.deleteTrip(tripDelete, widget.user.uniqueID);
   }
 
   // Function to delete gift from list and firebase db
@@ -981,7 +988,11 @@ class _HomepageState extends State<Homepage>
         setState(() {
           tripList.add(trip.tripName);
           tripDescriptionList.add(trip.tripDate);
+          tripImageUrlList.add(trip.imageUrl);
           dbservice.createTrip(trip, widget.user.uniqueID);
+          print(tripList.length);
+          print(tripDescriptionList.length);
+          print(tripImageUrlList.length);
         });
       },
       currentTime: DateTime.now(),
