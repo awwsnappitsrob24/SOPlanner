@@ -1,11 +1,8 @@
-import 'package:vivi_bday_app/models/user.dart';
 import 'package:vivi_bday_app/models/trip.dart';
 import 'package:vivi_bday_app/models/gift.dart';
 import 'package:vivi_bday_app/models/date.dart';
 import 'package:vivi_bday_app/services/api_services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 
 class DBServices {
@@ -42,6 +39,7 @@ class DBServices {
         .set({
       'title': newGift.giftName,
       'description': newGift.giftDescription,
+      'imageUrl': newGift.imageUrl
     });
   }
 
@@ -120,7 +118,7 @@ class DBServices {
   }
 
   // Function to delete a selected gift idea from the list from db
-  void deleteGift(String giftName, int userID) {
+  void deleteGift(Gift giftDelete, int userID) {
     var db = FirebaseDatabase.instance
         .reference()
         .child(userID.toString())
@@ -129,7 +127,9 @@ class DBServices {
       Map<dynamic, dynamic> gifts = snapshot.value;
       gifts.forEach((key, value) {
         // Check for value in DB to delete
-        if (value["title"] == giftName) {
+        if (value["title"] == giftDelete.giftName &&
+            value["imageUrl"] == giftDelete.imageUrl &&
+            value["description"] == giftDelete.giftDescription) {
           // Delete the node form Firebase DB
           FirebaseDatabase.instance
               .reference()

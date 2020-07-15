@@ -188,14 +188,17 @@ class _HomepageState extends State<Homepage>
                   FlatButton(
                       child: Text('OK'),
                       color: Colors.pink[50],
-                      onPressed: () {
+                      onPressed: () async {
                         myGift.giftName = giftTextController.text;
                         myGift.giftDescription = giftDescController.text;
+                        myGift.imageUrl =
+                            await apiservice.fetchImage(myGift.giftName);
 
                         // Add it to giftList to be read, also to firebase db
                         setState(() {
                           giftList.add(myGift.giftName);
                           giftDescriptionList.add(myGift.giftDescription);
+                          giftImageUrlList.add(myGift.imageUrl);
                           dbservice.createGift(myGift, widget.user.uniqueID);
                         });
 
@@ -656,21 +659,20 @@ class _HomepageState extends State<Homepage>
   Widget _buildGiftItem(BuildContext context, int index) {
     return Container(
         padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
-        height: 150,
+        height: 200,
         width: double.maxFinite,
         child: Card(
           elevation: 5,
           child: Stack(
             children: <Widget>[
-              /*
-            Align(
-              child: Image.asset(
-                "your_image",
-                width: 150,
-                height: 100,
-                fit: BoxFit.cover,
+              Align(
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: NetworkImage(giftImageUrlList[index])),
+                  ),
+                ),
               ),
-            ),*/
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -680,8 +682,9 @@ class _HomepageState extends State<Homepage>
                     padding: const EdgeInsets.fromLTRB(15, 15, 0, 0),
                     child: Align(
                       alignment: Alignment.topLeft,
-                      child:
-                          Text(giftList[index], style: TextStyle(fontSize: 25)),
+                      child: Text(giftList[index],
+                          style: TextStyle(
+                              fontSize: 25, fontWeight: FontWeight.bold)),
                     ),
                   ),
                   // Gift description text
@@ -702,11 +705,12 @@ class _HomepageState extends State<Homepage>
                 children: <Widget>[
                   // Searching icon
                   Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                      padding: const EdgeInsets.fromLTRB(0, 35, 0, 0),
                       child: Align(
                         alignment: Alignment.topRight,
                         child: IconButton(
                           icon: Icon(Icons.search),
+                          color: Colors.green[200],
                           onPressed: () {
                             HelperFunctions.launchSearchGift(giftList[index]);
                           },
@@ -719,11 +723,18 @@ class _HomepageState extends State<Homepage>
                         alignment: Alignment.bottomRight,
                         child: IconButton(
                           icon: Icon(Icons.delete_forever),
+                          color: Colors.red[200],
                           onPressed: () {
-                            var giftDeleted = giftList.elementAt(index);
+                            var giftNameDeleted = giftList.elementAt(index);
                             var giftDescDeleted =
                                 giftDescriptionList.elementAt(index);
-                            removeGift(giftDeleted, giftDescDeleted, index);
+                            var giftImgUrlDeleted =
+                                giftImageUrlList.elementAt(index);
+                            Gift giftObjToDelete = Gift(
+                                giftName: giftNameDeleted,
+                                giftDescription: giftDescDeleted,
+                                imageUrl: giftImgUrlDeleted);
+                            removeGift(giftObjToDelete, index);
                           },
                         ),
                       )),
@@ -855,9 +866,6 @@ class _HomepageState extends State<Homepage>
           tripList.add(value["title"]);
           tripDescriptionList.add(value["description"]);
           tripImageUrlList.add(value["imageUrl"]);
-          print(tripList.length);
-          print(tripDescriptionList.length);
-          print(tripImageUrlList.length);
         });
       });
     });
@@ -874,6 +882,7 @@ class _HomepageState extends State<Homepage>
         setState(() {
           giftList.add(value["title"]);
           giftDescriptionList.add(value["description"]);
+          giftImageUrlList.add(value["imageUrl"]);
         });
       });
     });
@@ -902,9 +911,6 @@ class _HomepageState extends State<Homepage>
       tripList.removeAt(index);
       tripDescriptionList.removeAt(index);
       tripImageUrlList.removeAt(index);
-      print(tripList.length);
-      print(tripDescriptionList.length);
-      print(tripImageUrlList.length);
     });
 
     // Delete from firebase DB
@@ -912,28 +918,16 @@ class _HomepageState extends State<Homepage>
   }
 
   // Function to delete gift from list and firebase db
-  void removeGift(String giftToDelete, String giftDescToDelete, int index) {
-    // Delete the gift from the list
-    if (giftList.length == 1) {
-      giftToDelete = giftList.last;
-      giftDescToDelete = giftDescriptionList.last;
-      setState(() {
-        giftList.removeWhere((giftDelete) => giftDelete == giftToDelete);
-        giftDescriptionList.removeWhere(
-            (giftDescDelete) => giftDescDelete == giftDescToDelete);
-      });
-    } else {
-      giftToDelete = giftList.elementAt(index);
-      giftDescToDelete = giftDescriptionList.elementAt(index);
-      setState(() {
-        giftList.removeWhere((giftDelete) => giftDelete == giftToDelete);
-        giftDescriptionList.removeWhere(
-            (giftDescDelete) => giftDescDelete == giftDescToDelete);
-      });
-    }
+  void removeGift(Gift giftDelete, int index) {
+    // Delete the gift and its details from all the lists
+    setState(() {
+      giftList.removeAt(index);
+      giftDescriptionList.removeAt(index);
+      giftImageUrlList.removeAt(index);
+    });
 
     // Delete from firebase DB
-    dbservice.deleteGift(giftToDelete, widget.user.uniqueID);
+    dbservice.deleteGift(giftDelete, widget.user.uniqueID);
   }
 
   // Function to delete date from list and firebase db

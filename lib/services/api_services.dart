@@ -8,9 +8,8 @@ class APIServices {
   // for images based on the user query
   Future<String> fetchImage(String query) async {
     /**
-     * Todo: 
+     * Todo: TRIP DONE!!!!:D Next up, gifts and dates!!
      */
-    print("Calling fetch image!!!");
     final response = await http.get(
       'https://api.cognitive.microsoft.com/bing/v7.0/search?q=$query&count=1&offset=0&mkt=en-us&safesearch=Moderate',
       headers: {
@@ -25,15 +24,18 @@ class APIServices {
       List<dynamic> imageDetails;
 
       // For some searches, the "images" result is empty, so this value may be null
-      // If it is, look in the entities->value->image->thumbailUrl
+      // If it is, look in the entities->value->image->thumbnailUrl
+      // If neither is present, return the url for a no image avilable image
       String contentUrl = " ";
       if (map.containsKey("images")) {
         imageDetails = map["images"]["value"];
-      } else {
+      } else if (map.containsKey("entities")) {
         imageDetails = map["entities"]["value"];
         contentUrl = imageDetails[0]["image"]["hostPageUrl"];
         print("Non-standard search returns $contentUrl");
         return contentUrl;
+      } else {
+        return "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png";
       }
 
       BingImage bingImage = BingImage(
