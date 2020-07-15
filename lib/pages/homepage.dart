@@ -189,6 +189,7 @@ class _HomepageState extends State<Homepage>
                       child: Text('OK'),
                       color: Colors.pink[50],
                       onPressed: () async {
+                        // Set gift attributes
                         myGift.giftName = giftTextController.text;
                         myGift.giftDescription = giftDescController.text;
                         myGift.imageUrl =
@@ -255,8 +256,11 @@ class _HomepageState extends State<Homepage>
                   FlatButton(
                     child: Text('OK'),
                     color: Colors.pink[50],
-                    onPressed: () {
+                    onPressed: () async {
+                      // Set date attributes
                       myDate.dateName = dateTextController.text;
+                      myDate.imageUrl =
+                          await apiservice.fetchImage(myDate.dateName);
 
                       // Close the dialog box
                       Navigator.pop(context);
@@ -569,7 +573,9 @@ class _HomepageState extends State<Homepage>
                       alignment: Alignment.topLeft,
                       child: Text(tripList[index],
                           style: TextStyle(
-                              fontSize: 25, fontWeight: FontWeight.bold)),
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white)),
                     ),
                   ),
                   // Trip date text
@@ -577,7 +583,8 @@ class _HomepageState extends State<Homepage>
                     padding: const EdgeInsets.fromLTRB(15, 5, 0, 0),
                     child: Align(
                       alignment: Alignment.bottomLeft,
-                      child: Text(tripDescriptionList[index]),
+                      child: Text(tripDescriptionList[index],
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ],
@@ -623,15 +630,10 @@ class _HomepageState extends State<Homepage>
                           icon: Icon(Icons.delete_forever),
                           color: Colors.red[200],
                           onPressed: () {
-                            var tripDeleted = tripList.elementAt(index);
-                            var tripDescDeleted =
-                                tripDescriptionList.elementAt(index);
-                            var tripImgUrlDeleted =
-                                tripImageUrlList.elementAt(index);
                             Trip tripObjToDelete = Trip(
-                                tripName: tripDeleted,
-                                tripDate: tripDescDeleted,
-                                imageUrl: tripImgUrlDeleted);
+                                tripName: tripList.elementAt(index),
+                                tripDate: tripDescriptionList.elementAt(index),
+                                imageUrl: tripImageUrlList.elementAt(index));
                             removeTrip(tripObjToDelete, index);
                           },
                         ),
@@ -663,6 +665,10 @@ class _HomepageState extends State<Homepage>
         width: double.maxFinite,
         child: Card(
           elevation: 5,
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
           child: Stack(
             children: <Widget>[
               Align(
@@ -725,15 +731,11 @@ class _HomepageState extends State<Homepage>
                           icon: Icon(Icons.delete_forever),
                           color: Colors.red[200],
                           onPressed: () {
-                            var giftNameDeleted = giftList.elementAt(index);
-                            var giftDescDeleted =
-                                giftDescriptionList.elementAt(index);
-                            var giftImgUrlDeleted =
-                                giftImageUrlList.elementAt(index);
                             Gift giftObjToDelete = Gift(
-                                giftName: giftNameDeleted,
-                                giftDescription: giftDescDeleted,
-                                imageUrl: giftImgUrlDeleted);
+                                giftName: giftList.elementAt(index),
+                                giftDescription:
+                                    giftDescriptionList.elementAt(index),
+                                imageUrl: giftImageUrlList.elementAt(index));
                             removeGift(giftObjToDelete, index);
                           },
                         ),
@@ -748,21 +750,25 @@ class _HomepageState extends State<Homepage>
   Widget _buildDateItem(BuildContext context, int index) {
     return Container(
         padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
-        height: 200,
+        height: 250,
         width: double.maxFinite,
         child: Card(
           elevation: 5,
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
           child: Stack(
             children: <Widget>[
-              /*
-            Align(
-              child: Image.asset(
-                "your_image",
-                width: 150,
-                height: 100,
-                fit: BoxFit.cover,
+              Align(
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: NetworkImage(dateImageUrlList[index]),
+                        fit: BoxFit.fill),
+                  ),
+                ),
               ),
-            ),*/
               // Date name text
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -771,17 +777,22 @@ class _HomepageState extends State<Homepage>
                   Padding(
                     padding: const EdgeInsets.fromLTRB(15, 15, 0, 0),
                     child: Align(
-                      alignment: Alignment.topLeft,
-                      child:
-                          Text(dateList[index], style: TextStyle(fontSize: 25)),
-                    ),
+                        alignment: Alignment.topLeft,
+                        child: Text(dateList[index],
+                            style: TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white))),
                   ),
                   // Date description text
                   Padding(
                     padding: const EdgeInsets.fromLTRB(15, 5, 0, 0),
                     child: Align(
                       alignment: Alignment.bottomLeft,
-                      child: Text(dateDescriptionList[index]),
+                      child: Text(
+                        dateDescriptionList[index],
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                 ],
@@ -794,11 +805,12 @@ class _HomepageState extends State<Homepage>
                 children: <Widget>[
                   // Searching at Yelp icon
                   Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                      padding: const EdgeInsets.fromLTRB(0, 35, 0, 0),
                       child: Align(
                         alignment: Alignment.topRight,
                         child: IconButton(
                           icon: Icon(Icons.search),
+                          color: Colors.green[200],
                           onPressed: () {
                             HelperFunctions.launchSearchDate(dateList[index]);
                           },
@@ -811,6 +823,7 @@ class _HomepageState extends State<Homepage>
                         alignment: Alignment.centerRight,
                         child: IconButton(
                           icon: Icon(Icons.calendar_today),
+                          color: Colors.blue[200],
                           onPressed: () {
                             HelperFunctions.addDateToCalendar(dateList[index]);
                           },
@@ -823,11 +836,14 @@ class _HomepageState extends State<Homepage>
                         alignment: Alignment.bottomRight,
                         child: IconButton(
                           icon: Icon(Icons.delete_forever),
+                          color: Colors.red[200],
                           onPressed: () {
-                            var dateDeleted = dateList.elementAt(index);
-                            var dateDescDeleted =
-                                dateDescriptionList.elementAt(index);
-                            removeDate(dateDeleted, dateDescDeleted, index);
+                            Date dateObjToDelete = Date(
+                                dateName: dateList.elementAt(index),
+                                dateDescription:
+                                    dateDescriptionList.elementAt(index),
+                                imageUrl: dateImageUrlList.elementAt(index));
+                            removeDate(dateObjToDelete, index);
                           },
                         ),
                       )),
@@ -899,6 +915,7 @@ class _HomepageState extends State<Homepage>
         setState(() {
           dateList.add(value["title"]);
           dateDescriptionList.add(value["description"]);
+          dateImageUrlList.add(value["imageUrl"]);
         });
       });
     });
@@ -931,28 +948,16 @@ class _HomepageState extends State<Homepage>
   }
 
   // Function to delete date from list and firebase db
-  void removeDate(String dateToDelete, String dateDescToDelete, int index) {
-    // Delete the date from the list
-    if (dateList.length == 1) {
-      dateToDelete = dateList.last;
-      dateDescToDelete = dateDescriptionList.last;
-      setState(() {
-        dateList.removeWhere((dateDelete) => dateDelete == dateToDelete);
-        dateDescriptionList.removeWhere(
-            (dateDescDelete) => dateDescDelete == dateDescToDelete);
-      });
-    } else {
-      dateToDelete = dateList.elementAt(index);
-      dateDescToDelete = dateDescriptionList.elementAt(index);
-      setState(() {
-        dateList.removeWhere((dateDelete) => dateDelete == dateToDelete);
-        dateDescriptionList.removeWhere(
-            (dateDescDelete) => dateDescDelete == dateDescToDelete);
-      });
-    }
+  void removeDate(Date dateDelete, int index) {
+    // Delete the date attributes from all lists
+    setState(() {
+      dateList.removeAt(index);
+      dateDescriptionList.removeAt(index);
+      dateImageUrlList.removeAt(index);
+    });
 
     // Delete from firebase DB
-    dbservice.deleteDate(dateToDelete, widget.user.uniqueID);
+    dbservice.deleteDate(dateDelete, widget.user.uniqueID);
   }
 
   // Function to let user to choose the date of the trip and
@@ -970,11 +975,8 @@ class _HomepageState extends State<Homepage>
               color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
           doneStyle: TextStyle(color: Colors.white, fontSize: 16)),
       minTime: DateTime.now(),
-      onChanged: (date) {
-        print('change $date');
-      },
+      onChanged: (date) {},
       onConfirm: (date) {
-        print('confirm $date');
         _date = '${date.month}/${date.day}/${date.year}';
         trip.tripDate = _date;
 
@@ -984,9 +986,6 @@ class _HomepageState extends State<Homepage>
           tripDescriptionList.add(trip.tripDate);
           tripImageUrlList.add(trip.imageUrl);
           dbservice.createTrip(trip, widget.user.uniqueID);
-          print(tripList.length);
-          print(tripDescriptionList.length);
-          print(tripImageUrlList.length);
         });
       },
       currentTime: DateTime.now(),
@@ -1007,17 +1006,15 @@ class _HomepageState extends State<Homepage>
               color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
           doneStyle: TextStyle(color: Colors.white, fontSize: 16)),
       minTime: DateTime.now(),
-      onChanged: (date) {
-        print('change $date');
-      },
+      onChanged: (date) {},
       onConfirm: (date) {
-        print('confirm $date');
         _date.dateDescription = '${date.month}/${date.day}/${date.year}';
 
         // Add it to dateList to be read, also to firebase db
         setState(() {
           dateList.add(_date.dateName);
           dateDescriptionList.add(_date.dateDescription);
+          dateImageUrlList.add(_date.imageUrl);
           dbservice.createDate(_date, widget.user.uniqueID);
         });
       },

@@ -55,6 +55,7 @@ class DBServices {
         .set({
       'title': newDate.dateName,
       'description': newDate.dateDescription,
+      'imageUrl': newDate.imageUrl
     });
   }
 
@@ -143,7 +144,7 @@ class DBServices {
   }
 
   // Function to delete a selected trip idea from the list from db
-  void deleteDate(String dateName, int userID) {
+  void deleteDate(Date dateDelete, int userID) {
     var db = FirebaseDatabase.instance
         .reference()
         .child(userID.toString())
@@ -152,7 +153,9 @@ class DBServices {
       Map<dynamic, dynamic> dates = snapshot.value;
       dates.forEach((key, value) {
         // Check for value in DB to delete
-        if (value["title"] == dateName) {
+        if (value["title"] == dateDelete.dateName &&
+            value["imageUrl"] == dateDelete.imageUrl &&
+            value["description"] == dateDelete.dateDescription) {
           // Delete the node form Firebase DB
           FirebaseDatabase.instance
               .reference()
