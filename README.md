@@ -46,11 +46,11 @@ Features inside SOPlanner include:
 
 - Adding/Deleting trip/gift/date ideas. These are displayed in a list.
 <p float="left">
-   <img src="https://i.imgur.com/CCLAPXK.png" width="280" /> 
-   <img src="https://i.imgur.com/0byALFs.png" width="280" />
-   <img src="https://i.imgur.com/mTuqptk.png" width="280" />
-   <img src="https://i.imgur.com/1T13PrN.png" width="280" /> 
-   <img src="https://i.imgur.com/EotyWBb.png" width="280" />
+   <img src="https://i.imgur.com/CCLAPXK.png" width="250" /> 
+   <img src="https://i.imgur.com/0byALFs.png" width="250" />
+   <img src="https://i.imgur.com/mTuqptk.png" width="250" />
+   <img src="https://i.imgur.com/1T13PrN.png" width="250" /> 
+   <img src="https://i.imgur.com/EotyWBb.png" width="250" />
 </p>
     
 
