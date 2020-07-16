@@ -25,23 +25,24 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage>
     with AutomaticKeepAliveClientMixin<Homepage> {
-  final List<String> tripList = [];
-  final List<String> giftList = [];
-  final List<String> dateList = [];
-  final List<String> giftDescriptionList = [];
-  final List<String> dateDescriptionList = [];
-  final List<String> tripDescriptionList = [];
-  final List<String> tripImageUrlList = [];
-  final List<String> giftImageUrlList = [];
-  final List<String> dateImageUrlList = [];
+  // Declare/Initialize all needed variables
+  List<String> tripList = [],
+      giftList = [],
+      dateList = [],
+      giftDescriptionList = [],
+      dateDescriptionList = [],
+      tripDescriptionList = [],
+      tripImageUrlList = [],
+      giftImageUrlList = [],
+      dateImageUrlList = [];
   String userFirstName, userLastName, userEmail, dateChosen;
   Future<String> imageContentUrl;
-  TextEditingController giftTextController = new TextEditingController();
-  TextEditingController dateTextController = new TextEditingController();
-  TextEditingController giftDescController = new TextEditingController();
-  TextEditingController tripTextController = new TextEditingController();
-  TextEditingController tripDescController = new TextEditingController();
-  TextEditingController newPasswordController = new TextEditingController();
+  TextEditingController giftTextController,
+      dateTextController = new TextEditingController(),
+      giftDescController = new TextEditingController(),
+      tripTextController = new TextEditingController(),
+      tripDescController = new TextEditingController(),
+      newPasswordController = new TextEditingController();
   FirebaseDatabase database = new FirebaseDatabase();
   AuthServices auth = AuthServices();
   DBServices dbservice = DBServices();
@@ -56,17 +57,6 @@ class _HomepageState extends State<Homepage>
 
     database.setPersistenceEnabled(true);
     database.setPersistenceCacheSizeBytes(10000000);
-
-    /*
-    tripList.clear();
-    giftList.clear();
-    dateList.clear();
-    tripDescriptionList.clear();
-    giftDescriptionList.clear();
-    dateDescriptionList.clear();
-    tripImageUrlList.clear();
-    giftImageUrlList.clear();
-    dateImageUrlList.clear(); */
 
     // Get user list of trips, gifts, dates from firebase database at initial startup
     getTripsAtStartup();

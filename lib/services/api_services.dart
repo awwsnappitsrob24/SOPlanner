@@ -8,13 +8,11 @@ class APIServices {
   // for images based on the user query
   Future<String> fetchImage(String query) async {
     /**
-     * Todo: TRIP DONE!!!!:D Next up, gifts and dates!!
+     * Todo: Functionalities are done, just refactor some code and it's a wrap for this branch
      */
     final response = await http.get(
       'https://api.cognitive.microsoft.com/bing/v7.0/search?q=$query&count=1&offset=0&mkt=en-us&safesearch=Moderate',
-      headers: {
-        "Ocp-Apim-Subscription-Key": "446a0739cfc94887b4ff068e5956789d"
-      },
+      headers: {"Ocp-Apim-Subscription-Key": "your-key-here"},
     );
 
     if (response.statusCode == 200) {
@@ -32,12 +30,13 @@ class APIServices {
       } else if (map.containsKey("entities")) {
         imageDetails = map["entities"]["value"];
         contentUrl = imageDetails[0]["image"]["hostPageUrl"];
-        print("Non-standard search returns $contentUrl");
         return contentUrl;
       } else {
         return "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png";
       }
 
+      // For searches with the "images" result in it, create a BingImage
+      // and CardImage object to extract the contentUrl from the JSON output
       BingImage bingImage = BingImage(
         id: map["images"]["id"],
         readLink: map["images"]["readLink"],
@@ -51,7 +50,6 @@ class APIServices {
           thumbnailUrl: bingImage.imageDetails[0]["thumbnailUrl"],
           contentUrl: bingImage.imageDetails[0]["contentUrl"]);
 
-      print("Standard search returns ${cardImage.thumbnailUrl}");
       return cardImage.thumbnailUrl;
     } else {
       // If the server did not return a 200 OK response,
