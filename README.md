@@ -44,9 +44,13 @@ Add trips, gifts, and date ideas you want to plan for your significant other. Bo
 
 Features inside SOPlanner include:
 
-- Adding/Deleting trip/gift/date ideas
-<p align="center">
-  <img src = "https://i.imgur.com/pwjZ8OO.png" width=280 height=500 >
+- Adding/Deleting trip/gift/date ideas. These are displayed in a list.
+<p float="left">
+   <img src="https://i.imgur.com/CCLAPXK.png" width="280" /> 
+   <img src="https://i.imgur.com/0byALFs.png" width="280" />
+   <img src="https://i.imgur.com/mTuqptk.png" width="280" />
+   <img src="https://i.imgur.com/1T13PrN.png" width="280" /> 
+   <img src="https://i.imgur.com/EotyWBb.png" width="280" />
 </p>
     
 
