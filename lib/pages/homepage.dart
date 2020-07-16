@@ -73,58 +73,61 @@ class _HomepageState extends State<Homepage>
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return SimpleDialog(
-            title: Text('Add Trip Idea', textAlign: TextAlign.center),
-            backgroundColor: Colors.blue[100],
-            contentPadding: EdgeInsets.all(10.0),
-            children: <Widget>[
-              TextFormField(
-                controller: tripTextController,
-                validator: (tripInput) {
-                  if (tripInput.isEmpty) {
-                    return 'Trip cannot be empty.';
-                  } else {
-                    return null;
-                  }
-                },
-                onSaved: (tripInput) => _tripIdea = tripInput,
-                decoration: InputDecoration(
-                  contentPadding: new EdgeInsets.symmetric(
-                      vertical: 13.0, horizontal: 10.0),
-                  filled: true,
-                  hintText: 'Trip',
-                  hintStyle: TextStyle(fontSize: 20.0, color: Colors.grey[700]),
-                  fillColor: Colors.white70,
+          return SingleChildScrollView(
+            child: SimpleDialog(
+              title: Text('Add Trip Idea', textAlign: TextAlign.center),
+              backgroundColor: Colors.blue[100],
+              contentPadding: EdgeInsets.all(10.0),
+              children: <Widget>[
+                TextFormField(
+                  controller: tripTextController,
+                  validator: (tripInput) {
+                    if (tripInput.isEmpty) {
+                      return 'Trip cannot be empty.';
+                    } else {
+                      return null;
+                    }
+                  },
+                  onSaved: (tripInput) => _tripIdea = tripInput,
+                  decoration: InputDecoration(
+                    contentPadding: new EdgeInsets.symmetric(
+                        vertical: 13.0, horizontal: 10.0),
+                    filled: true,
+                    hintText: 'Trip',
+                    hintStyle:
+                        TextStyle(fontSize: 20.0, color: Colors.grey[700]),
+                    fillColor: Colors.white70,
+                  ),
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  FlatButton(
-                      child: Text('OK'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    FlatButton(
+                        child: Text('OK'),
+                        color: Colors.pink[50],
+                        onPressed: () async {
+                          // Set trip attributes
+                          myTrip.tripName = tripTextController.text;
+                          myTrip.imageUrl =
+                              await apiservice.fetchImage(myTrip.tripName);
+
+                          // Close the dialog box
+                          Navigator.pop(context);
+
+                          // Add date chosen to list and firebase db
+                          showTripPicker(myTrip);
+                        }),
+                    FlatButton(
+                      child: Text('Cancel'),
                       color: Colors.pink[50],
-                      onPressed: () async {
-                        // Set trip attributes
-                        myTrip.tripName = tripTextController.text;
-                        myTrip.imageUrl =
-                            await apiservice.fetchImage(myTrip.tripName);
-
-                        // Close the dialog box
-                        Navigator.pop(context);
-
-                        // Add date chosen to list and firebase db
-                        showTripPicker(myTrip);
-                      }),
-                  FlatButton(
-                    child: Text('Cancel'),
-                    color: Colors.pink[50],
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  )
-                ],
-              )
-            ],
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    )
+                  ],
+                )
+              ],
+            ),
           );
         });
   }
@@ -135,77 +138,79 @@ class _HomepageState extends State<Homepage>
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return SimpleDialog(
-            title: Text('Add Gift Idea', textAlign: TextAlign.center),
-            backgroundColor: Colors.blue[100],
-            contentPadding: EdgeInsets.all(10.0),
-            children: <Widget>[
-              // Gift idea text field
-              TextFormField(
-                  controller: giftTextController,
-                  validator: (giftInput) {
-                    if (giftInput.isEmpty) {
-                      return 'Gift cannot be empty.';
-                    } else {
-                      return null;
-                    }
-                  },
-                  onSaved: (giftInput) => _giftIdea = giftInput,
-                  decoration: InputDecoration(
-                    contentPadding: new EdgeInsets.symmetric(
-                        vertical: 13.0, horizontal: 10.0),
-                    filled: true,
-                    hintText: 'Gift',
-                    hintStyle:
-                        TextStyle(fontSize: 20.0, color: Colors.grey[700]),
-                    fillColor: Colors.white70,
-                  )),
-              // Gift description text field
-              TextFormField(
-                  controller: giftDescController,
-                  decoration: InputDecoration(
-                    contentPadding: new EdgeInsets.symmetric(
-                        vertical: 13.0, horizontal: 10.0),
-                    filled: true,
-                    hintText: 'Description (optional)',
-                    hintStyle:
-                        TextStyle(fontSize: 20.0, color: Colors.grey[700]),
-                    fillColor: Colors.white70,
-                  )),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  FlatButton(
-                      child: Text('OK'),
-                      color: Colors.pink[50],
-                      onPressed: () async {
-                        // Set gift attributes
-                        myGift.giftName = giftTextController.text;
-                        myGift.giftDescription = giftDescController.text;
-                        myGift.imageUrl =
-                            await apiservice.fetchImage(myGift.giftName);
-
-                        // Add it to giftList to be read, also to firebase db
-                        setState(() {
-                          giftList.add(myGift.giftName);
-                          giftDescriptionList.add(myGift.giftDescription);
-                          giftImageUrlList.add(myGift.imageUrl);
-                          dbservice.createGift(myGift, widget.user.uniqueID);
-                        });
-
-                        // Close the dialog box
-                        Navigator.pop(context);
-                      }),
-                  FlatButton(
-                    child: Text('Cancel'),
-                    color: Colors.pink[50],
-                    onPressed: () {
-                      Navigator.of(context).pop();
+          return SingleChildScrollView(
+            child: SimpleDialog(
+              title: Text('Add Gift Idea', textAlign: TextAlign.center),
+              backgroundColor: Colors.blue[100],
+              contentPadding: EdgeInsets.all(10.0),
+              children: <Widget>[
+                // Gift idea text field
+                TextFormField(
+                    controller: giftTextController,
+                    validator: (giftInput) {
+                      if (giftInput.isEmpty) {
+                        return 'Gift cannot be empty.';
+                      } else {
+                        return null;
+                      }
                     },
-                  )
-                ],
-              )
-            ],
+                    onSaved: (giftInput) => _giftIdea = giftInput,
+                    decoration: InputDecoration(
+                      contentPadding: new EdgeInsets.symmetric(
+                          vertical: 13.0, horizontal: 10.0),
+                      filled: true,
+                      hintText: 'Gift',
+                      hintStyle:
+                          TextStyle(fontSize: 20.0, color: Colors.grey[700]),
+                      fillColor: Colors.white70,
+                    )),
+                // Gift description text field
+                TextFormField(
+                    controller: giftDescController,
+                    decoration: InputDecoration(
+                      contentPadding: new EdgeInsets.symmetric(
+                          vertical: 13.0, horizontal: 10.0),
+                      filled: true,
+                      hintText: 'Description',
+                      hintStyle:
+                          TextStyle(fontSize: 20.0, color: Colors.grey[700]),
+                      fillColor: Colors.white70,
+                    )),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    FlatButton(
+                        child: Text('OK'),
+                        color: Colors.pink[50],
+                        onPressed: () async {
+                          // Set gift attributes
+                          myGift.giftName = giftTextController.text;
+                          myGift.giftDescription = giftDescController.text;
+                          myGift.imageUrl =
+                              await apiservice.fetchImage(myGift.giftName);
+
+                          // Add it to giftList to be read, also to firebase db
+                          setState(() {
+                            giftList.add(myGift.giftName);
+                            giftDescriptionList.add(myGift.giftDescription);
+                            giftImageUrlList.add(myGift.imageUrl);
+                            dbservice.createGift(myGift, widget.user.uniqueID);
+                          });
+
+                          // Close the dialog box
+                          Navigator.pop(context);
+                        }),
+                    FlatButton(
+                      child: Text('Cancel'),
+                      color: Colors.pink[50],
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    )
+                  ],
+                )
+              ],
+            ),
           );
         });
   }
@@ -216,59 +221,62 @@ class _HomepageState extends State<Homepage>
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return SimpleDialog(
-            title: Text('Add Date Idea', textAlign: TextAlign.center),
-            backgroundColor: Colors.blue[100],
-            contentPadding: EdgeInsets.all(10.0),
-            children: <Widget>[
-              TextFormField(
-                controller: dateTextController,
-                validator: (dateInput) {
-                  if (dateInput.isEmpty) {
-                    return 'Date cannot be empty.';
-                  } else {
-                    return null;
-                  }
-                },
-                onSaved: (dateInput) => _dateIdea = dateInput,
-                decoration: InputDecoration(
-                  contentPadding: new EdgeInsets.symmetric(
-                      vertical: 13.0, horizontal: 10.0),
-                  filled: true,
-                  hintText: 'Date',
-                  hintStyle: TextStyle(fontSize: 20.0, color: Colors.grey[700]),
-                  fillColor: Colors.white70,
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  FlatButton(
-                    child: Text('OK'),
-                    color: Colors.pink[50],
-                    onPressed: () async {
-                      // Set date attributes
-                      myDate.dateName = dateTextController.text;
-                      myDate.imageUrl =
-                          await apiservice.fetchImage(myDate.dateName);
-
-                      // Close the dialog box
-                      Navigator.pop(context);
-
-                      // Add date chosen to list and firebase db
-                      showDatePicker(myDate);
-                    },
+          return SingleChildScrollView(
+            child: SimpleDialog(
+              title: Text('Add Date Idea', textAlign: TextAlign.center),
+              backgroundColor: Colors.blue[100],
+              contentPadding: EdgeInsets.all(10.0),
+              children: <Widget>[
+                TextFormField(
+                  controller: dateTextController,
+                  validator: (dateInput) {
+                    if (dateInput.isEmpty) {
+                      return 'Date cannot be empty.';
+                    } else {
+                      return null;
+                    }
+                  },
+                  onSaved: (dateInput) => _dateIdea = dateInput,
+                  decoration: InputDecoration(
+                    contentPadding: new EdgeInsets.symmetric(
+                        vertical: 13.0, horizontal: 10.0),
+                    filled: true,
+                    hintText: 'Date',
+                    hintStyle:
+                        TextStyle(fontSize: 20.0, color: Colors.grey[700]),
+                    fillColor: Colors.white70,
                   ),
-                  FlatButton(
-                    child: Text('Cancel'),
-                    color: Colors.pink[50],
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  )
-                ],
-              )
-            ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    FlatButton(
+                      child: Text('OK'),
+                      color: Colors.pink[50],
+                      onPressed: () async {
+                        // Set date attributes
+                        myDate.dateName = dateTextController.text;
+                        myDate.imageUrl =
+                            await apiservice.fetchImage(myDate.dateName);
+
+                        // Close the dialog box
+                        Navigator.pop(context);
+
+                        // Add date chosen to list and firebase db
+                        showDatePicker(myDate);
+                      },
+                    ),
+                    FlatButton(
+                      child: Text('Cancel'),
+                      color: Colors.pink[50],
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    )
+                  ],
+                )
+              ],
+            ),
           );
         });
   }
@@ -429,44 +437,46 @@ class _HomepageState extends State<Homepage>
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return SimpleDialog(
-            title: Text('New Password', textAlign: TextAlign.center),
-            backgroundColor: Colors.blue[100],
-            contentPadding: EdgeInsets.all(10.0),
-            children: <Widget>[
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  TextFormField(
-                    controller: newPasswordController,
-                    obscureText: true,
-                    validator: (passwordInput) {
-                      if (passwordInput.isEmpty) {
-                        return 'Password cannot be empty.';
-                      } else {
-                        return null;
-                      }
-                    },
-                    decoration: InputDecoration(
-                      contentPadding: new EdgeInsets.symmetric(
-                          vertical: 13.0, horizontal: 10.0),
-                      filled: true,
-                      hintText: 'Password',
-                      hintStyle:
-                          TextStyle(fontSize: 20.0, color: Colors.grey[700]),
-                      fillColor: Colors.white70,
+          return SingleChildScrollView(
+            child: SimpleDialog(
+              title: Text('New Password', textAlign: TextAlign.center),
+              backgroundColor: Colors.blue[100],
+              contentPadding: EdgeInsets.all(10.0),
+              children: <Widget>[
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    TextFormField(
+                      controller: newPasswordController,
+                      obscureText: true,
+                      validator: (passwordInput) {
+                        if (passwordInput.isEmpty) {
+                          return 'Password cannot be empty.';
+                        } else {
+                          return null;
+                        }
+                      },
+                      decoration: InputDecoration(
+                        contentPadding: new EdgeInsets.symmetric(
+                            vertical: 13.0, horizontal: 10.0),
+                        filled: true,
+                        hintText: 'Password',
+                        hintStyle:
+                            TextStyle(fontSize: 20.0, color: Colors.grey[700]),
+                        fillColor: Colors.white70,
+                      ),
                     ),
-                  ),
-                  FlatButton(
-                    onPressed: () {
-                      updatePassword(newPasswordController.text);
-                    },
-                    child: Text('Submit'),
-                    color: Colors.pink[50],
-                  ),
-                ],
-              )
-            ],
+                    FlatButton(
+                      onPressed: () {
+                        updatePassword(newPasswordController.text);
+                      },
+                      child: Text('Submit'),
+                      color: Colors.pink[50],
+                    ),
+                  ],
+                )
+              ],
+            ),
           );
         });
   }
