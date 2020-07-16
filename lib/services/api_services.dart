@@ -12,10 +12,7 @@ class APIServices {
      */
     final response = await http.get(
       'https://api.cognitive.microsoft.com/bing/v7.0/search?q=$query&count=1&offset=0&mkt=en-us&safesearch=Moderate',
-      //headers: {"Ocp-Apim-Subscription-Key": "your-key-here"},
-      headers: {
-        "Ocp-Apim-Subscription-Key": "446a0739cfc94887b4ff068e5956789d"
-      },
+      headers: {"Ocp-Apim-Subscription-Key": "your-key-here"},
     );
 
     if (response.statusCode == 200) {
