@@ -279,13 +279,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_appavailability:
-    dependency: "direct dev"
-    description:
-      name: flutter_appavailability
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.21"
   flutter_datetime_picker:
     dependency: "direct dev"
     description:
