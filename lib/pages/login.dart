@@ -227,11 +227,11 @@ class _LoginPageState extends State<LoginPage> {
   /// Create function here to get the user's information (userID) to pass on to the homepage
   /// where the email is equal to the user's
   void populateUserInfo(currentUser) {
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection('users')
         .where("email", isEqualTo: _email)
         .snapshots()
-        .listen((data) => data.documents.forEach((doc) {
+        .listen((data) => data.docs.forEach((doc) {
               currentUser.email = doc['email'];
               currentUser.firstName = doc['firstName'];
               currentUser.lastName = doc['lastName'];

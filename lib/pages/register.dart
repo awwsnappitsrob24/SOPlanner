@@ -18,7 +18,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextStyle style =
       TextStyle(fontFamily: 'Montserrat', fontSize: 20.0, color: Colors.white);
-  final databaseReference = Firestore.instance;
+  final databaseReference = FirebaseFirestore.instance;
   AuthServices auth = AuthServices();
   int _uniqueID;
 

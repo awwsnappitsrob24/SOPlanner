@@ -11,7 +11,8 @@ class APIServices {
      * Todo: Functionalities are done, just refactor some code and it's a wrap for this branch
      */
     final response = await http.get(
-      'https://api.cognitive.microsoft.com/bing/v7.0/search?q=$query&count=1&offset=0&mkt=en-us&safesearch=Moderate',
+      Uri.parse(
+          'https://api.cognitive.microsoft.com/bing/v7.0/search?q=$query&count=1&offset=0&mkt=en-us&safesearch=Moderate'),
       headers: {"Ocp-Apim-Subscription-Key": "your-key-here"},
     );
 

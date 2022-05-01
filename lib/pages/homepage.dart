@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:vivi_bday_app/models/user.dart';
 import 'package:vivi_bday_app/models/trip.dart';
 import 'package:vivi_bday_app/models/gift.dart';
 import 'package:vivi_bday_app/models/date.dart';
 import 'package:vivi_bday_app/helpers/helper_functions.dart';
+import 'package:vivi_bday_app/models/user.dart' as my_user;
 import 'package:vivi_bday_app/services/auth_services.dart';
 import 'package:vivi_bday_app/services/db_services.dart';
 import 'package:vivi_bday_app/services/api_services.dart';
 import 'package:vivi_bday_app/pages/login.dart';
 import 'package:vivi_bday_app/pages/termsofservice.dart';
-import 'package:firebase_database/firebase_database.dart' hide Event;
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class Homepage extends StatefulWidget {
-  final User user;
+  final my_user.User user;
 
   const Homepage({Key key, this.user}) : super(key: key);
 
@@ -505,7 +505,7 @@ class _HomepageState extends State<Homepage>
 
   // Update password function
   void updatePassword(String newPassword) async {
-    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    User user = FirebaseAuth.instance.currentUser;
 
     user.updatePassword(newPassword).then((_) async {
       // Password change was successful on toast
@@ -893,52 +893,49 @@ class _HomepageState extends State<Homepage>
   bool get wantKeepAlive => true;
 
   // Reads trips in firebase db and displays them on screen
-  void getTripsAtStartup() {
-    dbservice
+  void getTripsAtStartup() async {
+    final data = await dbservice
         .readTrips(tripList, tripDescriptionList, widget.user.uniqueID)
-        .once()
-        .then((DataSnapshot snapshot) {
-      Map<dynamic, dynamic> trips = snapshot.value;
-      trips.forEach((key, value) {
-        setState(() {
-          tripList.add(value["title"]);
-          tripDescriptionList.add(value["description"]);
-          tripImageUrlList.add(value["imageUrl"]);
-        });
+        .get();
+
+    Map<dynamic, dynamic> trips = data.value;
+    trips.forEach((key, value) {
+      setState(() {
+        tripList.add(value["title"]);
+        tripDescriptionList.add(value["description"]);
+        tripImageUrlList.add(value["imageUrl"]);
       });
     });
   }
 
   // Reads gifts in firebase db and displays them on screen
-  void getGiftsAtStartup() {
-    dbservice
+  void getGiftsAtStartup() async {
+    final data = await dbservice
         .readGifts(giftList, giftDescriptionList, widget.user.uniqueID)
-        .once()
-        .then((DataSnapshot snapshot) {
-      Map<dynamic, dynamic> gifts = snapshot.value;
-      gifts.forEach((key, value) {
-        setState(() {
-          giftList.add(value["title"]);
-          giftDescriptionList.add(value["description"]);
-          giftImageUrlList.add(value["imageUrl"]);
-        });
+        .get();
+
+    Map<dynamic, dynamic> gifts = data.value;
+    gifts.forEach((key, value) {
+      setState(() {
+        giftList.add(value["title"]);
+        giftDescriptionList.add(value["description"]);
+        giftImageUrlList.add(value["imageUrl"]);
       });
     });
   }
 
   // Reads dates in firebase db and displays them on screen
-  void getDatesAtStartup() {
-    dbservice
+  void getDatesAtStartup() async {
+    final data = await dbservice
         .readDates(dateList, dateDescriptionList, widget.user.uniqueID)
-        .once()
-        .then((DataSnapshot snapshot) {
-      Map<dynamic, dynamic> dates = snapshot.value;
-      dates.forEach((key, value) {
-        setState(() {
-          dateList.add(value["title"]);
-          dateDescriptionList.add(value["description"]);
-          dateImageUrlList.add(value["imageUrl"]);
-        });
+        .get();
+
+    Map<dynamic, dynamic> dates = data.value;
+    dates.forEach((key, value) {
+      setState(() {
+        dateList.add(value["title"]);
+        dateDescriptionList.add(value["description"]);
+        dateImageUrlList.add(value["imageUrl"]);
       });
     });
   }
